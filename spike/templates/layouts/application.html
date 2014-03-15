@@ -1,0 +1,135 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}SPIKE - Naxsi Rules Builder{% endblock %}
+
+{% block scripts %}
+
+  <script type="text/javascript" src="{{ url_for('static', filename='core/javascripts/application.js') }}"></script>
+{% endblock %}
+
+
+{% block styles %}
+    <link rel="shortcut icon" href="/static/favicon.ico"> 
+    <link href="{{ url_for('static', filename='core/stylesheets/application.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='appstyle.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" media="screen"/>
+    <meta name="robots" content="noindex,nofollow">
+  <!--
+  -->
+
+{% endblock %}
+
+
+
+{% block navbar %}
+
+
+    
+    
+
+
+ <nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation"> 
+ <!-- Brand and toggle get grouped for better mobile display --> 
+ <div class="navbar-header"> 
+  <a class="navbar-brand" href="/">Spike! <img src="/static/spike.png"> </a> 
+  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-primary"> 
+    <span class="sr-only">Side Navigation</span> 
+    <i class="icon-th-list"></i> 
+  </button> 
+  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-top"> 
+    <span class="sr-only">Top Navigation</span> 
+    <i class="icon-align-justify"></i> 
+  </button> 
+ </div> <!-- Collect the nav links, forms, and other content for toggling --> 
+ <div class="collapse navbar-collapse navbar-collapse-top"> 
+  <div class="navbar-left"> 
+    <ul class="nav navbar-nav navbar-left"> 
+        <li> || </li>
+        <li class="cdrops"><a href="/rules">View Rules</a></li>
+        <li class="cdrops"><a href="/rules/new">New rule</a></li>
+        <li class="cdrops"><a href="/rules/rulesets/">Rulesets</a></li>
+        
+    </ul>
+    </div>
+  <div class="navbar-right"> 
+    <ul class="nav navbar-nav navbar-left"> 
+
+    <form class="navbar-form navbar-left" action="/rules/search/" method="get">
+            <div class="form-group">
+              <input type="text" name="s" size="20" value="{{lsearch}}" placeholder="Doxi-Rules-Search">
+              <input type="submit" class="btn btn-primary btn-sm" value="Go">
+              
+            </div>
+    </form>
+          
+
+        </li>
+      <li><a href="#">time: {{ render_time }}</a></li>
+
+      <li class="dropdown cdrop">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="http://code.cside.com/3rdpage/us/url/converter.html" target="_blank">
+              HexConverter</a></li>
+          <li><a href="http://www.regextester.com/" target="_blank">RegEx -Tester </a></li>
+          <li><a href="http://www.emergingthreats.org/index.php/rules-mainmenu-38.html" target="_blank">
+            EmergingThreats</a></li>
+        </ul>
+
+      </li>
+        
+
+
+      <li class="dropdown cdrop">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li>------ not yet</li>
+          <li><a href="#">Settings</a></li>
+          <li><a href="#">Create Database Backup</a></li>
+          <li><a href="#">Crate Database Export</a></li>
+          <li><a href="#">Import Ruleset</a></li>
+        </ul>
+        <li><a href="/login/">Login</a>
+
+        
+
+
+    </ul> 
+  </div> 
+</div>
+ </nav><!-- /.navbar-collapse -->
+ 
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="main-content">
+<div class="row"><br><br><br></div>
+<div class="row">
+  <div class="col-md-7">
+
+    {% include "layouts/_alerts.html" %}   
+    {% block main %}
+    {% endblock %}
+    
+  </div>
+  <div class="col-md-4">
+  <br><br><br><br><br>
+
+  sdvsdvdvf
+  <!-- help: <a href="#search-help">order matters</a> -->
+    
+  </div>
+</div> <!-- /end row content -->
+
+
+
+<div class="row footer">
+  (c) copyright 2011,2012,2013,2014 mare system <br>
+  logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
+</div>
+</div>
+
+{% endblock content %}

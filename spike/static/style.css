@@ -1,0 +1,136 @@
+#steps {
+  display: none;
+}
+.wizard {
+  padding: 10px;
+  width: 80%;
+  margin: 0 auto;
+}
+.wizard .wizard-sidebar {
+  float: left;
+  width: 150px;
+  text-align: right;
+}
+.wizard .wizard-sidebar .sidebar-element:first-child {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.wizard .wizard-sidebar .sidebar-element {
+  border-color: #E1E1E8;
+  border-style: solid;
+  border-width: 2px 2px 0px 2px;
+  background: #F7F7F9;
+  color: #333;
+  display: block;
+  cursor: pointer;
+  padding: 3px 5px 3px 0px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.wizard .wizard-sidebar .success {
+  background: #dff0d8;
+  border-color: #d6e9c6;
+  color: #468847;
+}
+.wizard .wizard-sidebar .active {
+  background: #fcf8e3;
+  border-color: #faebcc;
+  color: #c09853;
+}
+.wizard .wizard-sidebar .error {
+  background: #f2dede;
+  border-color: #ebccd1;
+  color: #b94a48;
+}
+.wizard .wizard-sidebar .sidebar-element:last-child {
+  border-bottom-width: 2px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.wizard .wizard-sidebar ul {
+  padding-left: 0px;
+}
+.wizard .wizard-step {
+  margin-right: -20px;
+  float: right;
+  overflow-x: scroll;
+}
+.wizard .abort {
+  width: 85px;
+}
+.wizard .wizard-controls {
+  float: right;
+  margin-top: 20px;
+}
+.wizard .wizard-controls .btn {
+  margin: 2px;
+}
+.wizard .wizard-controls .previous {
+  width: 85px;
+}
+.wizard .wizard-controls .next {
+  width: 85px;
+}
+.radioselector {
+  margin: 10px 0px;
+  padding-left: 20px;
+  border-style: solid;
+  border-width: 2px 2px 2px 2px;
+  padding: 5px 10px;
+  min-width: 200px;
+  text-align: center;
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border-color: #E1E1E8;
+  background: #F7F7F9;
+  color: #333;
+}
+.radioselector input[type=radio] {
+  display: none;
+}
+.radioselector label {
+  margin-bottom: 0px;
+  font-weight: normal;
+  cursor: pointer;
+}
+.radioselector.selected {
+  background: #dff0d8;
+  border-color: #d6e9c6;
+  color: #468847;
+}
+.clearfix:after {
+  content: " ";
+  /* Older browser do not support empty content */
+
+  visibility: hidden;
+  display: block;
+  height: 0;
+  clear: both;
+}
+.booking-types .btn {
+  width: 100%;
+}
+.booking-types .row {
+  margin-bottom: 20px;
+}
+
+
+.jamaica {
+
+  
+  padding: 10px;
+
+
+}
+
+
+

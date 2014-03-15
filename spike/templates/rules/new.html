@@ -1,0 +1,66 @@
+{% extends "layouts/application.html" %}
+{% block title %}Create Naxsi-Rule{% endblock %}
+
+
+{% block main %}
+
+  <h2>New Naxsi-Rule</h2>
+
+  <form action="/rules/new" method="POST">
+  <table  class="table table-condensed table-stripped">
+    <tr><td>SID : </td><td>{{ latestn }}</td><td></td></tr>
+    <tr><td>Msg :</td><td><input type="text" name="msg" size="60"  placeholder="Message" required></td><td></td></tr>
+    <tr><td>Detect :</td><td><input type="text" name="detection" size="60" placeholder="str|rx" required></td>
+      <td>
+        <a href="#" title="use str:|rx: ; if not given, defaults to str:$STRING"><i class="icon-tag icon-2x"></i></a>
+      </td>
+    </tr>
+
+    <tr><td>MZ: </td>
+      <td> 
+      {% for z in mz %}
+        <input type="checkbox" name="mz" value="{{z.value}}"> {{ z.value }} <br>
+      {% endfor %}
+      </td>
+      <td>
+        <a href="#" title="select at least 1 MatchingZone (MZ)"><i class="icon-tag icon-2x"></i></a>
+      </td>
+    </tr>
+    <tr><td>Score</td>
+    <td>
+      {% for s in score %}
+        <input type="text" name="score_{{s.value}}" value="8" size="3">
+        <input type="checkbox" name="score" value="{{s.value}}"> {{ s.value }} 
+        <br>
+      {% endfor %}
+      </td>
+      <td>
+        <a href="#" title="select at least 1 Score"><i class="icon-tag icon-2x"></i></a>
+      </td>
+    </tr>
+    <tr><td>Remarks</td>
+    <td>
+      <textarea cols="60" rows="10" name="rmks"></textarea>
+    </td>
+    <td></td>
+    </tr>
+    <tr><td>RuleSet</td>
+    <td>
+      <select name="ruleset">
+      {% for r in rulesets %}
+        <option value="r"> {{ r.file }} <br>
+      {% endfor %}
+      </select>
+      </td>  
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><button type="submit" class="btn btn-success btn-lg">Save Rule</button></td>
+      <td></td>
+    </tr>
+  </table>
+  </form>
+
+{% endblock %}
+

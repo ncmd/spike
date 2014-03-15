@@ -1,0 +1,33 @@
+{% extends "layouts/application.html" %}
+{% block title %}Spike - Rulesets{% endblock %}
+
+{% block main %}
+
+
+<h2>Naxsi - RuleSets</h2>
+
+<a href="/rules/export/" title="Export ALL Files" class="btn btn-success btn-lg">Export All Files</a>
+
+  <table class="table table-condensed table-stripped">
+  {% for rs in rulesets %}
+
+
+    <tr id="ruleset_{{rs.id}}">
+        
+        
+            <td valign="top">{{rs.name}}</td>
+            <td >{{ rs.file }}
+            </td>
+            <td>
+              <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>
+              <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> Rules </a>
+              <a href="/rules/export/{{rs.id}}" title="Export File" class="btn btn-success btn-lg">Export </a>
+            </td>
+        </tr>
+  
+  
+  {% endfor %}
+  </table>
+
+{% endblock main %}
+

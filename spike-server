@@ -1,0 +1,98 @@
+#! /usr/bin/env python
+#
+# spike-server
+# 
+# this: v0.5 - 2014-03-10
+#
+
+import sys
+import os
+from time import time, strftime, localtime 
+from os.path import dirname, abspath
+from shutil import copy, move
+from spike import create_app, seeds, spike_version 
+
+def main(argv):
+  
+  print """
+
+Spike! v: %s
+  
+  """ % spike_version()
+  
+  if len(argv) == 2:
+    if argv[1] == "run":
+      run()
+    if argv[1] == "init":
+      db_init()
+      run()
+    else: 
+      print """No such command. Possible commands: run, init """
+  else:
+    print "Usage: server.py [run|init]"
+  
+def run():
+  app = create_app(config_file())
+  try:
+    app_port = int(app.config["APP_PORT"])
+  except:
+    app_port = 5555
+  try:
+    app_host = app.config["APP_HOST"]
+  except:
+    app_host = "127.0.0.1"
+  
+  print "> running @ %s:%s" % (app_host, app_port)
+  app.run(debug=True, host=app_host, port=app_port)
+
+def db_init():
+  from flask.ext.sqlalchemy import SQLAlchemy
+
+  print "> init Spike - Naxsi Rules builder "
+  ts = int(time())
+  ds = strftime("%F - %H:%M", localtime(time()))
+  app = create_app(config_file())
+
+  db_file = app.config["NAXSI_RULES_DB"]
+  if os.path.isfile(db_file):
+    print "  > existing db found, creating backup"
+    move(db_file, "%s.%s" % (db_file, int(time())))
+    print "  > copy: %s.%s" % (db_file, int(time()))
+  print "  > init_creating db"
+  #os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
+  
+    
+
+  from sqlalchemy.exc import IntegrityError
+  from spike.model import db
+  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates
+
+  db.init_app(app)
+  app.test_request_context().push()
+  db.create_all()
+  print "  > filling default_vals"
+  vseed = seeds.vtemplate_seeds
+  for v in vseed:
+    print "    > adding templates: %s" % v 
+    for val in vseed[v]:
+      db.session.add(ValueTemplates(v, val))
+  rseed = seeds.rulesets_seeds
+  for r in rseed:
+    print "    > adding ruleset: %s / %s" % (r, rseed[r])
+    rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
+    db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts ))
+  
+  db.session.commit()
+  
+  #~ try:
+    #~ db.session.commit()
+  #~ except IntegrityError:
+    #~ print "already seeded"
+
+  print "> OK init Spike"  
+
+def config_file():
+  return os.path.join(dirname(abspath(__name__)), 'config.cfg')
+  
+if __name__ == "__main__":
+  main(sys.argv)

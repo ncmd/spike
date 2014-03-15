@@ -1,0 +1,9 @@
+venv
+exports/*
+spike/rules.db*
+*~
+*.pyc
+*.pyo
+config.cfg
+
+

@@ -1,0 +1,21 @@
+{% extends "layouts/application.html" %}
+{% block title %}Spike - Ruleset - View {{ r.name }}{% endblock %}
+
+{% block main %}
+
+<h2>RuleSet - {{r.name }}</h2>
+
+<a href="/rules/export/{{r.id}}" title="Export File" class="btn btn-success btn-lg">Export {{ r.file }}</a>
+
+  <table class="table table-condensed table-stripped">
+
+  <tr><td>
+  
+  <textarea cols="90" rows="30">{{rout}}</textarea>
+  
+  </td></tr>
+
+  </table>
+
+{% endblock main %}
+

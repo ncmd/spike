@@ -1,0 +1,43 @@
+{% extends "layouts/application.html" %}
+{% block title %}SPIKE! - Naxsi Rules Builder{% endblock %}
+
+{% block main %}
+
+<h2>Naxsi - Rules [ {{ rules | length }} ]</h2>
+ <p><strong>{{ selection }}</strong></p>
+  <table class="table table-condensed table-stripped">
+  {% for rule in rules %}
+
+
+        {% if rule.active != 1 %}
+		<tr bgcolor="grey">
+        {% else %}
+    <tr id="{{rule.sid}}">
+        {% endif %}
+        
+        
+            <td valign="top"><h3><a href="/rules/edit/{{rule.sid}}">{{rule.sid}}</a></h3></td>
+            <td><h3><a href="/rules/edit/{{rule.sid}}">{{ rule.msg }}</a></h3>
+            <table class="table-condensed table-stripped">
+              <tr><td width="15%"><strong>Detection:</strong> </td><td><strong> {{ rule.detection }} </strong></td></tr>
+              <tr><td>MZ: </td><td>{{ rule.mz }} </td></tr>
+              <tr><td>Score: </td><td>{{rule.score }} </td></tr>
+              <tr><td>Ruleset: </td><td><a href="/rules/rulesets/">{{ rule.ruleset }}</a> </td></tr>
+              <tr><td>RMKS: </td><td>
+                  {{ rule.rmks }} </td></tr>
+              <tr><td>Active: </td><td>{{ rule.active }} </td></tr>
+            </table>
+            
+            </td>
+            <td>
+              <br>
+              <a href="/rules/edit/{{rule.sid}}" class="btn btn-primary btn-lg" title="Edit">Edit</a>
+            </td>
+        </tr>
+  
+  
+  {% endfor %}
+  </table>
+
+{% endblock main %}
+
