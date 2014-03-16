@@ -22,16 +22,20 @@
     <tr><td>Detect :</td><td><input type="text" name="detection" size="60" placeholder="str|rx" value="{{rules_info.detection}}" required></td></tr>
     <tr><td>MZ: </td>
       <td> 
+      {% set notin = 1 %}
       {% for z in mz %}
-      
         <input type="checkbox" name="mz" value="{{z.value}}" 
-        {% if z.value  ==  rules_info.mz %} 
+        {% if z.value  ==  rules_info.mz %}
+        {% set notin = 0 %} 
           checked> <strong> {{ z.value }} </strong>
         {% else %}
           > {{ z.value }}
           {% endif %}  
            <br>
       {% endfor %}
+      {% if notin == 1 %}
+        <input type="checkbox" name="mz" value="{{rules_info.mz}}" checked> <strong> {{ rules_info.mz }} </strong>
+      {% endif %}
       </td>
     </tr>
     <tr><td>Score</td>
