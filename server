@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+#
+vdir="venv" 
+
+. $vdir/bin/activate
+
+python spike-server $1 
