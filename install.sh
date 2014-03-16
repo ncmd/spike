@@ -45,8 +45,8 @@ echo "
 >
 > init your app now:
 >  - edit config.cfg
->  - run ./spike-server init 
->  - start engines: ./spike-server run
+>  - run ./app init 
+>  - start engines: ./app run
 > 
 > have fun!
 >

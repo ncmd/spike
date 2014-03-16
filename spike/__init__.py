@@ -29,8 +29,7 @@ def spike_version():
   return(version)
 
 def create_app(config_filename): 
-
-  print "> naxsi_rules_builder start"
+  print "> Spike start"
 
   # initiate app
   app = Flask(__name__)
@@ -39,11 +38,12 @@ def create_app(config_filename):
     app.config.from_pyfile(config_filename)
   
   sqldb = os.path.abspath(app.config["NAXSI_RULES_DB"])
-  if not os.path.isfile(sqldb):
-    print "YIKES!! cannot find naxsi-rules-db in %s" % sqldb
-    #sys.exit()
-  else:
-    print "YIKES!! OK naxsi-rules-db in %s" % sqldb
+  sql_raw = app.config["NAXSI_RULES_DB"]
+  #~ if not os.path.isfile(sqldb):
+    #~ print "YIKES!! cannot find naxsi-rules-db in %s" % sql_raw
+    #~ #sys.exit()
+  #~ else:
+    #~ print "YIKES!! OK naxsi-rules-db in %s" % sql_raw
     
   app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % sqldb
   # import db and initiate

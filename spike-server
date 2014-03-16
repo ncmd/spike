@@ -12,6 +12,11 @@ from os.path import dirname, abspath, isdir, isfile
 from shutil import copy, move
 from spike import create_app, seeds, spike_version 
 
+def usage():
+
+  print "Usage: ./server [run|init]\n\n"
+  
+
 def main(argv):
   
   print """
@@ -27,9 +32,9 @@ Spike! v: %s
       spike_init()
       run()
     else: 
-      print """No such command. Possible commands: run, init """
+      usage()
   else:
-    print "Usage: server.py [run|init]"
+    usage()
   
 def run():
   app = create_app(config_file())

@@ -5,5 +5,9 @@ spike/rules.db*
 *.pyc
 *.pyo
 config.cfg
+*.log
+*.pid
+*.out
+
 
 
