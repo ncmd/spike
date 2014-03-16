@@ -54,6 +54,7 @@
   <div class="navbar-right"> 
     <ul class="nav navbar-nav navbar-left"> 
 
+      <li><a href="#">rules: {{ rules | length }}</a></li>
     <form class="navbar-form navbar-left" action="/rules/search/" method="get">
             <div class="form-group">
               <input type="text" name="s" size="20" value="{{lsearch}}" placeholder="Doxi-Rules-Search">
@@ -74,6 +75,7 @@
           <li><a href="http://www.regextester.com/" target="_blank">RegEx -Tester </a></li>
           <li><a href="http://www.emergingthreats.org/index.php/rules-mainmenu-38.html" target="_blank">
             EmergingThreats</a></li>
+          <li><a href="https://bitbucket.org/nginx-goodies/spike/overview" target="_blank">Spike - Repo </a></li>
         </ul>
 
       </li>
@@ -108,20 +110,23 @@
 <div class="main-content">
 <div class="row"><br><br><br></div>
 <div class="row">
-  <div class="col-md-7">
+  <div class="col-md-10">
 
     {% include "layouts/_alerts.html" %}   
     {% block main %}
     {% endblock %}
     
   </div>
+  <!--
   <div class="col-md-4">
   <br><br><br><br><br>
 
   sdvsdvdvf
-  <!-- help: <a href="#search-help">order matters</a> -->
+  help: <a href="#search-help">order matters</a>
     
   </div>
+  -->
+  
 </div> <!-- /end row content -->
 
 

@@ -18,15 +18,7 @@
         
             <td valign="top"><h3><a href="/rules/edit/{{rule.sid}}">{{rule.sid}}</a></h3></td>
             <td><h3><a href="/rules/edit/{{rule.sid}}">{{ rule.msg }}</a></h3>
-            <table class="table-condensed table-stripped">
-              <tr><td width="15%"><strong>Detection:</strong> </td><td><strong> {{ rule.detection }} </strong></td></tr>
-              <tr><td>MZ: </td><td>{{ rule.mz }} </td></tr>
-              <tr><td>Score: </td><td>{{rule.score }} </td></tr>
-              <tr><td>Ruleset: </td><td><a href="/rules/rulesets/">{{ rule.ruleset }}</a> </td></tr>
-              <tr><td>RMKS: </td><td>
-                  {{ rule.rmks }} </td></tr>
-              <tr><td>Active: </td><td>{{ rule.active }} </td></tr>
-            </table>
+            <strong>Detection:</strong> {{ rule.detection }}
             
             </td>
             <td>

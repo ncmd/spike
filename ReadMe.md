@@ -16,8 +16,9 @@ up-to-date.
 
 ## Requirements
 
-- python 2.7 (not tested with 3.x, but fails with 2.6, esp. flask-bcrypt)
-- python-virtulenv
+- python 2.7 (not tested with 3.x, but fails with 2.6, esp. flask-bcrypt/sqlalchemy)
+- python-virtualenv
+- pythin-dev / headers
 - probably some build-essentials: gcc, make'n' stuff
 
 - git clone https://bitbucket.org/nginx-goodies/spike.git

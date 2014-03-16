@@ -23,17 +23,17 @@ virtualenv $vdir
 . $vdir/bin/activate
 
 echo ">  installing flask" 
-pip install flask
-pip install flask-login
-pip install flask-bootstrap
-pip install flask-sqlalchemy
-pip install flask-bcrypt
-pip install flask-wtf
+pip install --upgrade flask
+pip install --upgrade  flask-login
+pip install --upgrade  flask-bootstrap
+pip install --upgrade  flask-sqlalchemy
+pip install --upgrade  flask-bcrypt
+pip install --upgrade  flask-wtf
 pip install --upgrade simplejson
 pip install --upgrade sqlite3 
 #pip install redis
 #pip install psycopg2
-pip install markdown
+pip install --upgrade  markdown
 
 echo ">  configuring" 
 

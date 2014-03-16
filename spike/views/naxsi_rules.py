@@ -15,6 +15,9 @@ naxsi_rules = Blueprint('naxsi_rules', __name__, url_prefix = '/rules')
 @naxsi_rules.route("/")
 def index():
   rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
+  if not rules:
+    return(redirect("/rules/new"))
+    
   return(render_template("rules/index.html", rules = rules))
 
 @naxsi_rules.route("/rulesets/")
