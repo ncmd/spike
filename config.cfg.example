@@ -1,0 +1,15 @@
+#SECRET_KEY=insert_key_string_here
+SQLALCHEMY_DATABASE_URI='sqlite:///'
+
+
+APP_ENV="dev"
+
+APP_PORT=5555
+#APP_HOST="0.0.0.0"
+
+NAXSI_RULES_DB="spike/rules.db"
+NAXSI_RULES_EXPORT="exports"
+# where to start with signature_ids (sid) if the firs rule is created
+# should never be < 10000
+NAXSI_RULES_OFFSET=200000 
+
