@@ -45,8 +45,8 @@ echo "
 >
 > init your app now:
 >  - edit config.cfg
->  - run ./app init 
->  - start engines: ./app run
+>  - run ./server init 
+>  - start engines: ./server run
 > 
 > have fun!
 >

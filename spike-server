@@ -30,7 +30,6 @@ Spike! v: %s
       run()
     if argv[1] == "init":
       spike_init()
-      run()
     else: 
       usage()
   else:
@@ -78,7 +77,7 @@ def run():
 def spike_init():
   from flask.ext.sqlalchemy import SQLAlchemy
 
-  print "> init Spike - Naxsi Rules builder "
+  print "> init Spike  "
   ts = int(time())
   ds = strftime("%F - %H:%M", localtime(time()))
   app = create_app(config_file())
@@ -126,7 +125,12 @@ def spike_init():
   #~ except IntegrityError:
     #~ print "already seeded"
 
-  print "> OK init Spike"  
+  print """> OK init Spike
+>
+> start engines: ./server run
+>
+
+  """  
 
 def config_file():
   return os.path.join(dirname(abspath(__name__)), 'config.cfg')

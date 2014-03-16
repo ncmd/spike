@@ -16,7 +16,7 @@ up-to-date.
 
 ## Requirements
 
-- python 2.6 or above
+- python 2.7 (not tested with 3.x, but fails with 2.6, esp. flask-bcrypt)
 - python-virtulenv
 - probably some build-essentials: gcc, make'n' stuff
 
@@ -58,6 +58,10 @@ you should be ready now to start using Spike!
 - create new rules as needed
 - export rulesets or all rulesets
 - process your exported files as needed
+
+# Put Spike behind Nginx
+
+- tbd
 
 
 # Links
