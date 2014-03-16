@@ -18,7 +18,7 @@ up-to-date.
 
 - python 2.6 or above
 - python-virtulenv
-
+- probably some build-essentials: gcc, make'n' stuff
 
 - git clone https://bitbucket.org/nginx-goodies/spike.git
 - cd spike && bash install.sh
@@ -28,7 +28,7 @@ up-to-date.
 - edit config.cfg and adjust NAXSI_RULES_EXPORT to point to a dircetory where 
   your exported Naxsi-Rulesets should be stored; can be either a absolute or relative path
 
-- run `./spike-server init`
+- run `./server init`
 
 you should be ready now to start using Spike!
 
@@ -48,11 +48,14 @@ you should be ready now to start using Spike!
 
 # Usage
 
-- run `./spike-server run`
+- run `./server run`
 
-- point your browser to http://locahost:5555/ (or whatever APP_PORT you 
+- if you want to run spike as daemon, use `nohup ./server run > spike.log &`
+
+- point your browser to http://localhost:5555/ (or whatever APP_PORT you 
   configured)
-- the navigation 
+- the navigation should be self-explaining
+
 
 
 # Links
