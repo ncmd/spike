@@ -8,7 +8,7 @@
 import sys
 import os
 from time import time, strftime, localtime 
-from os.path import dirname, abspath
+from os.path import dirname, abspath, isdir, isfile
 from shutil import copy, move
 from spike import create_app, seeds, spike_version 
 
@@ -24,7 +24,7 @@ Spike! v: %s
     if argv[1] == "run":
       run()
     if argv[1] == "init":
-      db_init()
+      spike_init()
       run()
     else: 
       print """No such command. Possible commands: run, init """
@@ -33,6 +33,30 @@ Spike! v: %s
   
 def run():
   app = create_app(config_file())
+  
+  # some checks
+  od =  app.config["NAXSI_RULES_EXPORT"]
+  if not isdir(od):
+    print """
+[-] ERROR: ruleset_export_dir not found: %s
+    >
+    > are you sure you did run: ./spike-server init ?
+    >
+    > if so please create the directory manually and try to restart
+    >
+""" % (od)
+    sys.exit(2)
+
+  sqldb = os.path.abspath(app.config["NAXSI_RULES_DB"])
+  if not isfile(sqldb):
+    print """
+[-] ERROR cannot find naxsi-rules-db in %s
+    >
+    > are you sure you did run: ./spike-server init ?
+    >""" % sqldb
+    sys.exit(2)
+
+  # some defaults
   try:
     app_port = int(app.config["APP_PORT"])
   except:
@@ -41,17 +65,25 @@ def run():
     app_host = app.config["APP_HOST"]
   except:
     app_host = "127.0.0.1"
-  
+
+    
   print "> running @ %s:%s" % (app_host, app_port)
   app.run(debug=True, host=app_host, port=app_port)
 
-def db_init():
+def spike_init():
   from flask.ext.sqlalchemy import SQLAlchemy
 
   print "> init Spike - Naxsi Rules builder "
   ts = int(time())
   ds = strftime("%F - %H:%M", localtime(time()))
   app = create_app(config_file())
+
+  od = app.config["NAXSI_RULES_EXPORT"]
+  if not isdir(od):
+    print "  > rulesets_export_dir not found, creating: %s" % od
+    os.mkdir(od)
+    
+    
 
   db_file = app.config["NAXSI_RULES_DB"]
   if os.path.isfile(db_file):
