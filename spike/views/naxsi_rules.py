@@ -6,7 +6,7 @@ from time import time, localtime, strftime
 from uuid import uuid4 
 
 
-from spike.views import role_required, date_id, csp_id
+from spike.views import role_required
 from spike import seeds 
 from spike.model import *
 
@@ -178,7 +178,9 @@ def edit(sid=0):
         pass 
       else:
         detect = "str:%s" % detect
-      mz = nr["mz"]
+      mz = "|".join(nr.getlist("mz"))
+      print "mz: "
+      print mz
       score_raw = nr["score"].strip()
       score_val = nr["score_%s" % score_raw].strip()      
       score ="%s:%s" % (score_raw, score_val)    
@@ -203,7 +205,6 @@ def edit(sid=0):
       nrule.rmks = rmks 
       nrule.active = active 
       nrule.timestamp = ts
-      #NaxsiRules.query.update(NaxsiRules).where(NaxsiRules.sid == sid).values(nrule)
       db.session.add(nrule)
       try:
         db.session.commit()

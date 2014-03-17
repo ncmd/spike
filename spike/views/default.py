@@ -3,7 +3,7 @@ from spike import get_login_manager, get_flask_bcrypt
 from spike.forms.login_form import LoginForm
 from flask.ext.login import login_user, logout_user, current_user, login_required, session
 from time import time, localtime, strftime 
-from spike.views import get_dashboards, csp_id, convert_redis
+
 
 from spike.model import *
 

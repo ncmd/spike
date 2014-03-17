@@ -20,26 +20,30 @@
         </td></tr>
     <tr><td>Msg :</td><td><input type="text" name="msg" size="60"  placeholder="Message" value="{{rules_info.msg}}" required></td></tr>
     <tr><td>Detect :</td><td><input type="text" name="detection" size="60" placeholder="str|rx" value="{{rules_info.detection}}" required></td></tr>
-    <tr><td>MZ: </td>
+    <tr>
+      <td> MZ: </td>
+      <td>
+      <table>
+        <tr></tr>
       <td> 
-      {% set notin = 1 %}
+      {% set notin = [] %}
+      {% set rmz = rules_info.mz | mzsplit %}
       {% for z in mz %}
         <input type="checkbox" name="mz" value="{{z.value}}" 
-        {% if z.value  ==  rules_info.mz %}
-        {% set notin = 0 %} 
+        {% if z.value  in rmz %}
           checked> <strong> {{ z.value }} </strong>
         {% else %}
+        {% set notin = notin + [z.value] %}
           > {{ z.value }}
-          {% endif %}  
+        {% endif %}  
            <br>
       {% endfor %}
-      {% if notin == 1 %}
+      {% for nmz in notin  %}
         <input type="checkbox" name="mz" value="{{rules_info.mz}}" checked> <strong> {{ rules_info.mz }} </strong>
-      {% endif %}
+      {% endfor %}
       </td>
-    </tr>
-    <tr><td>Score</td>
-    <td>
+    <td valign="top">Score</td>
+    <td valign="top">
       {% for s in score %}
       {% set sc,sv = rules_info.score | scoresplit %}
         {% if s.value  == sc %}
@@ -55,6 +59,10 @@
           {% endif %}   
          <br>
       {% endfor %}
+      </td>
+      </tr>
+      
+      </table>
       </td>
     </tr>
     <tr><td>Remarks</td>

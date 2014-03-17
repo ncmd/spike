@@ -77,6 +77,7 @@ def create_app(config_filename):
   app.jinja_env.filters['ctime'] = f_convert_time
   app.jinja_env.filters['dtime'] = f_datetime
   app.jinja_env.filters['scoresplit'] = f_scoresplit
+  app.jinja_env.filters['mzsplit'] = f_mzsplit
   
   return app
 
@@ -97,5 +98,12 @@ def f_scoresplit(value):
   except:
     return(value, 8)
   
+
+def f_mzsplit(value):
   
+  try:
+    mc = value.split("|")
+    return(mc)
+  except:
+    return([value])  
   
