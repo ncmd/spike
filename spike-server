@@ -21,7 +21,7 @@ def main(argv):
   
   print """
 
-Spike! v: %s
+Spike v: %s
   
   """ % spike_version()
   

@@ -222,9 +222,24 @@ def edit(sid=0):
       mz = mz, 
       rulesets = rulesets,
       score = score, 
-      rules_info = rinfo
+      rules_info = rinfo,
       ))
 
+
+@naxsi_rules.route("/view/<path:sid>",  methods = ["GET"])
+def view(sid=0):
+
+  if sid == 0:
+    return(redirect("/rules/"))
+
+  rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+  if not rinfo:
+    return(redirect("/rules/"))
+  rtext = z_display_rule(rinfo, full=0)
+  return(render_template("rules/view.html", 
+      rule = rinfo, 
+      rtext = rtext
+      ))
 
 @naxsi_rules.route("/del/<path:sid>",  methods = ["GET"])
 def del_sid(sid=0):
@@ -306,27 +321,33 @@ def export_ruleset(rid=0):
     except:
       flash("ERROR while trying to export %s" % rs.file, "error")
       return(redirect("/rules/"))
-    rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file).order_by(NaxsiRules.sid.desc()).all()
+    rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, active== 1).order_by(NaxsiRules.sid.desc()).all()
     for rule in rules:
-      rdate = strftime("%F - %H:%M", localtime(float(rule.timestamp)))
-      rmks = "# ".join(rule.rmks.strip().split("\n"))
-      f.write("""
-#
-# sid: %s | date: %s 
-#
-# %s
-#
-MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
-      
-      """ % (rule.sid, rdate, rmks, rule.detection, rule.msg, rule.mz, rule.score, rule.sid ))
+      rout = z_display_rule(rule)
+      f.write("%s \n" % rout)
     f.close()
     flash("Exported: %s / %s" % (rid, of), "success")
     
   return(redirect("/rules/rulesets/"))
     
      
+def z_display_rule(rule, full=1):
+  nout = "unknown"
+  rdate = strftime("%F - %H:%M", localtime(float(str(rule.timestamp))))
+  rmks = "# ".join(rule.rmks.strip().split("\n"))
+  if full == 1:
+    nout = """#
+# sid: %s | date: %s 
+#
+# %s
+#
+MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
+      
+      """ % (rule.sid, rdate, rmks, rule.detection, rule.msg, rule.mz, rule.score, rule.sid )
+  else:
+    nout = """MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
+      (rule.detection, rule.msg, rule.mz, rule.score, rule.sid )
   
-  
-
+  return(nout)
 
 

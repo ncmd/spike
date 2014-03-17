@@ -7,7 +7,7 @@
   <br>
   <div class="deactivated">
   {% endif %}
-  <h3>{{rules_info.sid}} - {{rules_info.msg}}</h3>
+  <h3><a href="/rules/view/{{rules_info.sid}}">{{rules_info.sid}} - {{rules_info.msg}}</a></h3>
   <form action="/rules/edit/{{rules_info.sid}}" method="POST">
   
   <table  class="table table-condensed table-stripped">
