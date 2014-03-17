@@ -10,9 +10,8 @@
 {% block styles %}
     <link rel="shortcut icon" href="/static/favicon.ico"> 
     <link href="{{ url_for('static', filename='core/stylesheets/application.css') }}" rel="stylesheet" media="screen"/>
-    <link href="{{ url_for('static', filename='appstyle.css') }}" rel="stylesheet" media="screen"/>
     <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen"/>
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='appstyle.css') }}" rel="stylesheet" media="screen"/>
     <meta name="robots" content="noindex,nofollow">
   <!--
   -->
@@ -68,8 +67,14 @@
       <li><a href="#">time: {{ render_time }}</a></li>
 
       <li class="dropdown cdrop">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help <b class="caret"></b></a>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon icon-cogs"></i> <b class="caret"></b></a>
         <ul class="dropdown-menu">
+          <li><a href="#"><span>----- Admin (not yet)</span></a></li>
+          <li><a href="#">Settings</a></li>
+          <li><a href="#">Create Database Backup</a></li>
+          <li><a href="#">Crate Database Export</a></li>
+          <li><a href="#">Import Ruleset</a></li>
+          <li><a href="#">----- Help</a></li>
           <li><a href="http://code.cside.com/3rdpage/us/url/converter.html" target="_blank">
               HexConverter</a></li>
           <li><a href="http://www.regextester.com/" target="_blank">RegEx -Tester </a></li>
@@ -77,23 +82,11 @@
             EmergingThreats</a></li>
           <li><a href="https://bitbucket.org/nginx-goodies/spike/overview" target="_blank">Spike - Repo </a></li>
           <li><a href="https://bitbucket.org/nginx-goodies/spike/issues" target="_blank">Spike - Issues </a></li>
+          <li><a href="#">----- Login</a></li>
+          <li><a href="/logout">Logout</a></li>
         </ul>
 
       </li>
-        
-
-
-      <li class="dropdown cdrop">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li>------ not yet</li>
-          <li><a href="#">Settings</a></li>
-          <li><a href="#">Create Database Backup</a></li>
-          <li><a href="#">Crate Database Export</a></li>
-          <li><a href="#">Import Ruleset</a></li>
-        </ul>
-        <li><a href="/login/">Login</a>
-
         
 
 

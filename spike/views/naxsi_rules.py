@@ -321,7 +321,7 @@ def export_ruleset(rid=0):
     except:
       flash("ERROR while trying to export %s" % rs.file, "error")
       return(redirect("/rules/"))
-    rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, active== 1).order_by(NaxsiRules.sid.desc()).all()
+    rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, NaxsiRules.active== 1).order_by(NaxsiRules.sid.desc()).all()
     for rule in rules:
       rout = z_display_rule(rule)
       f.write("%s \n" % rout)
