@@ -375,6 +375,10 @@ def z_display_rule(rule, full=1):
   nout = "unknown"
   rdate = strftime("%F - %H:%M", localtime(float(str(rule.timestamp))))
   rmks = "# ".join(rule.rmks.strip().split("\n"))
+  if rule.detection[0:4] == "str:":
+    detect = rule.detection.lower()
+  else:
+    detect = rule.detection
   if full == 1:
     nout = """#
 # sid: %s | date: %s 
@@ -383,7 +387,7 @@ def z_display_rule(rule, full=1):
 #
 MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
       
-      """ % (rule.sid, rdate, rmks, rule.detection, rule.msg, rule.mz, rule.score, rule.sid )
+      """ % (rule.sid, rdate, rmks, detect, rule.msg, rule.mz, rule.score, rule.sid )
   else:
     nout = """MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
       (rule.detection, rule.msg, rule.mz, rule.score, rule.sid )

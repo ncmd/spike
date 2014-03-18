@@ -52,9 +52,6 @@ def create_app(config_filename):
   from flaskext.bcrypt import Bcrypt
   spike.flask_bcrypt = Bcrypt(app)
 
-  # incase it is not set , e.g. during init 
-
-  
   # add blueprints
   app.register_blueprint(spike.views.default.default, templates_folder = 'templates')
   app.register_blueprint(spike.views.naxsi_rules.naxsi_rules, templates_folder = 'templates')
