@@ -41,6 +41,21 @@ def ruleset_view(rid = 0):
   
   return(render_template("rules/ruleset_view.html", r = r, rout = rout))
 
+@naxsi_rules.route("/rulesets/plain/<path:rid>")
+def ruleset_plain(rid = 0):
+
+  if rid == 0:
+    return(redirect("/rulesets/"))
+  r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
+  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  rf = "%s/%s" % ( out_dir, r.file)
+  if not os.path.isfile(rf):
+    flash("ERROR while trying to read %s " % (rf), "error")
+    return(redirect("/rules/rulesets/"))
+
+  rout = "". join(open(rf, "r"))  
+  return Response(rout, mimetype='text/plain')
+
 
 @naxsi_rules.route("/select/<path:selector>",  methods = ["GET"])
 def nx_select(selector=0):
@@ -240,6 +255,7 @@ def view(sid=0):
       rule = rinfo, 
       rtext = rtext
       ))
+
 
 @naxsi_rules.route("/del/<path:sid>",  methods = ["GET"])
 def del_sid(sid=0):
