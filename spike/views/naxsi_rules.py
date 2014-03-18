@@ -32,10 +32,16 @@ def ruleset_view(rid = 0):
     return(redirect("/rulesets/"))
   r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
   out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+
+  if not os.path.isdir(out_dir):
+    flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
+    flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
+    return(redirect("/rules/rulesets/"))
+  
   rf = "%s/%s" % ( out_dir, r.file)
   if not os.path.isfile(rf):
     flash("ERROR while trying to read %s " % (rf), "error")
-    return(redirect("/rulesets/"))
+    return(redirect("/rules/rulesets/"))
 
   rout = "". join(open(rf, "r"))
   
@@ -48,6 +54,12 @@ def ruleset_plain(rid = 0):
     return(redirect("/rulesets/"))
   r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
   out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+
+  if not os.path.isdir(out_dir):
+    flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
+    flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
+    return(redirect("/rules/rulesets/"))
+
   rf = "%s/%s" % ( out_dir, r.file)
   if not os.path.isfile(rf):
     flash("ERROR while trying to read %s " % (rf), "error")
