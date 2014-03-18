@@ -26,6 +26,13 @@ def mz_index():
     return(redirect("/settings"))
   return(render_template("settings/mz.html", mz = mz))
 
+@settings.route("/update")
+def mz_update():
+  out = "".join(os.popen("./server update"))
+  flash("OK: update " , "success")
+  
+  return(render_template("layouts/pre.html", text = out, title="Spike-Update"))
+  
 
 @settings.route("/mz/del", methods = ["POST"])
 def mz_del():

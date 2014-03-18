@@ -159,7 +159,7 @@ def spike_update():
   it = int(time())
   print "> update Spike  "
   print "> getting latest updates from repo"
-  os.system("git pull")
+  os.system("git pull 2>&1")
   ts = int(time())
   ds = strftime("%F - %H:%M", localtime(time()))
   app = create_app(config_file())
