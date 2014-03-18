@@ -26,14 +26,6 @@ def mz_index():
     return(redirect("/settings"))
   return(render_template("settings/mz.html", mz = mz))
 
-@settings.route("/update")
-def mz_update():
-  out = "".join(os.popen("./server update"))
-  flash("OK: update " , "success")
-  
-  return(render_template("layouts/pre.html", text = out, title="Spike-Update"))
-  
-
 @settings.route("/mz/del", methods = ["POST"])
 def mz_del():
   nd = request.form
@@ -63,6 +55,48 @@ def mz_new():
   flash("Updated MZ: %s" % nmz, "success")  
   return(redirect("/settings/mz"))
 
+@settings.route("/scores")
+def score_index():
+  sc = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").order_by(ValueTemplates.value).all()
+  if not sc:
+    return(redirect("/settings"))
+  return(render_template("settings/scores.html", scores = sc))
+
+@settings.route("/scores/new", methods = ["POST"])
+def score_new():
+  nd = request.form
+  nsc = nd["nscore"]
+  if nsc[0] != "$":
+    nsc = "$%s" % nsc
+  sc = ValueTemplates("naxsi_score", nsc.upper())
+  db.session.add(sc)
+  db.session.commit()
+  flash("Updated Score: %s" % nsc, "success")  
+  return(redirect("/settings/scores"))
+
+@settings.route("/scores/del", methods = ["POST"])
+def scores_del():
+  nd = request.form
+  scid = nd["scid"]
+  dsc = ValueTemplates.query.filter(ValueTemplates.id == scid).first()
+  if not dsc:
+    flash("Nothing found in %s " % (scid), "error")
+    return(redirect("/settings/scores"))  
+  db.session.delete(dsc)
+  try:
+    db.session.commit()
+    flash("OK: deleted %s " % (dsc.value), "success")
+  except:
+    flash("ERROR while trying to delete : %s" % (dsc.value ), "error")
+  return(redirect("/settings/scores"))
+
+@settings.route("/update")
+def mz_update():
+  out = "".join(os.popen("./server update"))
+  flash("OK: update " , "success")
+  
+  return(render_template("layouts/pre.html", text = out, title="Spike-Update"))
+  
 
 @settings.route("/save", methods = ["POST"])
 def save_settings():
