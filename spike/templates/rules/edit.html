@@ -1,7 +1,6 @@
 {% extends "layouts/application.html" %}
 {% block title %}Edit {{rules_info.sid}} {% endblock %}
 
-
 {% block main %}
   {% if rules_info.active == 0 %}
   <br>
@@ -26,21 +25,24 @@
       <table>
         <tr>
       <td> 
-      {% set notin = [] %}
       {% set rmz = rules_info.mz | mzsplit %}
+      {% set dmz = [] %}
       {% for z in mz %}
         <input type="checkbox" name="mz" value="{{z.value}}" 
-        {% if z.value  in rmz %}
-          checked> <strong> {{ z.value }} </strong>
-        {% else %}
-        {% set notin = notin + [z.value] %}
+        {% if z.value in rmz %}
+        {% if dmz.append(z.value) %} {% endif %}
+          checked> <strong> {{ z.value }}</strong>
+        {% else  %}
           > {{ z.value }}
         {% endif %}  
            <br>
       {% endfor %}
-      {% for nmz in notin  %}
-        <input type="checkbox" name="mz" value="{{rules_info.mz}}" checked> <strong> {{ rules_info.mz }} </strong>
+      {% for r in rmz  %}
+      {% if r not in dmz %}
+        <input type="checkbox" name="mz" value="{{r}}" checked> <strong> {{ r }} </strong><br>
+      {% endif %}
       {% endfor %}
+        <input type="checkbox" name="custom_mz" value="on"> <input type="text" name="custom_mz_val" placeholder="Custom MZ"><br>
       </td>
     <td valign="top">Score</td>
     <td valign="top">

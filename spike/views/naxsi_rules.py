@@ -129,36 +129,45 @@ def new():
   latestn = latest + 1
 
 
+
+  
+
   if request.method == "POST":
     # create new rule
     ts = int(time())
     nr = request.form
     doit = 1
+    #~ try:
+    # processing vals
+    print nr
+    msg = nr["msg"]
+    detect = str(nr["detection"]).strip()
+    print "detect: %s " % detect[0:5]
+    if detect[0:4] == "str:":
+      pass 
+    elif detect[0:3] == "rx:":
+      pass 
+    else:
+      detect = "str:%s" % detect
+    mz = "|".join(nr.getlist("mz"))
     try:
-      # processing vals
-      msg = nr["msg"]
-      detect = str(nr["detection"]).strip()
-      print "detect: %s " % detect[0:5]
-      if detect[0:4] == "str:":
-        pass 
-      elif detect[0:3] == "rx:":
-        pass 
-      else:
-        detect = "str:%s" % detect
-      mz = nr["mz"]
-      score_raw = nr["score"].strip()
-      score_val = nr["score_%s" % score_raw].strip()
-      score ="%s:%s" % (score_raw, score_val)      
-      sid = latestn
-      rmks = nr["rmks"]
-      ruleset = nr["ruleset"]
-      
+      if nr["custom_mz"] == "on":
+        mz = "%s|%s" % (mz, nr["custom_mz_val"])
     except:
-      flash("""ERROR - please select MZ/Score
-    <a class="btn btn-warning btn-lg" href="javascript:window.history.back()">Go Back</a>
-      """, "error")
-      doit = 0
+      pass
+    score_raw = nr["score"].strip()
+    score_val = nr["score_%s" % score_raw].strip()
+    score ="%s:%s" % (score_raw, score_val)      
+    sid = latestn
+    rmks = nr["rmks"]
+    ruleset = nr["ruleset"]
     
+    #~ except:
+      #~ flash("""ERROR - please select MZ/Score
+    #~ <a class="btn btn-warning btn-lg" href="javascript:window.history.back()">Go Back</a>
+      #~ """, "error")
+      #~ doit = 0
+    #~ 
     if doit == 1:
       try:
         nrule = NaxsiRules(msg, detect, mz, score, sid, ruleset, rmks, "1", ts)
@@ -206,8 +215,11 @@ def edit(sid=0):
       else:
         detect = "str:%s" % detect
       mz = "|".join(nr.getlist("mz"))
-      print "mz: "
-      print mz
+      try:
+        if nr["custom_mz"] == "on":
+          mz = "%s|%s" % (mz, nr["custom_mz_val"])
+      except:
+        pass      
       score_raw = nr["score"].strip()
       score_val = nr["score_%s" % score_raw].strip()      
       score ="%s:%s" % (score_raw, score_val)    

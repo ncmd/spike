@@ -71,6 +71,7 @@ def create_app(config_filename):
   app.jinja_env.filters['dtime'] = f_datetime
   app.jinja_env.filters['scoresplit'] = f_scoresplit
   app.jinja_env.filters['mzsplit'] = f_mzsplit
+  app.jinja_env.filters['mzpop'] = f_mzpop
   
   return app
 
@@ -99,4 +100,20 @@ def f_mzsplit(value):
     return(mc)
   except:
     return([value])  
+  
+
+def f_mzpop(mza, value):
+  print "mza:"
+  print mza
+  print "value:"
+  print value
+  mzu = []
+  for m in mza:
+    if m == value:
+      pass 
+    else:
+      mzu.append(m)
+  print mzu
+  return(mzu)
+  
   

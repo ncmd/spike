@@ -1,5 +1,5 @@
 {% extends "layouts/application.html" %}
-{% block title %}SPIKE! - Naxsi Rules Builder{% endblock %}
+{% block title %}SPIKE! - WAF Rules Builder{% endblock %}
 
 {% block main %}
 
@@ -10,7 +10,7 @@
 
 
         {% if rule.active != 1 %}
-		<tr bgcolor="grey">
+    <tr bgcolor="grey">
         {% else %}
     <tr id="{{rule.sid}}">
         {% endif %}
