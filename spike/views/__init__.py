@@ -1,4 +1,4 @@
-__all__ = [ 'default', 'naxsi_rules' ]
+__all__ = [ 'default', 'naxsi_rules', 'settings' ]
 
 from flask.ext.login import current_user
 from functools import wraps

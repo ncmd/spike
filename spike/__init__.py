@@ -36,17 +36,12 @@ def create_app(config_filename):
   # load config
   if config_filename != "":
     app.config.from_pyfile(config_filename)
-  
-  sqldb = os.path.abspath(app.config["NAXSI_RULES_DB"])
-  sql_raw = app.config["NAXSI_RULES_DB"]
-  #~ if not os.path.isfile(sqldb):
-    #~ print "YIKES!! cannot find naxsi-rules-db in %s" % sql_raw
-    #~ #sys.exit()
-  #~ else:
-    #~ print "YIKES!! OK naxsi-rules-db in %s" % sql_raw
-    
-  app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///%s" % sqldb
-  # import db and initiate
+
+  app.config["SQLALCHEMY_BINDS"] = {
+    'rules':        'sqlite:///rules.db',
+    'settings':     'sqlite:///settings.db',
+  }
+
   from spike.model import db
   db.init_app(app)
   
@@ -57,15 +52,13 @@ def create_app(config_filename):
   from flaskext.bcrypt import Bcrypt
   spike.flask_bcrypt = Bcrypt(app)
 
-  # incase it is not set 
-  try:
-    ac = app.config["NAXSI_RULES_OFFSET"]
-  except:
-    app.config["NAXSI_RULES_OFFSET"] = 20000
+  # incase it is not set , e.g. during init 
+
   
   # add blueprints
   app.register_blueprint(spike.views.default.default, templates_folder = 'templates')
   app.register_blueprint(spike.views.naxsi_rules.naxsi_rules, templates_folder = 'templates')
+  app.register_blueprint(spike.views.settings.settings, templates_folder = 'templates')
 
   # add LoginManager
   # not yet, kameraden, not yet ... 

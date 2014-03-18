@@ -2,9 +2,10 @@ from spike.model import db
 from time import time 
 
 class NaxsiRules(db.Model):
+  __bind_key__ = 'rules'
   __tablename__ = 'naxsi_rules'
   
-  id = db.Column(db.Integer, primary_key=True, unique=True)
+  id = db.Column(db.Integer, primary_key=True)
   msg = db.Column(db.String(), nullable=False)
   detection = db.Column(db.String(1024), nullable=False)
   mz = db.Column(db.String(1024), nullable=False)
@@ -29,6 +30,7 @@ class NaxsiRules(db.Model):
 
 
 class NaxsiRuleSets(db.Model):
+  __bind_key__ = 'rules'
   __tablename__ = 'naxsi_rulesets'
   
   id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +48,7 @@ class NaxsiRuleSets(db.Model):
 
 
 class ValueTemplates(db.Model):
+  __bind_key__ = 'rules'
   __tablename__ = 'value_templates'
   
   id = db.Column(db.Integer, primary_key=True)

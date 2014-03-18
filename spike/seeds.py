@@ -18,6 +18,13 @@ rulesets_seeds = {
 
   }
 
+settings_seeds = {
+
+  'rules_export_dir': 'exports', 
+  'rules_offset'    : '200000',  
+
+
+}
 
 ruleset_header = """
 ##########################################################################

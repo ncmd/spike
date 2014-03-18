@@ -11,6 +11,8 @@ from time import time, strftime, localtime
 from os.path import dirname, abspath, isdir, isfile
 from shutil import copy, move
 from spike import create_app, seeds, spike_version 
+from flask import Flask 
+
 
 def usage():
 
@@ -38,6 +40,35 @@ Spike v: %s
 def run():
   app = create_app(config_file())
   
+  # some defaults
+  try:
+    app_port = int(app.config["APP_PORT"])
+  except:
+    app_port = 5555
+  try:
+    app_host = app.config["APP_HOST"]
+  except:
+    app_host = "127.0.0.1"
+
+
+  from spike.model import db, Settings
+
+  db.init_app(app)
+  app.test_request_context().push()
+
+  try:
+    eo_dir = Settings.query.filter(Settings.name == 'rules_export_dir').first()
+    app.config["NAXSI_RULES_EXPORT"] = eo_dir.value
+  except:
+    app.config["NAXSI_RULES_EXPORT"] = "exports"
+
+  
+  try:
+    eo_offset = Settings.query.filter(Settings.name == 'rules_offset').first()
+    app.config["NAXSI_RULES_OFFSET"] = eo_offset.value
+  except:
+    app.config["NAXSI_RULES_OFFSET"] = 20000
+
   # some checks
   od =  app.config["NAXSI_RULES_EXPORT"]
   if not isdir(od):
@@ -49,26 +80,6 @@ def run():
     > if so please create the directory manually and try to restart
     >
 """ % (od)
-    sys.exit(2)
-
-  sqldb = os.path.abspath(app.config["NAXSI_RULES_DB"])
-  if not isfile(sqldb):
-    print """
-[-] ERROR cannot find naxsi-rules-db in %s
-    >
-    > are you sure you did run: ./spike-server init ?
-    >""" % sqldb
-    sys.exit(2)
-
-  # some defaults
-  try:
-    app_port = int(app.config["APP_PORT"])
-  except:
-    app_port = 5555
-  try:
-    app_host = app.config["APP_HOST"]
-  except:
-    app_host = "127.0.0.1"
 
     
   print "> running @ %s:%s" % (app_host, app_port)
@@ -76,7 +87,7 @@ def run():
 
 def spike_init():
   from flask.ext.sqlalchemy import SQLAlchemy
-
+  it = int(time())
   print "> init Spike  "
   ts = int(time())
   ds = strftime("%F - %H:%M", localtime(time()))
@@ -89,23 +100,28 @@ def spike_init():
     
     
 
-  db_file = app.config["NAXSI_RULES_DB"]
-  if os.path.isfile(db_file):
-    print "  > existing db found, creating backup"
-    move(db_file, "%s.%s" % (db_file, int(time())))
-    print "  > copy: %s.%s" % (db_file, int(time()))
+  db_files = app.config["SQLALCHEMY_BINDS"]
+  print db_files
+  
+  for sqldb in db_files:
+    p1 = "spike/%s" % db_files[sqldb].replace("sqlite:///", "")
+    if os.path.isfile(p1):
+      print "  > [ %s ] :: existing db found, creating backup" % sqldb
+      move(p1, "%s.%s" % (p1, it ))
+      print "  > copy: %s.%s" % (p1, it)
   print "  > init_creating db"
   #os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
-  
-    
 
   from sqlalchemy.exc import IntegrityError
   from spike.model import db
-  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates
+  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates, Settings
 
-  db.init_app(app)
+
   app.test_request_context().push()
-  db.create_all()
+  db.init_app(app)
+
+  with app.app_context():
+    db.create_all()
   print "  > filling default_vals"
   vseed = seeds.vtemplate_seeds
   for v in vseed:
@@ -117,7 +133,11 @@ def spike_init():
     print "    > adding ruleset: %s / %s" % (r, rseed[r])
     rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
     db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts ))
-  
+
+  sseed = seeds.settings_seeds 
+  for s in sseed:
+    print "    > adding setting: %s" % s 
+    db.session.add(Settings(s, sseed[s]))
   db.session.commit()
   
   #~ try:
