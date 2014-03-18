@@ -19,6 +19,44 @@ def index():
     return(redirect("/rules"))
   return(render_template("settings/index.html", settings = settings))
 
+@settings.route("/mz")
+def mz_index():
+  mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").order_by(ValueTemplates.value).all()
+  if not mz:
+    return(redirect("/settings"))
+  return(render_template("settings/mz.html", mz = mz))
+
+
+@settings.route("/mz/del", methods = ["POST"])
+def mz_del():
+  nd = request.form
+  mzid = nd["mzid"]
+
+
+  dmz = ValueTemplates.query.filter(ValueTemplates.id == mzid).first()
+  if not dmz:
+    flash("Nothing found in %s " % (mzid), "error")
+    return(redirect("/settings/mz"))
+  
+  db.session.delete(dmz)
+  try:
+    db.session.commit()
+    flash("OK: deleted %s " % (dmz.value), "success")
+  except:
+    flash("ERROR while trying to delete : %s" % (dmz.value ), "error")
+  return(redirect("/settings/mz"))
+
+@settings.route("/mz/new", methods = ["POST"])
+def mz_new():
+  nd = request.form
+  nmz = nd["nmz"]
+  mz = ValueTemplates("naxsi_mz", nmz)
+  db.session.add(mz)
+  db.session.commit()
+  flash("Updated MZ: %s" % nmz, "success")  
+  return(redirect("/settings/mz"))
+
+
 @settings.route("/save", methods = ["POST"])
 def save_settings():
   
