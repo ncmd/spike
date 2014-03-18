@@ -1,6 +1,6 @@
 
 # spike version
-version = "0.3.4 - r143 - 2014-03-17"
+version = "0.3.6 - r143 - 2014-03-17"
 
 
 login_manager = None
@@ -29,7 +29,7 @@ def spike_version():
   return(version)
 
 def create_app(config_filename): 
-  print "> Spike start"
+  print "> Spike app.init()"
 
   # initiate app
   app = Flask(__name__)

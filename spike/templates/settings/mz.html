@@ -5,6 +5,15 @@
 
 <h2>MatchingZones</h2>
   <table class="table table-condensed table-stripped">
+  <tr>
+    <form  action="/settings/mz/new" method="POST">
+    <td>
+      <input type="text" name="nmz" size="45" value="" placeholder="New MZ">
+    </td>
+    <td><button class="btn btn-success btn-sm" type="submit">New</button></td>
+    </form>
+  </tr>
+  
   {% for m in mz %}
 
     <tr id="{{m.id}}">
@@ -22,14 +31,7 @@
   
   {% endfor %}
   
-  <tr>
-    <form  action="/settings/mz/new" method="POST">
-    <td>New MathingZone: 
-      <input type="text" name="nmz" value="" placeholder="MZ">
-    </td>
-    <td><button class="btn btn-success btn-sm" type="submit">New</button></td>
-    </form>
-  </tr>
+
   </table>
 
 {% endblock main %}

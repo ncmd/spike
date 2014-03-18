@@ -16,7 +16,7 @@ from flask import Flask
 
 def usage():
 
-  print "Usage: ./server [run|init]\n\n"
+  print "Usage: ./server [run|init|update]\n\n"
   
 
 def main(argv):
@@ -30,8 +30,10 @@ Spike v: %s
   if len(argv) == 2:
     if argv[1] == "run":
       run()
-    if argv[1] == "init":
+    elif argv[1] == "init":
       spike_init()
+    elif argv[1] == "update":
+      spike_update()
     else: 
       usage()
   else:
@@ -151,6 +153,50 @@ def spike_init():
 >
 
   """  
+
+def spike_update():
+  from flask.ext.sqlalchemy import SQLAlchemy
+  it = int(time())
+  print "> update Spike  "
+  print "> getting latest updates from repo"
+  os.system("git pull")
+  ts = int(time())
+  ds = strftime("%F - %H:%M", localtime(time()))
+  app = create_app(config_file())
+
+  from sqlalchemy.exc import IntegrityError
+  from spike.model import db
+  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates, Settings
+
+
+  app.test_request_context().push()
+  db.init_app(app)
+
+
+  sseed = seeds.settings_seeds 
+  for s in sseed:
+    ks = Settings.query.filter(Settings.name == s).first()
+    if not ks:
+      print "    > adding setting: %s" % s 
+      db.session.add(Settings(s, sseed[s]))
+    else:
+      print "    > setting known : %s" % s 
+      
+  db.session.commit()
+  
+  #~ try:
+    #~ db.session.commit()
+  #~ except IntegrityError:
+    #~ print "already seeded"
+
+
+  print """> Update OK
+>
+> start engines: ./server run
+>
+
+  """  
+
 
 def config_file():
   return os.path.join(dirname(abspath(__name__)), 'config.cfg')
