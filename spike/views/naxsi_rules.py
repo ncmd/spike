@@ -47,6 +47,32 @@ def ruleset_view(rid = 0):
   
   return(render_template("rules/ruleset_view.html", r = r, rout = rout))
 
+
+@naxsi_rules.route("/rulesets/new", methods=["POST"])
+def ruleset_new():
+
+  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+
+  if not os.path.isdir(out_dir):
+    flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
+    flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
+    return(redirect("/rules/rulesets/"))
+
+
+  if request.method == "POST":
+    # create new rule
+    ts = int(time())
+    nr = request.form
+    rfile = nr["rfile"].strip().lower()
+    rname = nr["rname"].strip().upper()
+    rnew = NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, ts)
+    db.session.add(rnew)
+    db.session.commit()
+    flash("OK created: %s " % (rfile), "success")
+    
+  return(redirect("/rules/rulesets/"))
+
+
 @naxsi_rules.route("/rulesets/plain/<path:rid>")
 def ruleset_plain(rid = 0):
 
