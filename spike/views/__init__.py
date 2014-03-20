@@ -1,4 +1,4 @@
-__all__ = [ 'default', 'naxsi_rules', 'settings' ]
+__all__ = [ 'default', 'naxsi_rules', 'settings', 'docs' ]
 
 from flask.ext.login import current_user
 from functools import wraps
@@ -43,3 +43,35 @@ def date_id(value, format='%F'):
 
 def now():
   return(int(time()))
+  
+def render_content(in_put):
+  """
+  
+  
+  
+  """
+  fp = "%s/%s.*" % (basedir, in_put)
+  is_file = glob.glob(fp)
+  if not is_file:
+    print "cannot access %s" % fp
+    resp = """
+    <div align="center">
+    <h1>404 - DONT PANIC</h1>
+    the file you requested was not found
+    <img src="/static/images/marvin4.jpg" width="70%">
+    </div>
+    """
+    return(resp)
+  else:
+    
+    in_file = is_file[0]
+    ext = ['meta', 'extra', 'fenced_code', 'tables', 'codehilite', 'toc', 'attr_list']
+    fxi = ""
+    fx = "".join(open(in_file, "r").readlines()).decode(charset)
+    
+    #print fx
+    fxout = markdown.markdown(fx, extensions=ext)
+    return(fxout)
+  
+  return("marvin is VERY tired")
+

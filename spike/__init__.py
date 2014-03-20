@@ -1,6 +1,6 @@
 
 # spike version
-version = "0.3.6 - r143 - 2014-03-17"
+version = "0.3.8 - r143 - 2014-03-19"
 
 
 login_manager = None
@@ -56,6 +56,7 @@ def create_app(config_filename):
   app.register_blueprint(spike.views.default.default, templates_folder = 'templates')
   app.register_blueprint(spike.views.naxsi_rules.naxsi_rules, templates_folder = 'templates')
   app.register_blueprint(spike.views.settings.settings, templates_folder = 'templates')
+  app.register_blueprint(spike.views.docs.docs, templates_folder = 'templates')
 
   # add LoginManager
   # not yet, kameraden, not yet ... 
