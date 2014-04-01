@@ -1,4 +1,4 @@
-SECRET_KEY=insert_key_string_here
+SECRET_KEY=fail_on_insert_key_string_here
 SQLALCHEMY_DATABASE_URI='sqlite:///'
 
 
