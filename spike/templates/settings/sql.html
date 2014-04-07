@@ -1,0 +1,28 @@
+{% extends "layouts/application.html" %}
+{% block title %} SQL - Editor{% endblock %}
+
+{% block main %}
+
+<h2>SQL -  Editor</h2>
+  <table class="table table-condensed table-stripped">
+  <tr>
+    <form  action="/settings/sql" method="POST">
+    <td>
+      <textarea name="sql" placeholder="select * from naxsi_rules" cols="80" rows="15">{{sqlval}}</textarea>
+    </td>
+    <td><button class="btn btn-success btn-sm" type="submit">Execute SQL</button></td>
+    </form>
+  </tr>
+
+  </table>
+
+<hr>
+
+<pre>
+
+  {% for r in res %} {{r}} {% endfor %}
+
+</pre>
+
+{% endblock main %}
+

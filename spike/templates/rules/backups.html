@@ -1,0 +1,24 @@
+{% extends "layouts/application.html" %}
+{% block title %}Backups  {% endblock %}
+
+{% block main %}
+
+  <h3>Backups</h3>
+
+  <table class="table table-condensed table-stripped">
+  <tr><td>Date</td><td>File</td><td>Actions</td></tr>
+  {% for b,f in bfiles | dictsort | reverse%}
+  
+  <tr><td>{{ b }}</td><td> {{f[0]}}</td>
+    <td>
+      <a href="/rules/backup/display?bid={{f[1]}}" class="btn btn-sm btn-primary">View</a> 
+      <a href="/rules/backup/delete?bid={{f[1]}}" class="btn btn-sm btn-danger">Delete</a> 
+    </td>
+  </tr>
+
+
+  {% endfor %}
+  </table>
+
+{% endblock %}
+

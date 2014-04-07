@@ -1,0 +1,40 @@
+{% extends "layouts/application.html" %}
+{% block title %}Create Naxsi-Rule{% endblock %}
+
+
+{% block main %}
+
+  <h2>Naxsi-Rules-Import</h2>
+
+  <form action="/rules/import/" method="POST">
+  <table  class="table table-condensed table-stripped">
+
+    <tr><td>RuleSet</td>
+    <td>
+      <select name="ruleset">
+      {% for r in rulesets %}
+        <option value="{{ r.file }}"> {{ r.file }} <br>
+      {% endfor %}
+      </select>
+       &lt;- select or <br>
+       <input type="text" name="cruleset" size="30" placeholder="create_new.rules" value=""> &lt;- create new ruleset_file for import
+      </td>  
+      <td></td>
+    </tr>
+
+    <tr><td>Paste Rules</td>
+    <td>
+      <textarea cols="100" rows="20" name="rules"></textarea>
+    </td>
+    <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><button type="submit" class="btn btn-success btn-lg">Import Rules</button></td>
+      <td></td>
+    </tr>
+  </table>
+  </form>
+
+{% endblock %}
+
