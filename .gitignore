@@ -1,6 +1,8 @@
 venv
 exports/*
+backups/*
 spike/rules.db*
+spike/settings.db*
 *~
 *.pyc
 *.pyo

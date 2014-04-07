@@ -283,11 +283,13 @@ def edit(sid=0):
   mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
   score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
   rulesets = NaxsiRuleSets.query.all()
+  rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
   return(render_template("rules/edit.html", 
       mz = mz, 
       rulesets = rulesets,
       score = score, 
       rules_info = rinfo,
+      rule_ruleset = rruleset
       ))
 
 

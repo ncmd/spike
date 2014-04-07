@@ -7,9 +7,13 @@ APP_ENV="dev"
 APP_PORT=5555
 #APP_HOST="0.0.0.0"
 
-NAXSI_RULES_DB="spike/rules.db"
-NAXSI_RULES_EXPORT="exports"
+# this is now in the settings, imported/upated on request
+# i'll keep it here for compatibility
+#NAXSI_RULES_DB="spike/rules.db"
+#NAXSI_RULES_EXPORT="exports"
 # where to start with signature_ids (sid) if the firs rule is created
 # should never be < 10000
-NAXSI_RULES_OFFSET=200000 
+#NAXSI_RULES_OFFSET=200000 
+
+#BACKUP_DIR="backups"
 

@@ -1,6 +1,6 @@
 
 # spike version
-version = "0.3.8 - r143 - 2014-03-19"
+version = "0.3.10 - r143 - 2014-04-04"
 
 
 login_manager = None
@@ -70,6 +70,7 @@ def create_app(config_filename):
   app.jinja_env.filters['scoresplit'] = f_scoresplit
   app.jinja_env.filters['mzsplit'] = f_mzsplit
   app.jinja_env.filters['mzpop'] = f_mzpop
+  app.jinja_env.globals['version'] = version 
   
   return app
 
