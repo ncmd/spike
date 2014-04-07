@@ -1,0 +1,20 @@
+
+
+# Spike - ChangeLog
+
+### v0.4 - 2014-04-07
+
+- rules-db export
+- rules-import 
+- sql-editor (very simple yet)
+
+
+### v0.3 - 2014-03-17
+
+- port from spike v0.8 (snort/naxis-builder)
+- rewrote interface in flask
+- basic features
+    - create/edit rules
+    - create/export rulesets
+    - maintain settings
+    
