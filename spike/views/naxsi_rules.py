@@ -440,33 +440,33 @@ def import_ruleset():
         continue
       flash("importing: %s" % (r), "success")
       msg = detect = mz = score = sid = 0
-      rs = r.split()
+      rs = r.split("\"")
+      print rs
       rmks = "imported: %s / %s" % (rset, strftime("%Y - %H:%M", localtime(float(ts))))
       for sr in rs:
         # stripping leading/ending maskings "
         sr = sr.strip()
-        if sr[0] == "\"":
-          sr = sr[1:]
-        if sr[-1] == "\"":
-          sr = sr[0:-1]
         if sr == "MainRule":
           continue
         try:
-          z,v = sr.split(":")
+          z = sr.split(":")
         except:
           continue
-        if z == "msg":
-          msg = v
-        elif z == "str":
-          detect = v
-        elif z == "rx":
-          detect = v
-        elif z == "s":
-          score = v
-        elif z == "mz":
-          mz = v
-        elif z == "id":
-          sid = v
+        if len(z) < 2:
+          continue          
+        if z[0] == "msg":
+          msg = ":".join(z[1:])
+        elif z[0] == "str":
+          detect = "str:%s" % ":".join(z[1:])
+        elif z[0] == "rx":
+          detect = "rx:%s" % ":".join(z[1:])
+        elif z[0] == "s":
+          score = ":".join(z[1:])
+        elif z[0] == "mz":
+          mz = ":".join(z[1:])
+        elif z[0] == "id":
+          sid = z[1].replace(";", "").strip()
+          
       known_sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
       if known_sid:
         old_sid = sid
@@ -477,6 +477,7 @@ def import_ruleset():
           latest = latest.sid
         sid = latest + 1
         flash("changing sid: orig: %s / new: %s" % (old_sid, sid), "success")
+        rmks = "%s \nchanged sid: orig: %s / new: %s " % (rmks, old_sid, sid)
         
       nrule = NaxsiRules(msg, detect, mz, score, sid, rset, rmks, "1", ts)
       db.session.add(nrule)

@@ -28,21 +28,32 @@ def mz_index():
 
 @settings.route("/sql",  methods = ["GET", "POST"])
 def execute_sql():
-  res = {}
+  res = []
   sqle = ""
 
   if request.method == "POST":
     rsql = request.form
     sqle = [] 
     sql = rsql["sql"].split("\n")
+    out = 0
     for s in sql:
       s = s.strip()
       if s[-1] != ";":
         s = "%s ;" % s
+      if s[0:10].find("select") > -1:
+        out = 1
+        
       sqle.append(s)
-#    if sql.find("select") > -1:
-    res = db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules'))
-    
+    if out == 1:
+      try:
+        res = db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules')).fetchall()
+      except:
+        flash("ERROR while trying to execute : %s" % ("\n".join(sqle)), "error")
+
+    else:
+      db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules'))
+      db.session.commit()
+      res = [("OK",  "\n".join(sqle))]
   return(render_template("settings/sql.html", res = res, sqlval = "\n".join(sqle)))
 
 @settings.route("/mz/del", methods = ["POST"])

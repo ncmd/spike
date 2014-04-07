@@ -3,14 +3,17 @@
 
 {% block main %}
 
-<h2>SQL -  Editor</h2>
+<h2>SQL -  Editor <a href="blash" class="btn btn-primary btn-sm">Help</a></h2>
   <table class="table table-condensed table-stripped">
   <tr>
     <form  action="/settings/sql" method="POST">
     <td>
-      <textarea name="sql" placeholder="select * from naxsi_rules" cols="80" rows="15">{{sqlval}}</textarea>
+      <textarea name="sql" placeholder="select * from naxsi_rules" cols="100" rows="6">{{sqlval}}</textarea>
     </td>
-    <td><button class="btn btn-success btn-sm" type="submit">Execute SQL</button></td>
+    <td>
+      <button class="btn btn-success btn-sm" type="submit">Execute SQL</button> &nbsp;
+      
+    </td>
     </form>
   </tr>
 
@@ -18,11 +21,15 @@
 
 <hr>
 
+<h2>Result ({{ res | length }})</h2>
+
+
+{% for r in res %}
 <pre>
-
-  {% for r in res %} {{r}} {% endfor %}
-
+{% for ix in r %}{{ ix }} {% endfor %}
 </pre>
+{% endfor %}
+
 
 {% endblock main %}
 
