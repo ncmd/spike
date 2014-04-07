@@ -4,6 +4,9 @@ import simplejson as json
 import os 
 from time import time, localtime, strftime
 from uuid import uuid4 
+from glob import glob 
+import subprocess as sub
+
 
 
 from spike.views import role_required
@@ -71,6 +74,8 @@ def ruleset_new():
     flash("OK created: %s " % (rfile), "success")
     
   return(redirect("/rules/rulesets/"))
+
+
 
 
 @naxsi_rules.route("/rulesets/plain/<path:rid>")
@@ -397,7 +402,81 @@ def export_ruleset(rid=0):
     flash("Exported: %s / %s" % (rid, of), "success")
     
   return(redirect("/rules/rulesets/"))
+
+
+@naxsi_rules.route("/backup/", methods=["GET"])
+@naxsi_rules.route("/backup/<path:action>", methods=["GET"])
+def rules_backup(action="show"):
+
+  out_dir = current_app.config["BACKUP_DIR"]
+  sqlite_bin = current_app.config["SQLITE_BIN"]
+
+  if not os.path.isdir(out_dir):
+    flash("ERROR while trying to access BACKUP_DIR: %s " % (out_dir), "error")
+    flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
+    return(redirect("/rules/"))
+
+  if action == "create":
+    bdate = int(time())
+    bfile = "%s/rules.sql.%s" % (out_dir, bdate)
+    rules_db = "spike/rules.db"
+    if os.path.isfile(sqlite_bin) and os.access(sqlite_bin, os.X_OK):
+      pass 
+    else:
+      flash("ERROR, no sqlite_bin found in: %s " % sqlite_bin, "error")
+      flash("you might want to adjust your <a href=\"/settings\">Settings</a> and install sqlite", "error")
+      return(redirect("/rules/backup"))
+
+    f = open(bfile, "w")
+    f.write("-- spike-dump %s \n\n" %  strftime("%F - %H:%M", localtime(float(bdate))))
+    f.close()
     
+    try:
+      os.system("%s %s  .dump >> %s" % (sqlite_bin, rules_db, bfile))
+      flash("creating backup %s" % bdate, "success")
+      flash("backup OK in %s" % bfile, "success")
+    except:
+      flash("ERRORwhile executing dump %s " % bfile, "error")
+      return(redirect("/rules/backup"))
+    return(redirect("/rules/backup"))
+       
+  elif action == "show":  
+
+    bfiles = {} 
+    bfiles_in = glob("%s/*.sql.*" % out_dir)
+    print bfiles_in
+    for b in bfiles_in:
+      bx = b.split("/")
+      print bx
+      bname = bx[-1]
+      bid = bx[-1].split(".")[-1]
+      bdate = strftime("%F - %H:%M", localtime(float(bx[-1].split(".")[-1])))
+      bfiles[bdate] = [bname, bid]
+    
+    return(render_template("rules/backups.html", 
+      bfiles = bfiles
+        ))
+
+  elif action == "display":
+    try:
+      bid = request.args.get('bid')
+        
+    except:
+      flash("ERROR, no backup - id selected ", "error")
+      return(redirect("/rules/backup"))
+
+    if not os.path.isfile("%s/rules.sql.%s" % (out_dir, bid)):
+      flash("ERROR, no backup found for id: %s" % bid,  "error")
+      return(redirect("/rules/backup"))
+      
+    out = "".join(open("%s/rules.sql.%s" % (out_dir, bid), "r").readlines() )
+    return Response(out, mimetype='text/plain')
+    
+  else:
+    flash("ERROR, no backup - action selected ", "error")
+    return(redirect("/rules/backup"))
+
+
      
 def z_display_rule(rule, full=1):
   nout = "unknown"

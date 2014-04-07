@@ -23,6 +23,7 @@ settings_seeds = {
   'rules_export_dir': 'exports', 
   'rules_offset'    : '200000',  
   'backup_dir'      : 'backups', 
+  'sqlite_bin'      : '/usr/bin/sqlite3',  # needed for dumps/reloads
 
 
 }
