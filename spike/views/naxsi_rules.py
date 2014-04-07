@@ -55,7 +55,7 @@ def ruleset_view(rid = 0):
 def ruleset_new():
 
   out_dir = current_app.config["NAXSI_RULES_EXPORT"]
-
+  from sqlalchemy.exc import IntegrityError
   if not os.path.isdir(out_dir):
     flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
     flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
@@ -68,9 +68,19 @@ def ruleset_new():
     nr = request.form
     rfile = nr["rfile"].strip().lower()
     rname = nr["rname"].strip().upper()
+    cie = check_constraint("ruleset", rfile) 
+    if  cie != 0:
+      flash("ERROR, ruleset exists: %s " % (rfile), "error")
+      return(redirect("/rules/rulesets/"))
+      
     rnew = NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, ts)
     db.session.add(rnew)
-    db.session.commit()
+    try:
+      db.session.commit()
+      flash("OK created: %s " % (rfile), "success")
+    except IntegrityError:
+      flash("ERROR while trying to create ruleset: %s " % (rfile), "error")
+
     flash("OK created: %s " % (rfile), "success")
     
   return(redirect("/rules/rulesets/"))
@@ -151,17 +161,8 @@ def search():
     
 @naxsi_rules.route("/new",  methods = ["GET", "POST"])
 def new():
-
-  latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-  if not latest:
-    latest = current_app.config["NAXSI_RULES_OFFSET"]
-  else:
-    latest = latest.sid
-  latestn = latest + 1
-
-
-
   
+  next_sid = check_or_get_latest_sid()
 
   if request.method == "POST":
     # create new rule
@@ -189,7 +190,7 @@ def new():
     score_raw = nr["score"].strip()
     score_val = nr["score_%s" % score_raw].strip()
     score ="%s:%s" % (score_raw, score_val)      
-    sid = latestn
+    sid = next_sid
     rmks = nr["rmks"]
     ruleset = nr["ruleset"]
     
@@ -205,7 +206,6 @@ def new():
         db.session.add(nrule)
         db.session.commit()
         flash("OK: created %s : %s" % (sid, msg), "success")
-        latestn +=1 
         return(redirect("/rules/edit/%s" % sid))
       except:
         flash("ERROR while trying to create %s : %s" % (sid, msg), "error")
@@ -221,7 +221,7 @@ def new():
       mz = mz, 
       rulesets = rulesets,
       score = score, 
-      latestn = latestn
+      latestn = next_sid
       ))
 
 @naxsi_rules.route("/edit/<path:sid>",  methods = ["GET", "POST"])

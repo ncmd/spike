@@ -12,5 +12,35 @@ __all__ = [
             "NaxsiRuleSets",
             "ValueTemplates",
             "Settings",
+            "check_constraint",
+            "check_or_get_latest_sid",
             
           ]
+
+
+def check_constraint(ctype, value):
+  if ctype == "settings":
+    cres = Settings.query.filter(Settings.name == value),first()
+  elif ctype == "ruleset":
+    cres = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == value).first()
+  else:
+    cres == 1
+  if not cres:
+    return(0)
+  else:
+    return(cres)
+
+def check_or_get_latest_sid(sid=0):
+  
+  if sid == 0:
+    latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+    if not latest:
+      latest = current_app.config["NAXSI_RULES_OFFSET"]
+    else:
+      latest = latest.sid
+    lsid = latest + 1
+  else:
+    is_known = NaxsiRules.query.filter(NaxsiRules.sid == sid).first() 
+    if not is_known:
+      lsid = sid
+  return(lsid)

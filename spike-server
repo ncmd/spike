@@ -82,7 +82,9 @@ def run():
     app.config["SQLITE_BIN"] = sqlite_bin.value
   except:
     app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
-  print app.config["SQLITE_BIN"]
+  if app.config["SQLITE_BIN"] == None:
+    app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
+    
   # some checks - TODO: should put this in run/init
   od =  app.config["NAXSI_RULES_EXPORT"]
   if not isdir(od):
@@ -191,14 +193,15 @@ def spike_update():
 
   sseed = seeds.settings_seeds 
   for s in sseed:
-    ks = Settings.query.filter(Settings.name == s).first()
+    ks = check_constraint("settings", s)
     if not ks:
       print "    > adding setting: %s" % s 
       db.session.add(Settings(s, sseed[s]))
     else:
       print "    > setting known : %s" % s 
-      
-  db.session.commit()
+  db.session.commit()  
+
+  
   
   #~ try:
     #~ db.session.commit()
