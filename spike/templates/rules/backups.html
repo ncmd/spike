@@ -3,16 +3,17 @@
 
 {% block main %}
 
-  <h3>Backups</h3>
+  <h3>Backups  &nbsp; &nbsp; <a href="/rules/backup/create" class="btn btn-success btn-sm">Create Database Backup</a></li></h3>
 
   <table class="table table-condensed table-stripped">
   <tr><td>Date</td><td>File</td><td>Actions</td></tr>
   {% for b,f in bfiles | dictsort | reverse%}
   
-  <tr><td>{{ b }}</td><td> {{f[0]}}</td>
+  <tr><td>{{ f[1] }}</td><td> {{f[0]}}</td>
     <td>
-      <a href="/rules/backup/display?bid={{f[1]}}" class="btn btn-sm btn-primary">View</a> 
-      <a href="/rules/backup/delete?bid={{f[1]}}" class="btn btn-sm btn-danger">Delete</a> 
+      <a href="/rules/backup/display?bid={{b}}" class="btn btn-sm btn-primary">View</a> 
+      <a href="/rules/backup/reload?bid={{b}}" class="btn btn-sm btn-warning">Reload</a> 
+      <a href="/rules/backup/delete?bid={{b}}" class="btn btn-sm btn-danger">Delete</a> 
     </td>
   </tr>
 

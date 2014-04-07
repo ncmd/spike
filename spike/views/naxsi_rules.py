@@ -534,7 +534,7 @@ def rules_backup(action="show"):
       bname = bx[-1]
       bid = bx[-1].split(".")[-1]
       bdate = strftime("%F - %H:%M", localtime(float(bx[-1].split(".")[-1])))
-      bfiles[bdate] = [bname, bid]
+      bfiles[bid] = [bname, bdate]
     
     return(render_template("rules/backups.html", 
       bfiles = bfiles

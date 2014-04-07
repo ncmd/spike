@@ -4,8 +4,8 @@
 
 ### v0.4 - 2014-04-07
 
-- rules-db export
-- rules-import 
+- rules-db backup
+- ruleset-import 
 - sql-editor (very simple yet)
 
 
