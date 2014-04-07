@@ -404,6 +404,88 @@ def export_ruleset(rid=0):
   return(redirect("/rules/rulesets/"))
 
 
+@naxsi_rules.route("/import/",  methods = ["GET", "POST"])
+def import_ruleset():
+  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  import_date = strftime("%F - %H:%M", localtime(time()))
+  if request.method == "GET":
+    rulesets = NaxsiRuleSets.query.all()
+    return(render_template("rules/import.html", rulesets = rulesets))
+  
+  elif request.method == "POST":
+    # create new rule
+    ts = int(time())
+    nr = request.form
+    rset = nr["ruleset"].strip().lower()
+    rcust = nr["cruleset"].strip().lower()
+    if len(rcust) > 4:
+      rset = rcust
+      flash("creating new ruleset for import: %s" % rcust, "success")
+      rname = rset.split(".")[0].upper()
+      rnew = NaxsiRuleSets(rset, rname, "naxsi-ruleset: %s" % rcust, ts)
+      db.session.add(rnew)
+      db.session.commit()
+      flash("OK created: %s " % (rset), "success")
+ 
+    rin = nr["rules"]
+
+    for r in rin.split("\n"):
+      r = r.strip()
+      if len(r) < 30:
+        continue
+      elif r[0] == "#":
+        continue
+      # TODO better with re.match()
+      elif r[0:8] != "MainRule":
+        continue
+      flash("importing: %s" % (r), "success")
+      msg = detect = mz = score = sid = 0
+      rs = r.split()
+      rmks = "imported: %s / %s" % (rset, strftime("%Y - %H:%M", localtime(float(ts))))
+      for sr in rs:
+        # stripping leading/ending maskings "
+        sr = sr.strip()
+        if sr[0] == "\"":
+          sr = sr[1:]
+        if sr[-1] == "\"":
+          sr = sr[0:-1]
+        if sr == "MainRule":
+          continue
+        try:
+          z,v = sr.split(":")
+        except:
+          continue
+        if z == "msg":
+          msg = v
+        elif z == "str":
+          detect = v
+        elif z == "rx":
+          detect = v
+        elif z == "s":
+          score = v
+        elif z == "mz":
+          mz = v
+        elif z == "id":
+          sid = v
+      known_sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+      if known_sid:
+        old_sid = sid
+        latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        if not latest:
+          latest = current_app.config["NAXSI_RULES_OFFSET"]
+        else:
+          latest = latest.sid
+        sid = latest + 1
+        flash("changing sid: orig: %s / new: %s" % (old_sid, sid), "success")
+        
+      nrule = NaxsiRules(msg, detect, mz, score, sid, rset, rmks, "1", ts)
+      db.session.add(nrule)
+      db.session.commit()
+      flash("OK: created %s : %s" % (sid, msg), "success")
+
+    
+  return(redirect("/rules/export/"))
+
 @naxsi_rules.route("/backup/", methods=["GET"])
 @naxsi_rules.route("/backup/<path:action>", methods=["GET"])
 def rules_backup(action="show"):

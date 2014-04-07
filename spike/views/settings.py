@@ -26,6 +26,25 @@ def mz_index():
     return(redirect("/settings"))
   return(render_template("settings/mz.html", mz = mz))
 
+@settings.route("/sql",  methods = ["GET", "POST"])
+def execute_sql():
+  res = {}
+  sqle = ""
+
+  if request.method == "POST":
+    rsql = request.form
+    sqle = [] 
+    sql = rsql["sql"].split("\n")
+    for s in sql:
+      s = s.strip()
+      if s[-1] != ";":
+        s = "%s ;" % s
+      sqle.append(s)
+#    if sql.find("select") > -1:
+    res = db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules'))
+    
+  return(render_template("settings/sql.html", res = res, sqlval = "\n".join(sqle)))
+
 @settings.route("/mz/del", methods = ["POST"])
 def mz_del():
   nd = request.form
