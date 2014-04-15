@@ -4,7 +4,7 @@ from spike.model import *
 
 
 class LoginForm(Form):
-    email = TextField('Email', [validators.Required()])
+    login = TextField('Login', [validators.Required()])
     password = PasswordField('Password', [validators.Required()])
 
     def __init__(self, *args, **kwargs):
