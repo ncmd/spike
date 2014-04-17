@@ -24,6 +24,8 @@ settings_seeds = {
   'rules_offset'    : '200000',  
   'backup_dir'      : 'backups', 
   'sqlite_bin'      : '/usr/bin/sqlite3',  # needed for dumps/reloads
+  'ossec_apache_error_log_id': '30100', # https://github.com/ossec/ossec-hids/blob/master/etc/rules/apache_rules.xml
+  'ossec_apache_access_log_id': '31100'
 
 
 }

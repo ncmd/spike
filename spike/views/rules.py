@@ -13,9 +13,9 @@ from spike.views import role_required
 from spike import seeds 
 from spike.model import *
 
-naxsi_rules = Blueprint('naxsi_rules', __name__, url_prefix = '/rules')
+rules = Blueprint('rules', __name__, url_prefix = '/rules')
 
-@naxsi_rules.route("/")
+@rules.route("/")
 def index():
   rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
   if not rules:
@@ -23,25 +23,25 @@ def index():
     
   return(render_template("rules/index.html", rules = rules))
 
-@naxsi_rules.route("/rulesets/")
+@rules.route("/rulesets/")
 def rulesets():
   rulesets = NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all()
   return(render_template("rules/rulesets.html", rulesets = rulesets))
 
-@naxsi_rules.route("/rulesets/view/<path:rid>")
+@rules.route("/rulesets/view/<path:rid>")
 def ruleset_view(rid = 0):
 
   if rid == 0:
     return(redirect("/rulesets/"))
   r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  out_dir = current_app.config["RULES_EXPORT"]
 
   if not os.path.isdir(out_dir):
     flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
     flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
     return(redirect("/rules/rulesets/"))
   
-  rf = "%s/%s" % ( out_dir, r.file)
+  rf = "%s/naxsi/%s" % ( out_dir, r.file)
   if not os.path.isfile(rf):
     flash("ERROR while trying to read %s " % (rf), "error")
     return(redirect("/rules/rulesets/"))
@@ -51,10 +51,10 @@ def ruleset_view(rid = 0):
   return(render_template("rules/ruleset_view.html", r = r, rout = rout))
 
 
-@naxsi_rules.route("/rulesets/new", methods=["POST"])
+@rules.route("/rulesets/new", methods=["POST"])
 def ruleset_new():
 
-  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  out_dir = current_app.config["RULES_EXPORT"]
   from sqlalchemy.exc import IntegrityError
   if not os.path.isdir(out_dir):
     flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
@@ -88,7 +88,7 @@ def ruleset_new():
 
 
 
-@naxsi_rules.route("/rulesets/plain/<path:rid>")
+@rules.route("/rulesets/plain/<path:rid>")
 def ruleset_plain(rid = 0):
 
   if rid == 0:
@@ -110,7 +110,7 @@ def ruleset_plain(rid = 0):
   return Response(rout, mimetype='text/plain')
 
 
-@naxsi_rules.route("/select/<path:selector>",  methods = ["GET"])
+@rules.route("/select/<path:selector>",  methods = ["GET"])
 def nx_select(selector=0):
   if selector == 0:
     return(redirect("/rules/"))
@@ -135,7 +135,7 @@ def nx_select(selector=0):
 
 
     
-@naxsi_rules.route("/search/",  methods = ["GET"])
+@rules.route("/search/",  methods = ["GET"])
 def search():
   from flask.ext.sqlalchemy import SQLAlchemy
   
@@ -159,7 +159,7 @@ def search():
   
 
     
-@naxsi_rules.route("/new",  methods = ["GET", "POST"])
+@rules.route("/new",  methods = ["GET", "POST"])
 def new():
   
   next_sid = check_or_get_latest_sid()
@@ -224,7 +224,7 @@ def new():
       latestn = next_sid
       ))
 
-@naxsi_rules.route("/edit/<path:sid>",  methods = ["GET", "POST"])
+@rules.route("/edit/<path:sid>",  methods = ["GET", "POST"])
 def edit(sid=0):
 
   if sid == 0:
@@ -298,7 +298,7 @@ def edit(sid=0):
       ))
 
 
-@naxsi_rules.route("/view/<path:sid>",  methods = ["GET"])
+@rules.route("/view/<path:sid>",  methods = ["GET"])
 def view(sid=0):
 
   if sid == 0:
@@ -314,7 +314,7 @@ def view(sid=0):
       ))
 
 
-@naxsi_rules.route("/del/<path:sid>",  methods = ["GET"])
+@rules.route("/del/<path:sid>",  methods = ["GET"])
 def del_sid(sid=0):
 
   if sid == 0:
@@ -335,7 +335,7 @@ def del_sid(sid=0):
   return(redirect("/rules/"))
 
 
-@naxsi_rules.route("/deact/<path:sid>",  methods = ["GET"])
+@rules.route("/deact/<path:sid>",  methods = ["GET"])
 def deact_sid(sid=0):
 
   if sid == 0:
@@ -371,10 +371,12 @@ def deact_sid(sid=0):
       rules_info = rinfo
       ))
 
-@naxsi_rules.route("/export/",  methods = ["GET"])
-@naxsi_rules.route("/export/<path:rid>",  methods = ["GET"])
+@rules.route("/export/",  methods = ["GET"])
+@rules.route("/export/<path:rid>",  methods = ["GET"])
 def export_ruleset(rid=0):
-  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  out_dir = current_app.config["RULES_EXPORT"]
+  naxsi_out = "%s/naxsi" % out_dir
+  ossec_out = "%s/ossec" % out_dir
   export_date = strftime("%F - %H:%M", localtime(time()))
   if rid == 0:
     rid = "all"
@@ -384,8 +386,9 @@ def export_ruleset(rid=0):
   else:
     rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).all()
   
+  # naxsi-exports
   for rs in rsets:
-    of = "%s/%s" % (out_dir, rs.file)
+    of = "%s/%s" % (naxsi_out, rs.file)
     print "> exporting %s" % of
     try:
       f = open(of, "w")
@@ -404,7 +407,7 @@ def export_ruleset(rid=0):
   return(redirect("/rules/rulesets/"))
 
 
-@naxsi_rules.route("/import/",  methods = ["GET", "POST"])
+@rules.route("/import/",  methods = ["GET", "POST"])
 def import_ruleset():
   out_dir = current_app.config["NAXSI_RULES_EXPORT"]
   import_date = strftime("%F - %H:%M", localtime(time()))
@@ -487,8 +490,8 @@ def import_ruleset():
     
   return(redirect("/rules/export/"))
 
-@naxsi_rules.route("/backup/", methods=["GET"])
-@naxsi_rules.route("/backup/<path:action>", methods=["GET"])
+@rules.route("/backup/", methods=["GET"])
+@rules.route("/backup/<path:action>", methods=["GET"])
 def rules_backup(action="show"):
 
   out_dir = current_app.config["BACKUP_DIR"]

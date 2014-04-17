@@ -54,7 +54,7 @@ def create_app(config_filename):
 
   # add blueprints
   app.register_blueprint(spike.views.default.default, templates_folder = 'templates')
-  app.register_blueprint(spike.views.naxsi_rules.naxsi_rules, templates_folder = 'templates')
+  app.register_blueprint(spike.views.rules.rules, templates_folder = 'templates')
   app.register_blueprint(spike.views.settings.settings, templates_folder = 'templates')
   app.register_blueprint(spike.views.docs.docs, templates_folder = 'templates')
 
