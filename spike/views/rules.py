@@ -148,12 +148,17 @@ def search():
         #return(dx_all)
       else:
         sclean = "%s%s" % (sclean, cc)
-    sclean = sclean.replace("---", "%")
-    sclean = "%" + sclean + "%"
+    try:
+      sclean = int(sclean)
+      rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid==sclean).all()
+    except:
+      sclean = sclean.replace("---", "%")
+      sclean = "%" + sclean + "%"
+      rules = db.session.query(NaxsiRules).filter(db.or_(NaxsiRules.msg.like(sclean), NaxsiRules.rmks.like(sclean), NaxsiRules.detection.like(sclean))).order_by(NaxsiRules.sid.desc()).all()
   else:
     return(redirect("/rules/"))
   selz = "Search: %s" % srch
-  rules = db.session.query(NaxsiRules).filter(db.or_(NaxsiRules.msg.like(sclean), NaxsiRules.rmks.like(sclean), NaxsiRules.detection.like(sclean))).order_by(NaxsiRules.sid.desc()).all()
+  #rules = db.session.query(NaxsiRules).filter(db.or_(NaxsiRules.msg.like(sclean), NaxsiRules.rmks.like(sclean), NaxsiRules.detection.like(sclean))).order_by(NaxsiRules.sid.desc()).all()
   return(render_template("rules/index.html", rules = rules, selection = selz, 
       lsearch = request.args.get('s', '')))
   
