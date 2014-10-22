@@ -35,7 +35,8 @@ def check_or_get_latest_sid(sid=0):
   if sid == 0:
     latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
     if not latest:
-      latest = current_app.config["NAXSI_RULES_OFFSET"]
+      latest = Settings.query.filter(Settings.name == "rules_offset").first()
+      latest = int(latest.value)
     else:
       latest = latest.sid
     lsid = latest + 1
@@ -43,4 +44,5 @@ def check_or_get_latest_sid(sid=0):
     is_known = NaxsiRules.query.filter(NaxsiRules.sid == sid).first() 
     if not is_known:
       lsid = sid
+    
   return(lsid)

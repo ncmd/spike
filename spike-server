@@ -2,7 +2,7 @@
 #
 # spike-server
 # 
-# this: v0.5 - 2014-03-10
+# this: v0.8.12 - 2014-09-10
 #
 
 import sys
@@ -114,7 +114,7 @@ def spike_init():
     print "  > rulesets_export_dir not found, creating: %s" % od
     for eo in ["naxsi", "ossec"]:
       print "  - %s - export" % eo
-      os.mkdir("%s/%s" % (od, eo))
+      os.makedirs("%s/%s" % (od, eo))
   bd = seeds.settings_seeds['backup_dir']
   if not isdir(bd):
     print "  > rulesets_backup_dir not found, creating: %s" % bd

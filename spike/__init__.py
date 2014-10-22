@@ -1,6 +1,6 @@
 
 # spike version + 142
-version = "0.3.99-2 - r170 - 2014-04-04"
+version = "0.3.99-6 - r178 - 2014-10-20"
 
 
 login_manager = None
@@ -14,7 +14,7 @@ def get_login_manager():
 flask_bcrypt = None
   
 def get_flask_bcrypt():
-    return spike.flask_bcrypt  
+  return spike.flask_bcrypt  
 
 from flask import Flask, app, session, redirect, url_for, escape, request
 import spike.views
@@ -49,7 +49,7 @@ def create_app(config_filename):
   spike.bootstrap = Bootstrap(app)
   
   # add bcrypt
-  from flaskext.bcrypt import Bcrypt
+  from flask.ext.bcrypt import Bcrypt
   spike.flask_bcrypt = Bcrypt(app)
 
   # add blueprints
