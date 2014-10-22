@@ -9,6 +9,19 @@
   configured)
 - the navigation should be self-explaining
 - create new rules as needed
-- export rulesets or all rulesets
-- process your exported files as needed
+- export rulesets or all rulesets -> will be exported 
+- process your exported files as needed 
+
+we use spike with doxi and the following workflow:
+
+- edit rules
+- when done, run a script on the console, that
+    - triggers http://spike.local:5555/rules/export/
+    - rsyncs spike/export/*.rules to sig_store/doxi-rules/
+    - cd sig_store/doxi-rules/ && git add *.rules && git commit -a -m "commit-message" && git push origin master
+    - runs a fabric-fabfile finally that updates all our servers with doxi-tools
+
+
+    
+
 

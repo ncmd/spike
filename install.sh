@@ -43,6 +43,7 @@ cp config.cfg.example config.cfg
 echo "
 > Install OK && DONE
 >
+> read docs/install.md
 > init your app now:
 >  - edit config.cfg
 >  - run ./server init 

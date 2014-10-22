@@ -22,7 +22,7 @@ from spike.views import *
 from flask.ext.bootstrap import Bootstrap
 from setuptools.command import easy_install
 from time import strftime, localtime, time
-import os, subprocess, sys
+import os, subprocess, sys, string
 
 
 def spike_version():
