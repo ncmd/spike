@@ -37,6 +37,9 @@ def create_app(config_filename):
   if config_filename != "":
     app.config.from_pyfile(config_filename)
 
+  if not app.config["SECRET_KEY"]:
+    app.config["SECRET_KEY"] = random_string()
+
   app.config["SQLALCHEMY_BINDS"] = {
     'rules':        'sqlite:///rules.db',
     'settings':     'sqlite:///settings.db',
@@ -115,4 +118,34 @@ def f_mzpop(mza, value):
   print mzu
   return(mzu)
   
+def random_string(l=128):
+    #
+    # see http://security.stackexchange.com/a/41503/27702
+    # credits: Brendan Long
+    #
+    # func stolen from https://makepw.com
+    #
+    from random import SystemRandom
+    
+    rng = SystemRandom()
+    
+
+    allchars = string.ascii_letters + string.digits
+    
+    
+    try:
+        passwordLength = int(l)
+    except:
+        #user didn't specify a length.  that's ok, just use 8
+        passwordLength = 32
+
+    # not less 
+    if passwordLength < 8:
+        passwordLength = 32
+    elif passwordLength > 128:
+        passwordLength = 32
+
+    pw = "".join([rng.choice(allchars) for i in range(passwordLength)])
+    
+    return(pw)
   

@@ -10,7 +10,7 @@ import os
 from time import time, strftime, localtime 
 from os.path import dirname, abspath, isdir, isfile
 from shutil import copy, move
-from spike import create_app, seeds, spike_version 
+from spike import create_app, seeds, spike_version, random_string
 from flask import Flask 
 
 
@@ -217,6 +217,7 @@ def spike_update():
 >
 
   """  
+
 
 
 def config_file():

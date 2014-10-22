@@ -12,10 +12,14 @@
 
 - git clone https://bitbucket.org/nginx-goodies/spike.git
 - cd spike && bash install.sh
+- edit config.cfg and adjust accordingly 
+- edit spike/seeds.py and adjust settings_seeds {}, esp. when contributing to
+  the community
+- 
 
 ## Setup
 
-- OBSOLETE, is sseded now and configurable setting / edit config.cfg and adjust NAXSI_RULES_EXPORT to point to a dircetory where 
+- OBSOLETE, is seeded now and configurable setting / edit config.cfg and adjust NAXSI_RULES_EXPORT to point to a dircetory where 
   your exported Naxsi-Rulesets should be stored; can be either a absolute or relative path
 
 - run `./server init`
