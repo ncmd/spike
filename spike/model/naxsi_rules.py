@@ -10,7 +10,7 @@ class NaxsiRules(db.Model):
   detection = db.Column(db.String(1024), nullable=False)
   mz = db.Column(db.String(1024), nullable=False)
   score = db.Column(db.String(1024), nullable=False)
-  sid = db.Column(db.Integer, nullable=False)
+  sid = db.Column(db.Integer, nullable=False, unique=True)
   ruleset = db.Column(db.String(1024), nullable=False)
   rmks = db.Column(db.Text, nullable=True, server_default = "")
   active  = db.Column(db.Integer, nullable=False, server_default = "1")

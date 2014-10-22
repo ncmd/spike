@@ -414,7 +414,7 @@ def export_ruleset(rid=0):
 
 @rules.route("/import/",  methods = ["GET", "POST"])
 def import_ruleset():
-  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  out_dir = current_app.config["RULES_EXPORT"]
   import_date = strftime("%F - %H:%M", localtime(time()))
   if request.method == "GET":
     rulesets = NaxsiRuleSets.query.all()
@@ -562,10 +562,27 @@ def rules_backup(action="show"):
       
     out = "".join(open("%s/rules.sql.%s" % (out_dir, bid), "r").readlines() )
     return Response(out, mimetype='text/plain')
+
+  elif action == "delete":
+    try:
+      bid = request.args.get('bid')
+        
+    except:
+      flash("ERROR, no backup - id selected ", "error")
+      return(redirect("/rules/backup"))
+
+    if not os.path.isfile("%s/rules.sql.%s" % (out_dir, bid)):
+      flash("ERROR, no backup found for id: %s" % bid,  "error")
+      return(redirect("/rules/backup"))
+      
+    os.unlink("%s/rules.sql.%s" % (out_dir, bid))
+    flash("backup deleted: %s/rules.sql.%s" % (out_dir, bid), "success")
+
     
   else:
     flash("ERROR, no backup - action selected ", "error")
     return(redirect("/rules/backup"))
+  return(redirect("/rules/backup"))
 
 
      

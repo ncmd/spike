@@ -140,7 +140,7 @@ def save_settings():
     if sfind.value != sform[s]:
       sfind.value = sform[s]
       db.session.add(sfind)
-      flash("Updated setting: %s" % s, "success")
+  flash("Updated setting: %s" % s, "success")
   db.session.commit()
   os.system("touch spike/__init__.py")
   return(redirect("/settings"))

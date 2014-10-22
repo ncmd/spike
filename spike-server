@@ -64,6 +64,8 @@ def run():
   except:
     app.config["RULES_EXPORT"] = "exports"
 
+  
+
   try:
     backup_dir = Settings.query.filter(Settings.name == 'backup_dir').first()
     app.config["BACKUP_DIR"] = backup_dir.value
