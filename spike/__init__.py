@@ -1,6 +1,6 @@
 
 # spike version + 142
-version = "0.3.99-6 - r178 - 2014-10-20"
+version = "0.4.0-rc1 - r178 - 2014-10-22"
 
 
 login_manager = None
