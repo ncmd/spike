@@ -46,7 +46,8 @@ echo "
 >
 > read docs/install.md
 > read docs/usage.md
->  - edit config.cfg
+>  - edit config.cfg and adjust port/listen-ip
+>
 >  - start engines: ./server run
 > 
 > have fun!

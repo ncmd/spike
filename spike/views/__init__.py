@@ -5,6 +5,9 @@ from functools import wraps
 from flask import current_app, redirect, url_for, flash, session
 from time import localtime, strftime, time 
 import simplejson as json
+from os.path import isfile 
+from markdown import markdown
+charset ="utf-8"
 
 def role_required(*roles):
   def decorator(f):
@@ -39,6 +42,24 @@ def date_id(value, format='%F'):
     except:
       print "[-] cannot datetime %s, defaulting to now()" % value 
       return strftime(format, localtime(time()))
+      
+def render_md(md_file):
+  cfile = "%s" % md_file
+  if not isfile(cfile):
+    return("")
+
+  fx = "".join(open(cfile, "r").readlines()).decode(charset)
+  return(return_md(fx))
+  
+def return_md(md_input):
+  ext = ['meta', 'extra', 'fenced_code', 'tables', 'codehilite', 'toc', 'attr_list']
+  #md = markdown2.Markdown(extras=ext)
+  #md = markdown2.Markdown(extras=ext)
+  
+  #print fx
+  md_out = markdown(md_input, extensions=ext)
+    
+  return(md_out)
 
 
 def now():
