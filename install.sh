@@ -39,14 +39,14 @@ echo ">  configuring"
 
 cp config.cfg.example config.cfg
 
+./server init
 
 echo "
-> Install OK && DONE
+> Install OK && INIT OK
 >
 > read docs/install.md
-> init your app now:
+> read docs/usage.md
 >  - edit config.cfg
->  - run ./server init 
 >  - start engines: ./server run
 > 
 > have fun!
