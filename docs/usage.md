@@ -22,6 +22,9 @@ we use spike with doxi and the following workflow:
     - runs a fabric-fabfile finally that updates all our servers with doxi-tools
 
 
-    
+# untested function
+
+- the import hasent been tested very well yet; it worked, but i wouldnt guarantee it
+
 
 

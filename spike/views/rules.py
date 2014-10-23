@@ -94,14 +94,15 @@ def ruleset_plain(rid = 0):
   if rid == 0:
     return(redirect("/rulesets/"))
   r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-  out_dir = current_app.config["NAXSI_RULES_EXPORT"]
+  out_dir = current_app.config["RULES_EXPORT"]
 
   if not os.path.isdir(out_dir):
     flash("ERROR while trying to access EXPORT_DIR: %s " % (out_dir), "error")
     flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
     return(redirect("/rules/rulesets/"))
 
-  rf = "%s/%s" % ( out_dir, r.file)
+  rf = "%s/naxsi/%s" % ( out_dir, r.file)
+  rf = "%s/naxsi/%s" % ( out_dir, r.file)
   if not os.path.isfile(rf):
     flash("ERROR while trying to read %s " % (rf), "error")
     return(redirect("/rules/rulesets/"))
@@ -396,8 +397,8 @@ def export_ruleset(rid=0):
     of = "%s/%s" % (naxsi_out, rs.file)
     print "> exporting %s" % of
     try:
-      f = open(of, "w")
-      head = seeds.ruleset_header % (rs.name, rs.file, export_date)
+      f = open(of, "w")      
+      head = current_app.config["RULESET_HEADER"].replace("RULESET_DESC", rs.name).replace("RULESET_FILE", rs.file).replace("RULESET_DATE", export_date)
       f.write(head)
     except:
       flash("ERROR while trying to export %s" % rs.file, "error")
@@ -478,12 +479,7 @@ def import_ruleset():
       known_sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
       if known_sid:
         old_sid = sid
-        latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        if not latest:
-          latest = current_app.config["NAXSI_RULES_OFFSET"]
-        else:
-          latest = latest.sid
-        sid = latest + 1
+        sid = check_or_get_latest_sid(old_sid)
         flash("changing sid: orig: %s / new: %s" % (old_sid, sid), "success")
         rmks = "%s \nchanged sid: orig: %s / new: %s " % (rmks, old_sid, sid)
         
@@ -547,6 +543,35 @@ def rules_backup(action="show"):
     return(render_template("rules/backups.html", 
       bfiles = bfiles
         ))
+
+  elif action == "reload":
+    try:
+      bid = request.args.get('bid')
+        
+    except:
+      flash("ERROR, no backup - id selected ", "error")
+      return(redirect("/rules/backup"))
+
+    bfile = "%s/rules.sql.%s" % (out_dir, bid)
+    rules_db = "spike/rules.db"
+
+      
+    if os.path.isfile(sqlite_bin) and os.access(sqlite_bin, os.X_OK):
+      pass 
+    else:
+      flash("ERROR, no sqlite_bin found in: %s " % sqlite_bin, "error")
+      flash("you might want to adjust your <a href=\"/settings\">Settings</a> and install sqlite", "error")
+      return(redirect("/rules/backup"))
+    
+    try:
+      os.unlink(rules_db)
+      os.system("%s %s < %s" % (sqlite_bin, rules_db, bfile))
+      flash("restored db.backup < %s" % bfile, "success")
+    except:
+      flash("ERRORwhile executing dump %s " % bfile, "error")
+      return(redirect("/rules/backup"))
+    return(redirect("/rules/backup"))
+    
 
   elif action == "display":
     try:

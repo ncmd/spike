@@ -6,6 +6,4 @@ vdir="venv"
 . $vdir/bin/activate
 
 
-
-
-python spike-server $1 
+python spike-server $1

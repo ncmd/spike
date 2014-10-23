@@ -1,19 +1,27 @@
-SECRET_KEY=fail_on_insert_key_string_here
-SQLALCHEMY_DATABASE_URI='sqlite:///'
-
+#
+# spike config.cfg
+# 
+# app-based settings are to be found in 
+# spike/settings.db (sqlite-database)
+# 
+#
 
 APP_ENV="dev"
 
 APP_PORT=5555
 #APP_HOST="0.0.0.0"
 
-# this is now in the settings, imported/upated on request
-# i'll keep it here for compatibility
-#NAXSI_RULES_DB="spike/rules.db"
-#NAXSI_RULES_EXPORT="exports"
-# where to start with signature_ids (sid) if the firs rule is created
-# should never be < 10000
-#NAXSI_RULES_OFFSET=200000 
 
-#BACKUP_DIR="backups"
-
+# see docs/usage.md for placeholders
+RULESET_HEADER = """
+##########################################################################
+#
+# Naxsi-Rules 
+# desc      : RULESET_DESC
+# file      : RULESET_FILE
+# created   : RULESET_DATE
+# by        : your name here
+# download  : your url here
+#
+###########################################################################
+"""

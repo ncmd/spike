@@ -3,6 +3,7 @@ exports/*
 backups/*
 spike/rules.db*
 spike/settings.db*
+spike/spike.pid
 *~
 *.pyc
 *.pyo

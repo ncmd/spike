@@ -26,22 +26,10 @@ settings_seeds = {
   'sqlite_bin'      : '/usr/bin/sqlite3',  # needed for dumps/reloads
   'ossec_apache_error_log_id': '30100', # https://github.com/ossec/ossec-hids/blob/master/etc/rules/apache_rules.xml
   'ossec_apache_access_log_id': '31100'
-
+  
 
 }
 
-ruleset_header = """
-##########################################################################
-#
-# doxi_rulesets - rules fo nginx+naxsi
-# desc      : %s
-# file      : %s
-# created   : %s
-# by        : nginx-goodies
-# download  : https://bitbucket.org/lazy_dogtown/doxi-rules
-#
-###########################################################################
 
-"""
 
 allowed_chars = "abcdefghijklmnopqrstuvwyzABCDEFGHIJKLMNOPQRSTUVWYZ1234567890-"

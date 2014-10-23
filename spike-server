@@ -2,7 +2,7 @@
 #
 # spike-server
 # 
-# this: v0.8.12 - 2014-09-10
+# this: v0.8.22 - 2014-10-10
 #
 
 import sys
@@ -99,6 +99,12 @@ def run():
     >
 """ % (od)
 
+  try:
+    app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
+  except:
+    app.config["RULESET_HEADER"] = """"""
+
+  
     
   print "> running @ %s:%s" % (app_host, app_port)
   app.run(debug=True, host=app_host, port=app_port)
