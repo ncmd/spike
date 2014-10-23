@@ -4,26 +4,25 @@
 
 ## Requirements
 
-- python 2.7 (not tested with 3.x, but fails with 2.6, esp. flask-bcrypt/sqlalchemy)
-- python-virtualenv
-- python-dev / headers
-- probably some build-essentials: gcc, make'n' stuff
-- sqlite3 
+- this should run on any decent linux-server with just some requirements, like
 
-- git clone https://bitbucket.org/nginx-goodies/spike.git
-- cd spike && bash install.sh
-- edit config.cfg and adjust accordingly 
-- edit spike/seeds.py and adjust settings_seeds {}, esp. when contributing to
-  the community
+    - python 2.7 (not tested with 3.x, but fails with 2.6, esp. flask-bcrypt/sqlalchemy)
+    - python-virtualenv
+    - python-dev / headers
+    - probably some build-essentials: gcc, make'n' stuff (for building flask/sqlalchemy)
+    - sqlite3 
+
 
 ## Setup
 
-- OBSOLETE, is seeded now and configurable setting / edit config.cfg and adjust NAXSI_RULES_EXPORT to point to a dircetory where 
-  your exported Naxsi-Rulesets should be stored; can be either a absolute or relative path
+- `git clone https://bitbucket.org/nginx-goodies/spike.git`
+- edit spike/seeds.py and adjust settings_seeds {}, esp. when contributing to the community
+- `cd spike && bash install.sh`
+- edit config.cfg and adjust APP_PORT and APP_HOST (listen ip)
+- run `./server run`
+- have fun!
 
-- run `./server init`
 
-you should be ready now to start using Spike!
 
 ## Config
 

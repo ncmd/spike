@@ -1,0 +1,15 @@
+{% extends "layouts/application.html" %}
+{% block title %}SPIKE! - WAF Rules Builder{% endblock %}
+
+{% block main %}
+
+<h2>Spike - Docs - Overview</h2>
+
+  <ul>
+  {% for file in doc_files %}
+    <li><a href="/{{ file }}">{{file}}</a></li>
+  {% endfor %}
+  </ul>
+
+{% endblock main %}
+
