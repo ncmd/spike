@@ -1,5 +1,4 @@
 
-# spike version + 142
 version = "0.4.0-rc3 - r199 - 2014-10-23"
 
 
