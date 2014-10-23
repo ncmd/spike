@@ -170,6 +170,17 @@ def spike_init():
     db.session.add(Settings(s, sseed[s]))
   db.session.commit()
   
+  secret_key = random_string()
+  
+  f = open(config_file(), "a")
+  f.write("""
+SECRET_KEY="%s"
+  """ % secret_key)
+
+  print " > secret-key generated"
+  
+  f.close()
+  
   #~ try:
     #~ db.session.commit()
   #~ except IntegrityError:
