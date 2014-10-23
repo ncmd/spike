@@ -13,8 +13,8 @@ rulesets_seeds = {
   'WEB_SERVER'  : 'web_server.rules', 
   'APP_SERVER'  : 'app_server.rules', 
   'WEB_APPS'    : 'web_apps.rules', 
-  'SCANNER'     : 'scanner_rules',
-  'MALWARE'     : 'malware_rules',
+  'SCANNER'     : 'scanner.rules',
+  'MALWARE'     : 'malware.rules',
 
   }
 
