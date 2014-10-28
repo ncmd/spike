@@ -19,6 +19,7 @@ rules = Blueprint('rules', __name__, url_prefix = '/rules')
 def index():
   rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
   if not rules:
+    flash("no rules found, please create one", "success")
     return(redirect("/rules/new"))
     
   return(render_template("rules/index.html", rules = rules))

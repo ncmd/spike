@@ -2,6 +2,23 @@
 
 # Installation and Setup
 
+- [Spike - Repo @ Bitbucket](https://bitbucket.org/nginx-goodies/spike/overview)
+
+# WARNING
+
+> 
+> Spike ist still very early alpha.
+>
+> NEVER run Spike! on a public facing Server; there's absolutely 
+> no protection or user-login atm; exposing Spike! to the public could
+> lead into damaged or deleted rules 
+>
+> Really
+>
+>
+
+
+
 ## Requirements
 
 - this should run on any decent linux-server with just some requirements, like
@@ -33,6 +50,7 @@
         - RULESET_DESC -> value from DESC
         - RULESET_FILE -> ruleset_filename
         - RULESET_DATE -> export-date
+
 
 
 

@@ -1,4 +1,17 @@
 
+# WARNING
+
+> 
+> Spike ist still very early alpha.
+>
+> NEVER run Spike! on a public facing Server; there's absolutely 
+> no protection or user-login atm; exposing Spike! to the public could
+> lead into damaged or deleted rules 
+>
+> Really
+>
+>
+
 # Usage 
 
 - run `./server run`
@@ -20,6 +33,9 @@ we use spike with doxi and the following workflow:
     - rsyncs spike/export/*.rules to sig_store/doxi-rules/
     - cd sig_store/doxi-rules/ && git add *.rules && git commit -a -m "commit-message" && git push origin master
     - runs a fabric-fabfile finally that updates all our servers with doxi-tools
+
+
+
 
 
 # untested function
