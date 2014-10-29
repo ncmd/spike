@@ -101,14 +101,6 @@ def demo_mode(func):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
-      demo_mode = current_app.config["DEMO_MODE"].lower()
-
-      print "demo: %s" % demo_mode 
-
-      flash("DEMO-MODE, function not available", "error")
-      return(redirect("/")) 
-
-
       try:
         demo_mode = current_app.config["DEMO_MODE"].lower()
 
