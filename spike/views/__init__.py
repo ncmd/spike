@@ -102,13 +102,14 @@ def demo_mode(func):
     def decorated_function(*args, **kwargs):
 
       try:
-        demo_mode = current_app.config["DEMO_MODE"].lower()
 
-        flash("DEMO-MODE, function not available", "errror")
+        print "> demo-mode"
+        demo_mode = current_app.config["DEMO_MODE"].lower()
+        flash("DEMO-MODE, function not available", "error")
         return(redirect("/")) 
           
       except:
-        print "> no demo-mode found"
+
         pass 
     
       

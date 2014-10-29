@@ -9,11 +9,12 @@
     <a href="/rules/import/" title="Import File" class="btn btn-success btn-lg">Import RulesFile</a></h2>
 
 
-  <table class="table table-condensed table-stripped">
+  <table class="table table-stripped">
 
     <tr>
         <td><h4>DESC</h4></td>
         <td><h4>FILE</h4></td>
+        <td><h4>Updated</h4></td>
         <td></td>
       
     </tr>
@@ -24,6 +25,7 @@
         <td valign="top">{{rs.name}}</td>
         <td >{{ rs.file }}
         </td>
+        <td>{% if rs.updated == 1 %} <a href="#" class="btn btn-success btn-lg">New!</a> {%endif %}</td>
         <td>
           <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> Rules </a>
           <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>

@@ -309,6 +309,9 @@ def save(sid=0):
       nrule.active = active 
       nrule.timestamp = ts
       db.session.add(nrule)
+      nruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == nrule.ruleset).first()
+      nruleset.updated = 1
+      db.session.add(nruleset)
       try:
         db.session.commit()
         flash("OK: updated %s : %s" % (sid, msg), "success")
@@ -402,7 +405,7 @@ def export_ruleset(rid=0):
     rid = "all"
     
   if rid == "all":
-    rsets = NaxsiRuleSets.query.all()
+    rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.updated != 0).all()
   else:
     rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).all()
   
@@ -418,6 +421,10 @@ def export_ruleset(rid=0):
       flash("ERROR while trying to export %s" % rs.file, "error")
       return(redirect("/rules/"))
     rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, NaxsiRules.active== 1).order_by(NaxsiRules.sid.desc()).all()
+    nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == rs.file).first()
+    nxruleset.updated = 0
+    db.session.add(nxruleset)
+    db.session.commit()
     for rule in rules:
       rout = z_display_rule(rule)
       f.write("%s \n" % rout)

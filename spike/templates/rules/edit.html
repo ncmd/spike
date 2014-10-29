@@ -6,7 +6,7 @@
   <br>
   <div class="deactivated">
   {% endif %}
-  <h3><a href="/rules/view/{{rules_info.sid}}">{{rules_info.sid}} - {{rules_info.msg}}</a></h3>
+  <h3><a href="/rules/view/{{rules_info.sid}}">{{rules_info.sid}} - {{rules_info.msg}}</a> <a href="/rules/view/{{rules_info.sid}}" class="btn btn-lg btn-primary">View Rule</a></h3>
   <form action="/rules/save/{{rules_info.sid}}" method="POST">
   
   <table  class="table table-condensed table-stripped">
