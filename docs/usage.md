@@ -12,7 +12,38 @@
 >
 >
 
-# Usage 
+If you are new to naxsi, please read the [Naxsi Rules Syntax Howto](https://github.com/nbs-system/naxsi/wiki/rulessyntax)
+and the [Writing Naxsi Sigs Handbook](/docs/writing_naxsi_sigs.md)
+
+
+
+# Edit Rules /rules/edit/SID
+
+- General Hint: "Quotations" will be stripped from the interface but added into the signatures
+- you can switch between edit and view-mode; edit -> change values, view -> see the final rule after saving
+
+- SID (Signature ID) will be given automatically
+- MSG: mnessag-strang that will be included as "msg:MESSAGE_STRING"
+- Detect: detection - string/rx; if omitted, str:DETECTION_STRING will be added, if you want to use regular expression you need to 
+  use the designator rx:YOUR_REGEX; 
+
+- MZ: select a given MatchingZone or create a custom one; you might use multiple MatchingZones; you might add custom MatchingZones via 
+  /settings/mz
+- Score: select at least one score; you might add custom Scores via /settings/score
+- Remarks: will be added into the export before the rule
+- RuleSet: select a ruleset for this rule; you might change/add rulesets via /rules/rulesets/
+
+~~~ 
+#
+# rmks 
+#
+MainRule "str:/gatedesc.xml" "msg:UPNP-Scan" "mz:URL" "s:$UWA:8" id:42000390  ;
+
+~~~
+
+
+
+# Server-Usage 
 
 - run `./server run`
 
@@ -24,6 +55,8 @@
 - create new rules as needed
 - export rulesets or all rulesets -> will be exported 
 - process your exported files as needed 
+
+# Workflow
 
 we use spike with doxi and the following workflow:
 
