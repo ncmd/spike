@@ -1,4 +1,5 @@
-from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response 
+from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response
+from spike.views import demo_mode
 from flask.ext.login import login_user, logout_user, current_user, login_required
 import simplejson as json
 import os 
@@ -15,6 +16,7 @@ from spike.model import *
 
 rules = Blueprint('rules', __name__, url_prefix = '/rules')
 
+
 @rules.route("/")
 def index():
   rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
@@ -23,6 +25,7 @@ def index():
     return(redirect("/rules/new"))
     
   return(render_template("rules/index.html", rules = rules))
+
 
 @rules.route("/rulesets/")
 def rulesets():
@@ -51,7 +54,7 @@ def ruleset_view(rid = 0):
   
   return(render_template("rules/ruleset_view.html", r = r, rout = rout))
 
-
+@demo_mode("")
 @rules.route("/rulesets/new", methods=["POST"])
 def ruleset_new():
 
@@ -237,6 +240,29 @@ def edit(sid=0):
   if sid == 0:
     return(redirect("/rules/"))
 
+  rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+  if not rinfo:
+    return(redirect("/rules/"))
+  mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
+  score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
+  rulesets = NaxsiRuleSets.query.all()
+  rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
+  return(render_template("rules/edit.html", 
+      mz = mz, 
+      rulesets = rulesets,
+      score = score, 
+      rules_info = rinfo,
+      rule_ruleset = rruleset
+      ))
+
+
+@rules.route("/save/<path:sid>",  methods = ["POST"])
+@demo_mode("")
+def save(sid=0):
+
+  if sid == 0:
+    return(redirect("/rules/"))
+
   if request.method == "POST":
     # create new rule
     ts = int(time())
@@ -288,22 +314,7 @@ def edit(sid=0):
         flash("OK: updated %s : %s" % (sid, msg), "success")
       except:
         flash("ERROR while trying to update %s : %s" % (sid, msg), "error")
-      
-  rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-  if not rinfo:
-    return(redirect("/rules/"))
-  mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
-  score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
-  rulesets = NaxsiRuleSets.query.all()
-  rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
-  return(render_template("rules/edit.html", 
-      mz = mz, 
-      rulesets = rulesets,
-      score = score, 
-      rules_info = rinfo,
-      rule_ruleset = rruleset
-      ))
-
+  return(redirect("/rules/edit/%s" % sid))
 
 @rules.route("/view/<path:sid>",  methods = ["GET"])
 def view(sid=0):
@@ -322,6 +333,7 @@ def view(sid=0):
 
 
 @rules.route("/del/<path:sid>",  methods = ["GET"])
+@demo_mode("")
 def del_sid(sid=0):
 
   if sid == 0:
@@ -343,6 +355,7 @@ def del_sid(sid=0):
 
 
 @rules.route("/deact/<path:sid>",  methods = ["GET"])
+@demo_mode("")
 def deact_sid(sid=0):
 
   if sid == 0:
@@ -415,6 +428,7 @@ def export_ruleset(rid=0):
 
 
 @rules.route("/import/",  methods = ["GET", "POST"])
+@demo_mode("")
 def import_ruleset():
   out_dir = current_app.config["RULES_EXPORT"]
   import_date = strftime("%F - %H:%M", localtime(time()))
@@ -423,6 +437,7 @@ def import_ruleset():
     return(render_template("rules/import.html", rulesets = rulesets))
   
   elif request.method == "POST":
+
     # create new rule
     ts = int(time())
     nr = request.form
@@ -493,7 +508,36 @@ def import_ruleset():
   return(redirect("/rules/export/"))
 
 @rules.route("/backup/", methods=["GET"])
+def rules_backup_view(action="show"):
+
+  out_dir = current_app.config["BACKUP_DIR"]
+  sqlite_bin = current_app.config["SQLITE_BIN"]
+
+  if not os.path.isdir(out_dir):
+    flash("ERROR while trying to access BACKUP_DIR: %s " % (out_dir), "error")
+    flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
+    return(redirect("/rules/"))
+
+
+  bfiles = {} 
+  bfiles_in = glob("%s/*.sql.*" % out_dir)
+  print bfiles_in
+  for b in bfiles_in:
+    bx = b.split("/")
+    print bx
+    bname = bx[-1]
+    bid = bx[-1].split(".")[-1]
+    bdate = strftime("%F - %H:%M", localtime(float(bx[-1].split(".")[-1])))
+    bfiles[bid] = [bname, bdate]
+  
+  return(render_template("rules/backups.html", 
+    bfiles = bfiles
+      ))
+
+
+
 @rules.route("/backup/<path:action>", methods=["GET"])
+@demo_mode("")
 def rules_backup(action="show"):
 
   out_dir = current_app.config["BACKUP_DIR"]
@@ -609,7 +653,6 @@ def rules_backup(action="show"):
     flash("ERROR, no backup - action selected ", "error")
     return(redirect("/rules/backup"))
   return(redirect("/rules/backup"))
-
 
      
 def z_display_rule(rule, full=1):

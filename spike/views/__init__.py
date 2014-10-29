@@ -96,3 +96,31 @@ def render_content(in_put):
   
   return("marvin is VERY tired")
 
+def demo_mode(func):
+  def decorator(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+      demo_mode = current_app.config["DEMO_MODE"].lower()
+
+      print "demo: %s" % demo_mode 
+
+      flash("DEMO-MODE, function not available", "error")
+      return(redirect("/")) 
+
+
+      try:
+        demo_mode = current_app.config["DEMO_MODE"].lower()
+
+        flash("DEMO-MODE, function not available", "errror")
+        return(redirect("/")) 
+          
+      except:
+        print "> no demo-mode found"
+        pass 
+    
+      
+    
+      return f(*args, **kwargs)
+    return decorated_function
+  return decorator

@@ -53,6 +53,7 @@ def run():
     app_host = "127.0.0.1"
 
 
+
   from spike.model import db, Settings
 
   db.init_app(app)

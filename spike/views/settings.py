@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response 
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from spike.views  import demo_mode
 import simplejson as json
 import os 
 from time import time, localtime, strftime
@@ -56,7 +57,9 @@ def execute_sql():
       res = [("OK",  "\n".join(sqle))]
   return(render_template("settings/sql.html", res = res, sqlval = "\n".join(sqle)))
 
+
 @settings.route("/mz/del", methods = ["POST"])
+@demo_mode("")
 def mz_del():
   nd = request.form
   mzid = nd["mzid"]
@@ -75,7 +78,9 @@ def mz_del():
     flash("ERROR while trying to delete : %s" % (dmz.value ), "error")
   return(redirect("/settings/mz"))
 
+
 @settings.route("/mz/new", methods = ["POST"])
+@demo_mode("")
 def mz_new():
   nd = request.form
   nmz = nd["nmz"]
@@ -93,6 +98,7 @@ def score_index():
   return(render_template("settings/scores.html", scores = sc))
 
 @settings.route("/scores/new", methods = ["POST"])
+@demo_mode("")
 def score_new():
   nd = request.form
   nsc = nd["nscore"]
@@ -104,7 +110,9 @@ def score_new():
   flash("Updated Score: %s" % nsc, "success")  
   return(redirect("/settings/scores"))
 
+
 @settings.route("/scores/del", methods = ["POST"])
+@demo_mode("")
 def scores_del():
   nd = request.form
   scid = nd["scid"]
@@ -120,7 +128,9 @@ def scores_del():
     flash("ERROR while trying to delete : %s" % (dsc.value ), "error")
   return(redirect("/settings/scores"))
 
+
 @settings.route("/update")
+@demo_mode("")
 def mz_update():
   out = "".join(os.popen("./server update"))
   flash("OK: update " , "success")
@@ -129,6 +139,7 @@ def mz_update():
   
 
 @settings.route("/save", methods = ["POST"])
+@demo_mode("")
 def save_settings():
   
   sform = request.form

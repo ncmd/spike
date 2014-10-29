@@ -1,5 +1,5 @@
 
-version = "0.4.0-rc3 - r199 - 2014-10-23"
+version = "0.4.0-rc4 - r211 - 2014-10-23"
 
 
 login_manager = None
@@ -147,4 +147,5 @@ def random_string(l=128):
     pw = "".join([rng.choice(allchars) for i in range(passwordLength)])
     
     return(pw)
-  
+
+
