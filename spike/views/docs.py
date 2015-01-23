@@ -16,9 +16,9 @@ docs = Blueprint('docs', __name__, url_prefix = '/docs')
 @docs.route("/")
 def index():
 
-  doc_files = glob("docs/*.md")
+  doc_info = render_md("docs/docs.md")
     
-  return(render_template("docs/index.html", doc_files = doc_files))
+  return(render_template("docs/index.html", doc_display = doc_info))
 
 
 @docs.route("/<path:doc_file>")

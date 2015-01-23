@@ -1,5 +1,5 @@
 
-version = "0.4.0-rc4 - r211 - 2014-10-23"
+version = "0.4.1 - r242 - 2015-01-22"
 
 
 login_manager = None
@@ -11,7 +11,9 @@ def get_login_manager():
   return spike.login_manager
   
 flask_bcrypt = None
-  
+
+
+
 def get_flask_bcrypt():
   return spike.flask_bcrypt  
 

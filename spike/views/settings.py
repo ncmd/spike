@@ -27,7 +27,9 @@ def mz_index():
     return(redirect("/settings"))
   return(render_template("settings/mz.html", mz = mz))
 
+
 @settings.route("/sql",  methods = ["GET", "POST"])
+@demo_mode("")
 def execute_sql():
   res = []
   sqle = ""
@@ -39,6 +41,9 @@ def execute_sql():
     out = 0
     for s in sql:
       s = s.strip()
+      if len(s) < 20: 
+        flash("query is too short", "error")
+        return(redirect("/settings/sql"))
       if s[-1] != ";":
         s = "%s ;" % s
       if s[0:10].find("select") > -1:

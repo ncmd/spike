@@ -2,6 +2,18 @@
 
 # Spike - ChangeLog
 
+### v0.4.1 - 2015-01-22
+
+- bugfixes
+- export now only rulesets that got changed, leave unchanged as-is
+- "writing naxsi sigs" - manual included
+- docs updated
+- demo-mode I(spike.nginx-goodies.com) w/out saving/changing stuff
+- nicer install-script
+- search for sid-id
+- sql-editor
+
+
 ### v0.4 - 2014-04-07
 
 - rules-db backup

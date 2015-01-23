@@ -1,4 +1,6 @@
 
+# Writing Naxsi Sigs - Manual 
+
 NAXSI is a WebApplicationFirewall (WAF) - Module for Nginx and 
 works very well in its current state. This Howto tries to explain 
 how to understand and write Naxsi-Signatures and give explain
@@ -40,7 +42,7 @@ WAF-administration, ruleset-updates and an extended  and updated Ruleset
 - when using the word EVENT we refer to a request that creates a hit on one or more SIGs
 
 
-# Rules - Writing Naxsi - Sigs - Howto
+## Rules - Writing Naxsi - Sigs - Howto
 
 - MainRule  -> define a detection-pattern and scores
 - BasicRule -> define whitelists for MainRules
@@ -248,7 +250,8 @@ BasicRule wl:1100 "mz:$URL:/some/url|URL";
 - 12 - "uncommon URL" : URL is malformed
 - 13 - "uncommon post format" : malformed boundary or content-disposition
 - 14 - "uncommon post boundary" : BODY boundary line is malformed, or boundary breaks RFC
-- 15 - "empty body" : POST with empty BODY (>= 0.53-1 - was merged with id:11 before)
+- 15 - invalid JSON - gets parsed when application/json is detected (experimental as of summer 2014)
+- 16 - "empty body" : POST with empty BODY (>= 0.53-1 - was merged with id:11 before)
 
 #### naxsi-core.rules
 

@@ -77,7 +77,7 @@ def ruleset_new():
       flash("ERROR, ruleset exists: %s " % (rfile), "error")
       return(redirect("/rules/rulesets/"))
       
-    rnew = NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, ts)
+    rnew = NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, 0, ts)
     db.session.add(rnew)
     try:
       db.session.commit()
@@ -345,7 +345,10 @@ def del_sid(sid=0):
   nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
   if not nrule:
     return(redirect("/rules/"))
-  
+
+  nruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == nrule.ruleset).first()
+  nruleset.updated = 1
+  db.session.add(nruleset)
   db.session.delete(nrule)
   try:
     db.session.commit()
@@ -408,6 +411,11 @@ def export_ruleset(rid=0):
     rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.updated != 0).all()
   else:
     rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).all()
+  
+  if not rsets:
+    flash("Nothing to export, no rules changed", "success")
+    return(redirect("/rules/rulesets/"))
+    
   
   # naxsi-exports
   for rs in rsets:

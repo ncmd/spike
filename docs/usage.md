@@ -17,13 +17,13 @@ and the [Writing Naxsi Sigs Handbook](/docs/writing_naxsi_sigs.md)
 
 
 
-# Edit Rules /rules/edit/SID
+# Create and Edit Rules /rules/new  | /rules/edit/SID
 
 - General Hint: "Quotations" will be stripped from the interface but added into the signatures
 - you can switch between edit and view-mode; edit -> change values, view -> see the final rule after saving
 
 - SID (Signature ID) will be given automatically
-- MSG: mnessag-strang that will be included as "msg:MESSAGE_STRING"
+- MSG: message-string that will be included as "msg:MESSAGE_STRING"
 - Detect: detection - string/rx; if omitted, str:DETECTION_STRING will be added, if you want to use regular expression you need to 
   use the designator rx:YOUR_REGEX; 
 
@@ -34,10 +34,12 @@ and the [Writing Naxsi Sigs Handbook](/docs/writing_naxsi_sigs.md)
 - RuleSet: select a ruleset for this rule; you might change/add rulesets via /rules/rulesets/
 
 ~~~ 
+
 #
 # rmks 
 #
 MainRule "str:/gatedesc.xml" "msg:UPNP-Scan" "mz:URL" "s:$UWA:8" id:42000390  ;
+
 
 ~~~
 

@@ -5,11 +5,8 @@
 
 <h2>Spike - Docs - Overview</h2>
 
-  <ul>
-  {% for file in doc_files %}
-    <li><a href="/{{ file }}">{{file}}</a></li>
-  {% endfor %}
-  </ul>
+
+  {{ doc_display | safe }}
 
 {% endblock main %}
 
