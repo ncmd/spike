@@ -2,7 +2,7 @@
 
 # Spike - ChangeLog
 
-### v0.4.1 - 2015-01-22
+### v0.4.1 - 2015-03-22
 
 - bugfixes
 - export now only rulesets that got changed, leave unchanged as-is
@@ -12,6 +12,7 @@
 - nicer install-script
 - search for sid-id
 - sql-editor
+- rules can be negated now
 
 
 ### v0.4 - 2014-04-07

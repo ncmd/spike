@@ -2,7 +2,7 @@ from flask import current_app, Blueprint, render_template, abort, request, redir
 from spike.views import demo_mode
 from flask.ext.login import login_user, logout_user, current_user, login_required
 import simplejson as json
-import os 
+import os, re
 from time import time, localtime, strftime
 from uuid import uuid4 
 from glob import glob 
@@ -203,7 +203,12 @@ def new():
     sid = next_sid
     rmks = nr["rmks"]
     ruleset = nr["ruleset"]
-    
+    negative = nr["negative"]
+    if negative == "on":
+      negative = 1
+    else:
+      negative = 0
+      
     #~ except:
       #~ flash("""ERROR - please select MZ/Score
     #~ <a class="btn btn-warning btn-lg" href="javascript:window.history.back()">Go Back</a>
@@ -212,7 +217,7 @@ def new():
     #~ 
     if doit == 1:
       try:
-        nrule = NaxsiRules(msg, detect, mz, score, sid, ruleset, rmks, "1", ts)
+        nrule = NaxsiRules(msg, detect, mz, score, sid, ruleset, rmks, "1", negative, ts)
         db.session.add(nrule)
         db.session.commit()
         flash("OK: created %s : %s" % (sid, msg), "success")
@@ -247,12 +252,18 @@ def edit(sid=0):
   score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
   rulesets = NaxsiRuleSets.query.all()
   rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
+  custom_mz = ""
+  mz_check = rinfo.mz
+  if re.search("^\$[A-Z]+:(.*)\|[A-Z]+", mz_check):
+    custom_mz = mz_check
+    rinfo.mz = "custom"
   return(render_template("rules/edit.html", 
       mz = mz, 
       rulesets = rulesets,
       score = score, 
       rules_info = rinfo,
-      rule_ruleset = rruleset
+      rule_ruleset = rruleset,
+      custom_mz = custom_mz
       ))
 
 
@@ -281,7 +292,10 @@ def save(sid=0):
       mz = "|".join(nr.getlist("mz"))
       try:
         if nr["custom_mz"] == "on":
-          mz = "%s|%s" % (mz, nr["custom_mz_val"])
+          if len(mz) > 1: 
+            mz = "%s|%s" % (nr["custom_mz_val"], mz)
+          else:
+            mz = "%s" % (nr["custom_mz_val"])
       except:
         pass      
       score_raw = nr["score"].strip()
@@ -291,6 +305,11 @@ def save(sid=0):
       rmks = nr["rmks"]
       ruleset = nr["ruleset"]
       active = nr["active"]
+      negative = nr["negative"]
+      if negative == "on":
+        negative = 1
+      else:
+        negative = 0      
   
     except:
       flash("""ERROR - please select MZ/Score
@@ -307,6 +326,7 @@ def save(sid=0):
       nrule.ruleset = ruleset
       nrule.rmks = rmks 
       nrule.active = active 
+      nrule.negative = negative
       nrule.timestamp = ts
       db.session.add(nrule)
       nruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == nrule.ruleset).first()
@@ -678,18 +698,21 @@ def z_display_rule(rule, full=1):
     detect = rule.detection.lower()
   else:
     detect = rule.detection
+  negate = ""
+  if rule.negative == 1:
+    negate = "negative"
   if full == 1:
     nout = """#
 # sid: %s | date: %s 
 #
 # %s
 #
-MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
+MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
       
-      """ % (rule.sid, rdate, rmks, detect, rule.msg, rule.mz, rule.score, rule.sid )
+      """ % (rule.sid, rdate, rmks, negate, detect, rule.msg, rule.mz, rule.score, rule.sid )
   else:
-    nout = """MainRule "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
-      (rule.detection, rule.msg, rule.mz, rule.score, rule.sid )
+    nout = """MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
+      (negate, rule.detection, rule.msg, rule.mz, rule.score, rule.sid )
   
   return(nout)
 

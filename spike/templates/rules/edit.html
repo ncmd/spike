@@ -39,13 +39,16 @@
       {% endfor %}
       {% for r in rmz  %}
       {% if r not in dmz %}
-        <input type="checkbox" name="mz" value="{{r}}" checked> <strong> {{ r }} </strong><br>
+        {% if r != "custom" %}
+        <input type="checkbox" name="mz" value="{{r}}" checked> <strong>{{ r }} </strong><br>
+        {% endif %}
       {% endif %}
       {% endfor %}
-        <input type="checkbox" name="custom_mz" value="on"> <input type="text" name="custom_mz_val" placeholder="Custom MZ"><br>
+        <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}> <input type="text" name="custom_mz_val" value="{{custom_mz}}" placeholder="Custom MZ" size="35"><br>
       </td>
-    <td valign="top">Score</td>
+    <td valign="top">&nbsp; &nbsp; &nbsp; </td>
     <td valign="top">
+      <strong>Score</strong> <br>
       {% for s in score %}
       {% set sc,sv = rules_info.score | scoresplit %}
         {% if s.value  == sc %}
@@ -61,6 +64,13 @@
           {% endif %}   
          <br>
       {% endfor %}
+      <hr>
+      <strong>Negative</strong> <br>
+
+      <input type="radio" id="off" name="negative" value="off" {% if rules_info.negative == 0 %} checked {% endif %}> Off || 
+      <input type="radio" id="on" name="negative" value="on" {% if rules_info.negative == 1 %} checked {% endif %}> On
+
+
       </td>
       </tr>
       
