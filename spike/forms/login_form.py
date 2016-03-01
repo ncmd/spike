@@ -1,11 +1,11 @@
 from flask.ext.wtf import Form
-from wtforms import TextField, PasswordField, validators
+from wtforms import StringField, PasswordField, validators
 from spike.model import *
 
 
 class LoginForm(Form):
-    login = TextField('Login', [validators.Required()])
-    password = PasswordField('Password', [validators.Required()])
+    login = StringField('Login', [validators.DataRequired()])
+    password = PasswordField('Password', [validators.DataRequired()])
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
