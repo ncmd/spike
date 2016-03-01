@@ -17,7 +17,7 @@ class LoginForm(Form):
 
         user = User.query.filter_by(
             email=self.email.data).first()
-            
+
         if user is None:
             self.email.errors.append('Unknown email')
             return False
