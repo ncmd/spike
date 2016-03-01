@@ -161,7 +161,7 @@ def spike_init():
   for r in rseed:
     print "    > adding ruleset: %s / %s" % (r, rseed[r])
     rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
-    db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts ))
+    db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts, ts ))  # no idea about the last parameter, what is it?
 
   sseed = seeds.settings_seeds 
   for s in sseed:
