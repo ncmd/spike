@@ -20,15 +20,15 @@ __all__ = [
 
 def check_constraint(ctype, value):
   if ctype == "settings":
-    cres = Settings.query.filter(Settings.name == value),first()
+    cres = Settings.query.filter(Settings.name == value).first()
   elif ctype == "ruleset":
     cres = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == value).first()
   else:
-    cres == 1
+    cres = 1
+
   if not cres:
-    return(0)
-  else:
-    return(cres)
+    return 0
+  return(cres)
 
 def check_or_get_latest_sid(sid=0):
   
