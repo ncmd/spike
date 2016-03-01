@@ -1,18 +1,13 @@
-from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response
-from spike.views import demo_mode
-from flask.ext.login import login_user, logout_user, current_user, login_required
-import simplejson as json
-import os, re
+import os
+import re
+from glob import glob
 from time import time, localtime, strftime
-from uuid import uuid4 
-from glob import glob 
-import subprocess as sub
 
+from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
 
-
-from spike.views import role_required
-from spike import seeds 
+from spike import seeds
 from spike.model import *
+from spike.views import demo_mode
 
 rules = Blueprint('rules', __name__, url_prefix = '/rules')
 
@@ -142,8 +137,6 @@ def nx_select(selector=0):
     
 @rules.route("/search/",  methods = ["GET"])
 def search():
-  from flask.ext.sqlalchemy import SQLAlchemy
-  
   srch = request.args.get('s', '').replace("+", "---")
   sclean = ""
   if len(srch) > 2:

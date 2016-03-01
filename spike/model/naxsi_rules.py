@@ -1,5 +1,5 @@
 from spike.model import db
-from time import time 
+
 
 class NaxsiRules(db.Model):
   __bind_key__ = 'rules'

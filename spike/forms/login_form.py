@@ -1,6 +1,5 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, validators
-from spike.model import *
 
 
 class LoginForm(Form):

@@ -1,15 +1,8 @@
-from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response 
-from flask.ext.login import login_user, logout_user, current_user, login_required
-import simplejson as json
-import os 
-from time import time, localtime, strftime
-from uuid import uuid4 
-from glob import glob 
+from glob import glob
 
+from flask import Blueprint, render_template, redirect
 
-from spike.views import role_required, render_content, render_md
-from spike import seeds 
-from spike.model import *
+from spike.views import render_md
 
 docs = Blueprint('docs', __name__, url_prefix = '/docs')
 

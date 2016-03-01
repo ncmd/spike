@@ -5,13 +5,13 @@
 # this: v0.8.22 - 2014-10-10
 #
 
-import sys
 import os
-from time import time, strftime, localtime 
-from os.path import dirname, abspath, isdir, isfile
-from shutil import copy, move
+import sys
+from os.path import dirname, abspath, isdir
+from shutil import move
+from time import time, strftime, localtime
+
 from spike import create_app, seeds, spike_version, random_string
-from flask import Flask 
 
 
 def usage():
@@ -111,7 +111,6 @@ def run():
   app.run(debug=True, host=app_host, port=app_port)
 
 def spike_init():
-  from flask.ext.sqlalchemy import SQLAlchemy
   it = int(time())
   print "> init Spike  "
   ts = int(time())
@@ -143,9 +142,8 @@ def spike_init():
   print "  > init_creating db"
   #os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
 
-  from sqlalchemy.exc import IntegrityError
   from spike.model import db
-  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates, Settings
+  from spike.model import NaxsiRuleSets, ValueTemplates, Settings
 
 
   app.test_request_context().push()
@@ -195,7 +193,6 @@ SECRET_KEY="%s"
   """  
 
 def spike_update():
-  from flask.ext.sqlalchemy import SQLAlchemy
   it = int(time())
   print "> update Spike  "
   print "> getting latest updates from repo"
@@ -204,9 +201,8 @@ def spike_update():
   ds = strftime("%F - %H:%M", localtime(time()))
   app = create_app(config_file())
 
-  from sqlalchemy.exc import IntegrityError
   from spike.model import db
-  from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates, Settings
+  from spike.model import Settings
 
 
   app.test_request_context().push()

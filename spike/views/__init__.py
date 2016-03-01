@@ -1,12 +1,13 @@
 __all__ = [ 'default', 'rules', 'settings', 'docs' ]
 
-from flask.ext.login import current_user
 from functools import wraps
+from os.path import isfile
+from time import localtime, strftime, time
+
 from flask import current_app, redirect, url_for, flash, session
-from time import localtime, strftime, time 
-import simplejson as json
-from os.path import isfile 
+from flask.ext.login import current_user
 from markdown import markdown
+
 charset ="utf-8"
 
 def role_required(*roles):

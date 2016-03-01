@@ -1,15 +1,9 @@
-from flask import current_app, Blueprint, render_template, abort, request, redirect, url_for, flash, Response 
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from spike.views  import demo_mode
-import simplejson as json
-import os 
-from time import time, localtime, strftime
-from uuid import uuid4 
+import os
 
+from flask import current_app, Blueprint, render_template, request, redirect, flash
 
-from spike.views import role_required
-from spike import seeds 
 from spike.model import *
+from spike.views  import demo_mode
 
 settings = Blueprint('settings', __name__, url_prefix = '/settings')
 

@@ -1,13 +1,8 @@
-from flask import current_app, Blueprint, render_template, abort, request, flash, redirect, url_for
-from spike import get_login_manager, get_flask_bcrypt
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask.ext.login import login_user, logout_user, current_user
+
+from spike import get_login_manager
 from spike.forms.login_form import LoginForm
-from flask.ext.login import login_user, logout_user, current_user, login_required, session
-from time import time, localtime, strftime 
-
-
-from spike.model import *
-
-import simplejson as json
 
 default = Blueprint('default', __name__, url_prefix = '/')
 login_manager = get_login_manager()

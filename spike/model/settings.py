@@ -1,5 +1,5 @@
 from spike.model import db
-from time import time 
+
 
 class Settings(db.Model):
   __bind_key__ = 'settings'

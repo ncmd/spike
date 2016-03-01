@@ -5,7 +5,7 @@ version = "0.4.1.4 - r268 - 2015-03-29"
 login_manager = None
 
 def get_login_manager():
-  from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
+  from flask.ext.login import LoginManager
   if spike.login_manager == None:
     spike.login_manager = LoginManager()
   return spike.login_manager
@@ -15,15 +15,17 @@ flask_bcrypt = None
 
 
 def get_flask_bcrypt():
-  return spike.flask_bcrypt  
+  return spike.flask_bcrypt
 
-from flask import Flask, app, session, redirect, url_for, escape, request
+
+import string
+from time import strftime, localtime, time
+
+from flask import Flask
+from flask.ext.bootstrap import Bootstrap
+
 import spike.views
 from spike.views import *
-from flask.ext.bootstrap import Bootstrap
-from setuptools.command import easy_install
-from time import strftime, localtime, time
-import os, subprocess, sys, string
 
 
 def spike_version():
