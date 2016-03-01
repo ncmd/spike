@@ -11,87 +11,80 @@ from os.path import dirname, abspath, isdir
 from shutil import move
 from time import time, strftime, localtime
 
-from spike import create_app, seeds, spike_version, random_string
+from spike import create_app, seeds, spike_version, random_string, model
+from spike.model import db, Settings, NaxsiRuleSets, ValueTemplates
 
 
 def usage():
+    print "Usage: ./server [run|init|update]\n\n"
+    sys.exit(0)
 
-  print "Usage: ./server [run|init|update]\n\n"
-  
 
 def main(argv):
-  
-  print """
+    """
+    :param list of str argv: List of parameter given to the application
+    """
+    print('Spike %s' % spike_version)
 
-Spike v: %s
-  
-  """ % spike_version()
-  
-  if len(argv) == 2:
+    if len(argv) != 2:
+        usage()
+
     if argv[1] == "run":
-      run()
+        run()
     elif argv[1] == "init":
-      spike_init()
+        spike_init()
     elif argv[1] == "update":
-      spike_update()
-    else: 
-      usage()
-  else:
-    usage()
-  
+        spike_update()
+    else:
+        usage()
+
+
 def run():
-  app = create_app(config_file())
-  
-  # some defaults
-  try:
-    app_port = int(app.config["APP_PORT"])
-  except:
-    app_port = 5555
-  try:
-    app_host = app.config["APP_HOST"]
-  except:
-    app_host = "127.0.0.1"
+    app = create_app(config_file())
 
+    # some defaults
+    try:
+        app_port = int(app.config["APP_PORT"])
+    except:
+        app_port = 5555
+    try:
+        app_host = app.config["APP_HOST"]
+    except:
+        app_host = "127.0.0.1"
 
+    db.init_app(app)
+    app.test_request_context().push()
 
-  from spike.model import db, Settings
+    try:
+        eo_dir = Settings.query.filter(Settings.name == 'rules_export_dir').first()
+        app.config["RULES_EXPORT"] = eo_dir.value
+    except:
+        app.config["RULES_EXPORT"] = "exports"
 
-  db.init_app(app)
-  app.test_request_context().push()
+    try:
+        backup_dir = Settings.query.filter(Settings.name == 'backup_dir').first()
+        app.config["BACKUP_DIR"] = backup_dir.value
+    except:
+        app.config["BACKUP_DIR"] = "backups"
 
-  try:
-    eo_dir = Settings.query.filter(Settings.name == 'rules_export_dir').first()
-    app.config["RULES_EXPORT"] = eo_dir.value
-  except:
-    app.config["RULES_EXPORT"] = "exports"
+    try:
+        eo_offset = Settings.query.filter(Settings.name == 'rules_offset').first()
+        app.config["NAXSI_RULES_OFFSET"] = eo_offset.value
+    except:
+        app.config["NAXSI_RULES_OFFSET"] = 20000
 
-  
+    try:
+        sqlite_bin = Settings.query.filter(Settings.name == 'sqlite_bin').first()
+        app.config["SQLITE_BIN"] = sqlite_bin.value
+        if app.config["SQLITE_BIN"] is None:
+            app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
+    except:
+        app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
 
-  try:
-    backup_dir = Settings.query.filter(Settings.name == 'backup_dir').first()
-    app.config["BACKUP_DIR"] = backup_dir.value
-  except:
-    app.config["BACKUP_DIR"] = "backups"
-
-  
-  try:
-    eo_offset = Settings.query.filter(Settings.name == 'rules_offset').first()
-    app.config["NAXSI_RULES_OFFSET"] = eo_offset.value
-  except:
-    app.config["NAXSI_RULES_OFFSET"] = 20000
-
-  try:
-    sqlite_bin = Settings.query.filter(Settings.name == 'sqlite_bin').first()
-    app.config["SQLITE_BIN"] = sqlite_bin.value
-  except:
-    app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
-  if app.config["SQLITE_BIN"] == None:
-    app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
-    
-  # some checks - TODO: should put this in run/init
-  od =  app.config["RULES_EXPORT"]
-  if not isdir(od):
-    print """
+    # some checks - TODO: should put this in run/init
+    od = app.config["RULES_EXPORT"]
+    if not isdir(od):
+        print """
 [-] ERROR: ruleset_export_dir not found: %s
     >
     > are you sure you did run: ./spike-server init ?
@@ -100,144 +93,135 @@ def run():
     >
 """ % (od)
 
-  try:
-    app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
-  except:
-    app.config["RULESET_HEADER"] = """"""
+    try:
+        app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
+    except:
+        app.config["RULESET_HEADER"] = ''
 
-  
-    
-  print "> running @ %s:%s" % (app_host, app_port)
-  app.run(debug=True, host=app_host, port=app_port)
+    print "> running @ %s:%s" % (app_host, app_port)
+    app.run(debug=True, host=app_host, port=app_port)
+
 
 def spike_init():
-  it = int(time())
-  print "> init Spike  "
-  ts = int(time())
-  ds = strftime("%F - %H:%M", localtime(time()))
-  app = create_app(config_file())
+    it = ts = int(time())
+    print "> init Spike  "
+    ds = strftime("%F - %H:%M", localtime(time()))
+    app = create_app(config_file())
 
-  od = seeds.settings_seeds['rules_export_dir']
-  if not isdir(od):
-    print "  > rulesets_export_dir not found, creating: %s" % od
-    for eo in ["naxsi", "ossec"]:
-      print "  - %s - export" % eo
-      os.makedirs("%s/%s" % (od, eo))
-  bd = seeds.settings_seeds['backup_dir']
-  if not isdir(bd):
-    print "  > rulesets_backup_dir not found, creating: %s" % bd
-    os.mkdir(bd)
-  
-    
+    od = seeds.settings_seeds['rules_export_dir']
+    if not isdir(od):
+        print "  > rulesets_export_dir not found, creating: %s" % od
+        for eo in ["naxsi", "ossec"]:
+            print "  - %s - export" % eo
+            os.makedirs(os.path.join(od, eo))
 
-  db_files = app.config["SQLALCHEMY_BINDS"]
-  #print db_files
-  
-  for sqldb in db_files:
-    p1 = "spike/%s" % db_files[sqldb].replace("sqlite:///", "")
-    if os.path.isfile(p1):
-      print "  > [ %s ] :: existing db found, creating backup" % sqldb
-      move(p1, "%s.%s" % (p1, it ))
-      print "  > copy: %s.%s" % (p1, it)
-  print "  > init_creating db"
-  #os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
+    bd = seeds.settings_seeds['backup_dir']
+    if not isdir(bd):
+        print "  > rulesets_backup_dir not found, creating: %s" % bd
+        os.mkdir(bd)
 
-  from spike.model import db
-  from spike.model import NaxsiRuleSets, ValueTemplates, Settings
+    db_files = app.config["SQLALCHEMY_BINDS"]
+    # print db_files
 
+    for sqldb in db_files:
+        p1 = os.path.join('spike', db_files[sqldb].replace("sqlite:///", ""))
+        if os.path.isfile(p1):
+            print "  > [ %s ] :: existing db found, creating backup" % sqldb
+            move(p1, os.path.join(p1, it))
+            print "  > copy: %s.%s" % (p1, it)
+    print "  > init_creating db"
+    # os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
 
-  app.test_request_context().push()
-  db.init_app(app)
+    app.test_request_context().push()
+    db.init_app(app)
 
-  with app.app_context():
-    db.create_all()
-  print "  > filling default_vals"
-  vseed = seeds.vtemplate_seeds
-  for v in vseed:
-    print "    > adding templates: %s" % v 
-    for val in vseed[v]:
-      db.session.add(ValueTemplates(v, val))
-  rseed = seeds.rulesets_seeds
-  for r in rseed:
-    print "    > adding ruleset: %s / %s" % (r, rseed[r])
-    rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
-    db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts, ts ))  # no idea about the last parameter, what is it?
+    with app.app_context():
+        db.create_all()
 
-  sseed = seeds.settings_seeds 
-  for s in sseed:
-    print "    > adding setting: %s" % s 
-    db.session.add(Settings(s, sseed[s]))
-  db.session.commit()
-  
-  secret_key = random_string()
-  
-  f = open(config_file(), "a")
-  f.write("""
-SECRET_KEY="%s"
-  """ % secret_key)
+    print "  > filling default_vals"
 
-  print " > secret-key generated"
-  
-  f.close()
-  
-  #~ try:
-    #~ db.session.commit()
-  #~ except IntegrityError:
-    #~ print "already seeded"
+    vseed = seeds.vtemplate_seeds
+    for v in vseed:
+        print "    > adding templates: %s" % v
+        for val in vseed[v]:
+            db.session.add(ValueTemplates(v, val))
 
-  print """> OK init Spike
+    rseed = seeds.rulesets_seeds
+    for r in rseed:
+        print "    > adding ruleset: %s / %s" % (r, rseed[r])
+        rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
+        db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts, ts))  # no idea about the last parameter, what is it?
+
+    sseed = seeds.settings_seeds
+    for s in sseed:
+        print "    > adding setting: %s" % s
+        db.session.add(Settings(s, sseed[s]))
+    db.session.commit()
+
+    secret_key = random_string()
+
+    with open(config_file(), "a") as f:
+        f.write("""
+    SECRET_KEY="%s"
+      """ % secret_key)
+
+    print " > secret-key generated"
+
+    # ~ try:
+    # ~ db.session.commit()
+    # ~ except IntegrityError:
+    # ~ print "already seeded"
+
+    print """> OK init Spike
 >
 > start engines: ./server run
 >
 
-  """  
+  """
+
 
 def spike_update():
-  it = int(time())
-  print "> update Spike  "
-  print "> getting latest updates from repo"
-  os.system("git pull 2>&1")
-  ts = int(time())
-  ds = strftime("%F - %H:%M", localtime(time()))
-  app = create_app(config_file())
+    it = int(time())
+    print "> update Spike  "
+    print "> getting latest updates from repo"
+    os.system("git pull 2>&1")
+    ts = int(time())
+    ds = strftime("%F - %H:%M", localtime(time()))
+    app = create_app(config_file())
 
-  from spike.model import db
-  from spike.model import Settings
+    from spike.model import db
+    from spike.model import Settings
 
+    app.test_request_context().push()
+    db.init_app(app)
 
-  app.test_request_context().push()
-  db.init_app(app)
+    sseed = seeds.settings_seeds
+    for s in sseed:
+        ks = model.check_constraint("settings", s)
+        if not ks:
+            print "    > adding setting: %s" % s
+            db.session.add(Settings(s, sseed[s]))
+        else:
+            print "    > setting known : %s" % s
+    db.session.commit()
 
-
-  sseed = seeds.settings_seeds 
-  for s in sseed:
-    ks = check_constraint("settings", s)
-    if not ks:
-      print "    > adding setting: %s" % s 
-      db.session.add(Settings(s, sseed[s]))
-    else:
-      print "    > setting known : %s" % s 
-  db.session.commit()  
-
-  
-  
-  #~ try:
-    #~ db.session.commit()
-  #~ except IntegrityError:
-    #~ print "already seeded"
+    # ~ try:
+    # ~ db.session.commit()
+    # ~ except IntegrityError:
+    # ~ print "already seeded"
 
 
-  print """> Update OK
+    print """> Update OK
 >
 > start engines: ./server run
 >
 
-  """  
-
+  """
 
 
 def config_file():
-  return os.path.join(dirname(abspath(__name__)), 'config.cfg')
-  
+    return os.path.join(dirname(abspath(__name__)), 'config.cfg')
+
+
 if __name__ == "__main__":
-  main(sys.argv)
+    main(sys.argv)
