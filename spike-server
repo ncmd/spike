@@ -84,9 +84,7 @@ def spike_init():
     od = seeds.settings_seeds['rules_export_dir']
     if not isdir(od):
         logging.info("rulesets_export_dir not found, creating it at %s:", od)
-        for eo in ("naxsi", "ossec"):
-            logging.info("\t %s" % eo)
-            os.makedirs(os.path.join(od, eo))
+        os.makedirs(os.path.join(od, 'naxsi'))
 
     bd = seeds.settings_seeds['backup_dir']
     if not isdir(bd):

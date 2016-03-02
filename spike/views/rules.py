@@ -341,7 +341,6 @@ def deact_sid(sid=''):
 def export_ruleset(rid='all'):
     out_dir = current_app.config["RULES_EXPORT"]
     naxsi_out = "%s/naxsi" % out_dir
-    ossec_out = "%s/ossec" % out_dir
     export_date = strftime("%F - %H:%M", localtime(time()))
 
     if rid == "all":

@@ -4,7 +4,6 @@ vtemplate_seeds = {
     'naxsi_mz': ["BODY", "ARGS", "HEADERS", "FILE_EXT",
                  "$HEADERS_VAR:Cookie", "$HEADERS_VAR:Content-Type", "$HEADERS_VAR:User-Agent",
                  "$HEADERS_VAR:Accept-Encoding", "$HEADERS_VAR:Connection"],
-
 }
 
 rulesets_seeds = {
@@ -13,7 +12,6 @@ rulesets_seeds = {
     'WEB_APPS': 'web_apps.rules',
     'SCANNER': 'scanner.rules',
     'MALWARE': 'malware.rules',
-
 }
 
 settings_seeds = {
@@ -22,9 +20,6 @@ settings_seeds = {
     'rules_offset': '200000',
     'backup_dir': 'backups',
     'sqlite_bin': '/usr/bin/sqlite3',  # needed for dumps/reloads
-    'ossec_apache_error_log_id': '30100',  # https://github.com/ossec/ossec-hids/blob/master/etc/rules/apache_rules.xml
-    'ossec_apache_access_log_id': '31100'
-
 }
 
 allowed_chars = "abcdefghijklmnopqrstuvwyzABCDEFGHIJKLMNOPQRSTUVWYZ1234567890-"
