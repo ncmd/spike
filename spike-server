@@ -4,45 +4,22 @@
 # 
 # this: v0.8.22 - 2014-10-10
 #
-
+import base64
 import os
 import sys
+import logging
+import argparse
 from os.path import dirname, abspath, isdir
 from shutil import move
 from time import time, strftime, localtime
 
-from spike import create_app, seeds, version, random_string, model
+from spike import create_app, seeds, version, model
 from spike.model import db, Settings, NaxsiRuleSets, ValueTemplates
-
-
-def usage():
-    print "Usage: ./server [run|init|update]\n\n"
-    sys.exit(0)
-
-
-def main(argv):
-    """
-    :param list of str argv: List of parameter given to the application
-    """
-    print('Spike %s' % version)
-
-    if len(argv) != 2:
-        usage()
-
-    if argv[1] == "run":
-        run()
-    elif argv[1] == "init":
-        spike_init()
-    elif argv[1] == "update":
-        spike_update()
-    else:
-        usage()
 
 
 def run():
     app = create_app(config_file())
 
-    # some defaults
     try:
         app_port = int(app.config["APP_PORT"])
     except:
@@ -84,53 +61,46 @@ def run():
     # some checks - TODO: should put this in run/init
     od = app.config["RULES_EXPORT"]
     if not isdir(od):
-        print """
-[-] ERROR: ruleset_export_dir not found: %s
-    >
-    > are you sure you did run: ./spike-server init ?
-    >
-    > if so please create the directory manually and try to restart
-    >
-""" % (od)
+        logging.error("ruleset_export_dir not found: %s", od)
+        logging.error("are you sure you did run: `./%s init` ?", sys.argv[1])
 
     try:
         app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
     except:
         app.config["RULESET_HEADER"] = ''
 
-    print "> running @ %s:%s" % (app_host, app_port)
+    logging.info("Spike is running on @ %s:%s", app_host, app_port)
     app.run(debug=True, host=app_host, port=app_port)
 
 
 def spike_init():
+    """ Import some data into Spkie internal DB, in order to be able to run it """
     it = ts = int(time())
-    print "> init Spike  "
+    logging.info("Initializing Spike")
+
     ds = strftime("%F - %H:%M", localtime(time()))
     app = create_app(config_file())
 
     od = seeds.settings_seeds['rules_export_dir']
     if not isdir(od):
-        print "  > rulesets_export_dir not found, creating: %s" % od
-        for eo in ["naxsi", "ossec"]:
-            print "  - %s - export" % eo
+        logging.info("rulesets_export_dir not found, creating it at %s:", od)
+        for eo in ("naxsi", "ossec"):
+            logging.info("\t %s" % eo)
             os.makedirs(os.path.join(od, eo))
 
     bd = seeds.settings_seeds['backup_dir']
     if not isdir(bd):
-        print "  > rulesets_backup_dir not found, creating: %s" % bd
+        logging.info("rulesets_backup_dir not found, creating: %s", bd)
         os.mkdir(bd)
 
     db_files = app.config["SQLALCHEMY_BINDS"]
-    # print db_files
 
     for sqldb in db_files:
         p1 = os.path.join('spike', db_files[sqldb].replace("sqlite:///", ""))
         if os.path.isfile(p1):
-            print "  > [ %s ] :: existing db found, creating backup" % sqldb
+            logging.info("Existing db found (%s) creating backup", sqldb)
             move(p1, os.path.join(p1, it))
-            print "  > copy: %s.%s" % (p1, it)
-    print "  > init_creating db"
-    # os.system("sqlite3 %s < data/ascii_db.sql" % db_file)
+            logging.info("copy: %s.%s", p1, it)
 
     app.test_request_context().push()
     db.init_app(app)
@@ -138,55 +108,32 @@ def spike_init():
     with app.app_context():
         db.create_all()
 
-    print "  > filling default_vals"
+    logging.info("filling default_vals")
 
-    vseed = seeds.vtemplate_seeds
-    for v in vseed:
-        print "    > adding templates: %s" % v
-        for val in vseed[v]:
+    for v in seeds.vtemplate_seeds:
+        logging.info("adding templates: %s" , v)
+        for val in seeds.vtemplate_seeds[v]:
             db.session.add(ValueTemplates(v, val))
 
-    rseed = seeds.rulesets_seeds
-    for r in rseed:
-        print "    > adding ruleset: %s / %s" % (r, rseed[r])
+    for r in seeds.rulesets_seeds:
+        logging.info("adding ruleset: %s / %s", r, seeds.rulesets_seeds[r])
         rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
-        db.session.add(NaxsiRuleSets(rseed[r], r, rmks, ts, ts))  # no idea about the last parameter, what is it?
+        db.session.add(NaxsiRuleSets(seeds.rulesets_seeds[r], r, rmks, ts, ts))
 
-    sseed = seeds.settings_seeds
-    for s in sseed:
-        print "    > adding setting: %s" % s
-        db.session.add(Settings(s, sseed[s]))
+    for s in seeds.settings_seeds:
+        logging.info("adding setting: %s", s)
+        db.session.add(Settings(s, seeds.settings_seeds[s]))
     db.session.commit()
 
-    secret_key = random_string()
-
     with open(config_file(), "a") as f:
-        f.write("""
-    SECRET_KEY="%s"
-      """ % secret_key)
+        f.write('\nSECRET_KEY="%s"' % base64.b64encode(os.urandom(128)))
 
-    print " > secret-key generated"
-
-    # ~ try:
-    # ~ db.session.commit()
-    # ~ except IntegrityError:
-    # ~ print "already seeded"
-
-    print """> OK init Spike
->
-> start engines: ./server run
->
-
-  """
+    logging.info('Spike initialization completed')
 
 
 def spike_update():
-    it = int(time())
-    print "> update Spike  "
-    print "> getting latest updates from repo"
+    logging.info('Updating spike')
     os.system("git pull 2>&1")
-    ts = int(time())
-    ds = strftime("%F - %H:%M", localtime(time()))
     app = create_app(config_file())
 
     from spike.model import db
@@ -195,28 +142,15 @@ def spike_update():
     app.test_request_context().push()
     db.init_app(app)
 
-    sseed = seeds.settings_seeds
-    for s in sseed:
-        ks = model.check_constraint("settings", s)
-        if not ks:
-            print "    > adding setting: %s" % s
-            db.session.add(Settings(s, sseed[s]))
+    for s in seeds.settings_seeds:
+        if not model.check_constraint("settings", s):
+            logging.info("adding setting: %s", s)
+            db.session.add(Settings(s, seeds.settings_seeds[s]))
         else:
-            print "    > setting known : %s" % s
+            logging.info("Known setting: %s", s)
     db.session.commit()
 
-    # ~ try:
-    # ~ db.session.commit()
-    # ~ except IntegrityError:
-    # ~ print "already seeded"
-
-
-    print """> Update OK
->
-> start engines: ./server run
->
-
-  """
+    logging.info('Spike is now up to date')
 
 
 def config_file():
@@ -224,4 +158,14 @@ def config_file():
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    parser = argparse.ArgumentParser(description='Spike %s' % version)
+    parser.add_argument('command', help='Run the spike server', choices=['run', 'init', 'update'])
+    args = parser.parse_args()
+
+    if args.command == 'run':
+        run()
+    elif args.command == 'init':
+        spike_init()
+    elif args.command == 'update':
+        spike_update()
+
