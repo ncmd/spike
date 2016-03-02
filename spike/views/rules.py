@@ -56,12 +56,11 @@ def ruleset_new():
         return redirect("/rules/rulesets/")
 
     # create new rule
-    nr = request.form
-    rfile = nr["rfile"].strip().lower()
-    rname = nr["rname"].strip().upper()
+    rfile = request.form["rfile"].strip().lower()
+    rname = request.form["rname"].strip().upper()
 
     cie = check_constraint("ruleset", rfile)
-    if cie != 0:
+    if cie:
         flash("ERROR, ruleset exists: %s " % rfile, "error")
         return redirect("/rules/rulesets/")
 
@@ -161,11 +160,9 @@ def new():
         return render_template("rules/new.html", mz=mz, rulesets=rulesets, score=score, latestn=sid)
 
     # create new rule
-    logging.debug('%s', request.form)
+    logging.debug('Posted new request: %s', request.form)
 
     detect = str(request.form["detection"]).strip()
-    logging.info("detect: %s ", detect)
-
     if not detect.startswith("str:") and not detect.startswith("rx:"):
         detect = "str:%s" % detect
 
@@ -182,7 +179,7 @@ def new():
     score = "%s:%s" % (score_raw, score_val)
     rmks = request.form["rmks"]
     ruleset = request.form["ruleset"]
-    negative = 1 if request.form["negative"] == 'on' else 0
+    negative = 'negative' in request.form and request.form['negative'] == 'checked'
 
     try:
         nrule = NaxsiRules(request.form["msg"], detect, mz, score, sid, ruleset, rmks, "1", negative, int(time()))
@@ -197,8 +194,8 @@ def new():
 
 
 @rules.route("/edit/<path:sid>", methods=["GET", "POST"])
-def edit(sid=0):
-    if sid == 0:
+def edit(sid=''):
+    if not sid:
         return redirect("/rules/")
 
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
@@ -219,20 +216,15 @@ def edit(sid=0):
 
 
 @rules.route("/save/<path:sid>", methods=["POST"])
-def save(sid=0):  # FIXME this is the exact same method as the `new` one.
-    if sid == 0:
+def save(sid=''):  # FIXME this is the exact same method as the `new` one.
+    if not sid:
         return redirect("/rules/")
 
     # create new rule
     try:
         msg = request.form["msg"]
         detect = str(request.form["detection"]).strip()
-        print "detect: %s " % detect[0:4]
-        if detect[0:4] == "str:":
-            pass
-        elif detect[0:3] == "rx:":
-            pass
-        else:
+        if not detect.startswith("str:") and not detect.startswith("rx:"):
             detect = "str:%s" % detect
         mz = "|".join(request.form.getlist("mz"))
         try:
@@ -250,11 +242,7 @@ def save(sid=0):  # FIXME this is the exact same method as the `new` one.
         rmks = request.form["rmks"]
         ruleset = request.form["ruleset"]
         active = request.form["active"]
-        negative = request.form["negative"]
-        if negative == "on":
-            negative = 1
-        else:
-            negative = 0
+        negative = 'negative' in request.form and request.form['negative'] == 'checked'
     except:
         flash('ERROR - please select MZ/Score <a href="javascript:alert(history.back)">Go Back</a>', "error")
         return redirect("/rules/edit/%s" % sid)
@@ -282,8 +270,8 @@ def save(sid=0):  # FIXME this is the exact same method as the `new` one.
 
 
 @rules.route("/view/<path:sid>", methods=["GET"])
-def view(sid=0):
-    if sid == 0:
+def view(sid=''):
+    if not sid:
         return redirect("/rules/")
 
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
@@ -294,8 +282,8 @@ def view(sid=0):
 
 
 @rules.route("/del/<path:sid>", methods=["GET"])
-def del_sid(sid=0):
-    if sid == 0:
+def del_sid(sid=''):
+    if not sid:
         return redirect("/rules/")
 
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
@@ -316,8 +304,8 @@ def del_sid(sid=0):
 
 
 @rules.route("/deact/<path:sid>", methods=["GET"])
-def deact_sid(sid=0):
-    if sid == 0:
+def deact_sid(sid=''):
+    if not sid:
         return redirect("/rules/")
 
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()

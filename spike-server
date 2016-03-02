@@ -158,6 +158,7 @@ def config_file():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     parser = argparse.ArgumentParser(description='Spike %s' % version)
     parser.add_argument('command', help='Run the spike server', choices=['run', 'init', 'update'])
     args = parser.parse_args()
