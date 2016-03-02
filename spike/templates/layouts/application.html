@@ -3,7 +3,8 @@
 
 {% block scripts %}
 
-  <script type="text/javascript" src="{{ url_for('static', filename='core/javascripts/application.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 {% endblock %}
 
 
@@ -38,8 +39,7 @@
  </div> <!-- Collect the nav links, forms, and other content for toggling --> 
  <div class="collapse navbar-collapse navbar-collapse-top"> 
   <div class="navbar-left"> 
-    <ul class="nav navbar-nav navbar-left"> 
-        <li> || </li>
+    <ul class="nav navbar-nav navbar-left">
         <li class="cdrops"><a href="/rules">View Rules</a></li>
         <li class="cdrops"><a href="/rules/new">New rule</a></li>
         <li class="cdrops"><a href="/rules/rulesets/">Rulesets</a></li>

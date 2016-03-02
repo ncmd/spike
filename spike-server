@@ -11,7 +11,7 @@ from os.path import dirname, abspath, isdir
 from shutil import move
 from time import time, strftime, localtime
 
-from spike import create_app, seeds, spike_version, random_string, model
+from spike import create_app, seeds, version, random_string, model
 from spike.model import db, Settings, NaxsiRuleSets, ValueTemplates
 
 
@@ -24,7 +24,7 @@ def main(argv):
     """
     :param list of str argv: List of parameter given to the application
     """
-    print('Spike %s' % spike_version)
+    print('Spike %s' % version)
 
     if len(argv) != 2:
         usage()

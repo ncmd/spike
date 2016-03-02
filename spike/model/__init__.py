@@ -30,7 +30,7 @@ def check_constraint(ctype, value):
     return (cres)
 
 
-def check_or_get_latest_sid(sid=0):
+def check_or_get_latest_sid(sid=0):  # FIXME I'm ugly as fuck
     if sid == 0:
         latest = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         if not latest:
@@ -51,4 +51,4 @@ def check_or_get_latest_sid(sid=0):
             else:
                 latest = latest.sid
             lsid = latest + 1
-    return (lsid)
+    return lsid

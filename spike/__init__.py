@@ -1,18 +1,6 @@
 version = "0.4.1.4 - r268 - 2015-03-29"
 
-login_manager = None
-
-
-def get_login_manager():
-    from flask.ext.login import LoginManager
-    if spike.login_manager == None:
-        spike.login_manager = LoginManager()
-    return spike.login_manager
-
-
 flask_bcrypt = None
-
-
 def get_flask_bcrypt():
     return spike.flask_bcrypt
 
@@ -22,13 +10,11 @@ from time import strftime, localtime, time
 
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.bcrypt import Bcrypt
 
 import spike.views
 from spike.views import *
-
-
-def spike_version():
-    return (version)
+from spike.model import db
 
 
 def create_app(config_filename):
@@ -48,15 +34,10 @@ def create_app(config_filename):
         'settings': 'sqlite:///settings.db',
     }
 
-    from spike.model import db
     db.init_app(app)
 
-    # add bootstrap templates and css
-    spike.bootstrap = Bootstrap(app)
-
-    # add bcrypt
-    from flask.ext.bcrypt import Bcrypt
-    spike.flask_bcrypt = Bcrypt(app)
+    spike.bootstrap = Bootstrap(app)  # add bootstrap templates and css
+    spike.flask_bcrypt = Bcrypt(app)  # add bcrypt
 
     # add blueprints
     app.register_blueprint(spike.views.default.default, templates_folder='templates')
@@ -68,7 +49,6 @@ def create_app(config_filename):
     # not yet, kameraden, not yet ...
     # ~ login_manager = get_login_manager()
     # ~ login_manager.init_app(app)
-
 
     # register filters
     app.jinja_env.filters['ctime'] = f_convert_time
