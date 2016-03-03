@@ -3,7 +3,7 @@ import logging
 
 from flask import current_app, Blueprint, render_template, request, redirect, flash
 
-from spike.model import *
+from spike.model import Settings, ValueTemplates, db
 
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 

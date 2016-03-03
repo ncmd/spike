@@ -8,8 +8,8 @@ from time import time, localtime, strftime
 from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
 from sqlalchemy.exc import IntegrityError
 
-from spike import seeds
-from spike.model import *
+from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates
+from spike.model import check_constraint, db, check_or_get_latest_sid
 
 rules = Blueprint('rules', __name__, url_prefix='/rules')
 
@@ -25,7 +25,8 @@ def index():
 
 @rules.route("/rulesets/")
 def rulesets():
-    return render_template("rules/rulesets.html", rulesets=NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all())
+    _rulesets = NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all()
+    return render_template("rules/rulesets.html", rulesets=_rulesets)
 
 
 @rules.route("/rulesets/view/<path:rid>")
@@ -455,7 +456,6 @@ def import_ruleset():
 @rules.route("/backup/", methods=["GET"])
 def rules_backup_view(action="show"):
     out_dir = current_app.config["BACKUP_DIR"]
-    sqlite_bin = current_app.config["SQLITE_BIN"]
 
     if not os.path.isdir(out_dir):
         flash("ERROR while trying to access BACKUP_DIR: %s " % out_dir, "error")

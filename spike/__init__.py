@@ -8,8 +8,7 @@ version = "0.4.1.4 - r268 - 2015-03-29"
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 
-import spike.views
-from spike.views import *
+from spike.views import default, rules, settings, docs
 from spike.model import db
 
 
@@ -32,13 +31,13 @@ def create_app(config_filename=''):
     db.init_app(app)
     db.app = app
 
-    spike.bootstrap = Bootstrap(app)  # add bootstrap templates and css
+    Bootstrap(app)  # add bootstrap templates and css
 
     # add blueprints
-    app.register_blueprint(spike.views.default.default, templates_folder='templates')
-    app.register_blueprint(spike.views.rules.rules, templates_folder='templates')
-    app.register_blueprint(spike.views.settings.settings, templates_folder='templates')
-    app.register_blueprint(spike.views.docs.docs, templates_folder='templates')
+    app.register_blueprint(default.default, templates_folder='templates')
+    app.register_blueprint(rules.rules, templates_folder='templates')
+    app.register_blueprint(settings.settings, templates_folder='templates')
+    app.register_blueprint(docs.docs, templates_folder='templates')
 
     # register filters
     app.jinja_env.filters['scoresplit'] = f_scoresplit
