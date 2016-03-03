@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import string
 from glob import glob
 from time import time, localtime, strftime
 
@@ -124,29 +125,28 @@ def nx_select(selector=''):
 
 
 @rules.route("/search/", methods=["GET"])
-def search():  # FIXME plz refactor me. PLEASE !
-    srch = request.args.get('s', '').replace("+", "---")
-    sclean = ""
-    if len(srch) > 2:
-        for cc in srch:
-            if cc not in seeds.allowed_chars:  # ghetto anti-injection in the search
-                logging.error(" not allowed char: %s", cc)
-                # return(dx_all)
-            else:
-                sclean = "%s%s" % (sclean, cc)
-        try:
-            sclean = int(sclean)
-            _rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == sclean).all()
-        except:
-            sclean = sclean.replace("---", "%")
-            sclean = "%" + sclean + "%"
-            _rules = db.session.query(NaxsiRules).filter(
-                db.or_(NaxsiRules.msg.like(sclean), NaxsiRules.rmks.like(sclean),
-                       NaxsiRules.detection.like(sclean))).order_by(NaxsiRules.sid.desc()).all()
+def search():
+    terms = request.args.get('s', '')
+
+    if len(terms) < 2:
+        return redirect('/rules')
+
+    # No fancy injections
+    whitelist = set(string.ascii_letters + string.digits + ':-_ ')
+    filtered = ''.join(filter(whitelist.__contains__, terms))
+
+    if filtered.isdigit():  # get rule by id
+        _rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == int(filtered)).all()
     else:
-        return redirect("/rules/")
-    selz = "Search: %s" % srch
-    return render_template("rules/index.html", rules=_rules, selection=selz, lsearch=request.args.get('s', ''))
+        expression = '%' + filtered + '%'
+        _rules = db.session.query(NaxsiRules).filter(
+            db.or_(
+                NaxsiRules.msg.like(expression),
+                NaxsiRules.rmks.like(expression),
+                NaxsiRules.detection.like(expression)
+            )
+        ).order_by(NaxsiRules.sid.desc()).all()
+    return render_template("rules/index.html", rules=_rules, selection="Search: %s" % filtered, lsearch=terms)
 
 
 @rules.route("/new", methods=["GET", "POST"])
