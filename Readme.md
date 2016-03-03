@@ -2,6 +2,7 @@
 
 [![Code Health](https://landscape.io/github/nbs-system/spike/master/landscape.svg?style=flat)](https://landscape.io/github/nbs-system/spike/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/f16a87616f3c4e14ac914fea520298e7)](https://www.codacy.com/app/julien-voisin/spike)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nbs-system/spike/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nbs-system/spike/?branch=master)
 
 Spike is a simple web application to manage [naxsi]( https://github.com/nbs-system/naxsi] rules.
 Rules are stored in a [sqlite]( https://www.sqlite.org/ ) database, and can be added,
