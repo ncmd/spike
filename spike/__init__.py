@@ -2,7 +2,7 @@ import base64
 import os
 import logging
 
-version = "0.4.1.4 - r268 - 2015-03-29"
+version = "0.5 "
 
 
 from flask import Flask

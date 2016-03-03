@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# spike-server
+# spike-server.py
 # 
 # this: v0.8.22 - 2014-10-10
 #
