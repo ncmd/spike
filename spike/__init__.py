@@ -1,27 +1,23 @@
 import base64
 import os
+import logging
 
 version = "0.4.1.4 - r268 - 2015-03-29"
 
 
-import string
-from time import strftime, localtime, time
-
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.bcrypt import Bcrypt
 
 import spike.views
 from spike.views import *
 from spike.model import db
 
 
-def create_app(config_filename):
-    print "> Spike app.init()"
+def create_app(config_filename=''):
+    logging.info("Spike app.init()")
 
-    # initiate app
     app = Flask(__name__)
-    # load config
+
     if config_filename != "":
         app.config.from_pyfile(config_filename)
 
@@ -34,9 +30,9 @@ def create_app(config_filename):
     }
 
     db.init_app(app)
+    db.app = app
 
     spike.bootstrap = Bootstrap(app)  # add bootstrap templates and css
-    spike.flask_bcrypt = Bcrypt(app)  # add bcrypt
 
     # add blueprints
     app.register_blueprint(spike.views.default.default, templates_folder='templates')

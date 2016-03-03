@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, Response
 
 
-default = Blueprint('default', __name__, url_prefix='/')
+default = Blueprint('default', __name__)
 
 
 @default.route("/")
