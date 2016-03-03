@@ -2,146 +2,103 @@
 {% block title %}SPIKE - WAF Rules Builder{% endblock %}
 
 {% block scripts %}
-
-  <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 {% endblock %}
 
 
 {% block styles %}
-    <link rel="shortcut icon" href="/static/favicon.ico"> 
-    <!-- <link href="{{ url_for('static', filename='core/stylesheets/application.css') }}" rel="stylesheet" media="screen"/> -->
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <link href="{{ url_for('static', filename='fonts.css') }}" rel="stylesheet" media="screen"/>
     <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen"/>
     <link href="{{ url_for('static', filename='appstyle.css') }}" rel="stylesheet" media="screen"/>
-    <meta name="robots" content="noindex,nofollow">
-  <!--
-  -->
-
 {% endblock %}
 
 
 
 {% block navbar %}
 
- <nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation"> 
- <!-- Brand and toggle get grouped for better mobile display --> 
- <div class="navbar-header"> 
-  <a class="navbar-brand" href="/">Spike <img src="/static/spike.png"> </a> 
-  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-primary"> 
-    <span class="sr-only">Side Navigation</span> 
-    <i class="icon-th-list"></i> 
-  </button> 
-  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-top"> 
-    <span class="sr-only">Top Navigation</span> 
-    <i class="icon-align-justify"></i> 
-  </button> 
- </div> <!-- Collect the nav links, forms, and other content for toggling --> 
- <div class="collapse navbar-collapse navbar-collapse-top"> 
-  <div class="navbar-left"> 
-    <ul class="nav navbar-nav navbar-left">
-        <li class="cdrops"><a href="/rules">View Rules</a></li>
-        <li class="cdrops"><a href="/rules/new">New rule</a></li>
-        <li class="cdrops"><a href="/rules/rulesets/">Rulesets</a></li>
-        
-    </ul>
-    </div>
-  <div class="navbar-right"> 
-    <ul class="nav navbar-nav navbar-left"> 
-
-      <li><a href="#">rules: {{ rules | length }}</a></li>
-    <form class="navbar-form navbar-left" action="/rules/search/" method="get">
-            <div class="form-group">
-              <input type="text" name="s" size="20" value="{{lsearch}}" placeholder="Doxi-Rules-Search">
-              <input type="submit" class="btn btn-primary btn-sm" value="Go">
-              
+    <nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Spike <img src="{{ url_for('static', filename='spike.png') }}"> </a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-primary">
+                <span class="sr-only">Side Navigation</span>
+                <i class="icon-th-list"></i>
+            </button>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-top">
+                <span class="sr-only">Top Navigation</span>
+                <i class="icon-align-justify"></i>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navbar-collapse-top">
+            <div class="navbar-left">
+                <ul class="nav navbar-nav navbar-left">
+                    <li class="cdrops"><a href="/rules">View Rules</a></li>
+                    <li class="cdrops"><a href="/rules/rulesets/">Rulesets</a></li>
+                    <li class="cdrops"><a href="/rules/new">New rule</a></li>
+                    <li class="cdrops"><a href="/backup">Download database</a></li>
+                </ul>
             </div>
-    </form>
-          
+            <div class="navbar-right">
+                <ul class="nav navbar-nav navbar-left">
+                    <form class="navbar-form navbar-left" action="/rules/search/" method="get">
+                        <div class="form-group">
+                            <input type="text" name="s" size="20" value="{{ lsearch }}" placeholder="Keyword or rule id">
+                            <input type="submit" class="btn btn-primary btn-sm" value="Go">
 
-        </li>
+                        </div>
+                    </form>
+                    <li class="dropdown cdrop">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin &amp; Docs<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/settings">Settings</a></li>
+                            <li><a href="/settings/mz">Edit MatchingZones</a></li>
+                            <li><a href="/settings/scores">Edit Scores</a></li>
+                            <li><a href="/docs">Spike - Documentation</a></li>
+                            <li><a href="/docs/writing_naxsi_sigs.md">Writing Naxsi rules</a></li>
+                            <li><a href="https://github.com/nbs-system/spike" target="_blank">About Spike </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav><!-- /.navbar-collapse -->
 
-      <li class="dropdown cdrop">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin &amp; Docs<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="#"><span>----- Admin </span></a></li>
-          <li><a href="/settings">Settings</a></li>
-          <li><a href="/settings/mz">Edit MatchingZones</a></li>
-          <li><a href="/settings/scores">Edit Scores</a></li>
-          <li><a href="/rules/backup/">Database Backups</a></li>
-          <li><a href="/rules/import/">Import Ruleset</a></li>
-          <li><a href="/settings/update">Update Spike</a></li>
-          <li><a href="/settings/sql">Pure SQL</a></li>
-          <li><a href="#">----- Help</a></li>
-          <li><a href="/docs">Spike - Documentation</a></li>       
-          <li><a href="/docs/writing_naxsi_sigs.md">Writing Naxsi Signs - Manual</a></li>                    
-          <li><a href="http://code.cside.com/3rdpage/us/url/converter.html" target="_blank">
-              HexConverter</a></li>
-          <li><a href="http://www.regextester.com/" target="_blank">RegEx - Tester</a></li>
-          <li><a href="http://www.myezapp.com/apps/dev/regexp/show.ws" target="_blank">RegEx - Analyzer</a></li>
-          <li><a href="http://www.jetbrains.com/idea/webhelp/regular-expression-syntax-reference.html" target="_blank">RegEx - CheatSheet </a></li>
-          <li><a href="http://www.emergingthreats.org/index.php/rules-mainmenu-38.html" target="_blank">
-            EmergingThreats</a></li>
-          <li><a href="https://bitbucket.org/nginx-goodies/spike/overview" target="_blank">Spike - Repo </a></li>
-          <li><a href="https://bitbucket.org/nginx-goodies/spike/issues" target="_blank">Spike - Issues </a></li>
-          <li><a href="#">----- Login</a></li>
-          <li><a href="/logout">Logout</a></li>
-        </ul>
-
-      </li>
-        
-
-
-    </ul> 
-  </div> 
-</div>
- </nav><!-- /.navbar-collapse -->
- 
 
 {% endblock %}
 
 
 {% block content %}
 
-<div class="main-content">
-<div class="row"><br><br><br></div>
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-10">
+    <div class="main-content">
+        <div class="row"><br><br><br></div>
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
 
-    {% include "layouts/_alerts.html" %}   
-    {% block main %}
-    {% endblock %}
-    
-  </div>
-  <!--
-  <div class="col-md-4">
-  <br><br><br><br><br>
+                {% include "layouts/_alerts.html" %}
+                {% block main %}
+                {% endblock %}
 
-  sdvsdvdvf
-  help: <a href="#search-help">order matters</a>
-    
-  </div>
-  -->
-  
-</div> <!-- /end row content -->
+            </div>
 
 
+        </div>
 
-<div class="row footer">
-  <div class="container" align="center">
-  <br><br>
-  <hr>
-  <br><br>
-  (c) copyright 2011, 2012, 2013 <a href="https://www.mare-system.de/" target="_blank">mare system</a>, 2014 
-  <a href="https://8ack.de/corporate">8ack </a> 
-  <br> || version: {{ version }}  || <br>
-  logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
-  <br><br>
-  <hr>
-  <br><br>
-  </div>
-</div>
-</div>
+        <div class="row footer">
+            <div class="container" align="center">
+                <br><br>
+                <hr>
+                <br><br>
+                © copyright 2011, 2012, 2013 <a href="https://www.mare-system.de/" target="_blank">mare system</a>, 2014
+                <a href="https://8ack.de/corporate">8ack </a>
+                <br>version: {{ version }}<br>
+                logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
+                <br><br>
+                <hr>
+                <br><br>
+            </div>
+        </div>
+    </div>
 
 {% endblock content %}

@@ -3,10 +3,9 @@
 
 {% block main %}
 
-<h2>Spike - Docs - Overview</h2>
+<h2>{{ title | safe if title else 'Spike - Docs - Overview' }}</h2>
 
-
-  {{ doc_display | safe }}
+  {{ data | safe }}
 
 {% endblock main %}
 

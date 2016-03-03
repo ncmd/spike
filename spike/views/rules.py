@@ -1,9 +1,6 @@
 import logging
-import os
 import re
 import string
-from bsddb import rnopen
-from glob import glob
 from time import time, localtime, strftime
 
 from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
@@ -15,6 +12,7 @@ rules = Blueprint('rules', __name__, url_prefix='/rules')
 
 # TODO : merge `ruleset_plain` and `ruleset_view`
 
+
 @rules.route("/")
 def index():
     _rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
@@ -22,6 +20,11 @@ def index():
         flash("no rules found, please create one", "success")
         return redirect("/rules/new")
     return render_template("rules/index.html", rules=_rules)
+
+@rules.route("/plain/<int:sid>")
+def rule_plain(sid):
+    sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+    return Response(__get_textual_representation_rule(sid), mimetype='text/plain')
 
 
 @rules.route("/rulesets/")
@@ -38,7 +41,6 @@ def __get_rules_for_ruleset(ruleset, with_header = True):
     ).all()
 
     nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == ruleset.file).first()
-    nxruleset.updated = 0
     db.session.add(nxruleset)
     db.session.commit()
     text_rules = ''.join(map(__get_textual_representation_rule, _rules))
@@ -52,6 +54,7 @@ def __get_rules_for_ruleset(ruleset, with_header = True):
     header = header.replace( "RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
 
     return header + text_rules
+
 
 @rules.route("/rulesets/plain/")
 @rules.route("/rulesets/plain/<int:rid>")
@@ -254,12 +257,8 @@ def save(sid=''):  # FIXME this is the exact same method as the `new` one.
     nrule.negative = negative
     nrule.timestamp = int(time())
     db.session.add(nrule)
-    nruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == nrule.ruleset).first()
-    nruleset.updated = 1
-    db.session.add(nruleset)
     try:
         db.session.commit()
-        flash("OK: updated %s : %s" % (sid, msg), "success")
     except:
         flash("ERROR while trying to update %s : %s" % (sid, msg), "error")
     return redirect("/rules/edit/%s" % sid)
@@ -286,9 +285,6 @@ def del_sid(sid=''):
     if not nrule:
         return redirect("/rules/")
 
-    nruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == nrule.ruleset).first()
-    nruleset.updated = 1
-    db.session.add(nruleset)
     db.session.delete(nrule)
     try:
         db.session.commit()
@@ -330,197 +326,6 @@ def deact_sid(sid=''):
     score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
     _rulesets = NaxsiRuleSets.query.all()
     return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo)
-
-
-@rules.route("/import/", methods=["GET", "POST"])
-def import_ruleset():
-    out_dir = current_app.config["RULES_EXPORT"]
-    import_date = strftime("%F - %H:%M", localtime(time()))
-
-    if request.method == "GET":
-        return render_template("rules/import.html", rulesets=NaxsiRuleSets.query.all())
-
-    # create new rule
-    ts = int(time())
-    nr = request.form
-    rset = nr["ruleset"].strip().lower()
-    rcust = nr["cruleset"].strip().lower()
-
-    if len(rcust) > 4:
-        rset = rcust
-        flash("creating new ruleset for import: %s" % rcust, "success")
-        rname = rset.split(".")[0].upper()
-        rnew = NaxsiRuleSets(rset, rname, "naxsi-ruleset: %s" % rcust, ts, ts)
-        db.session.add(rnew)
-        db.session.commit()
-        flash("OK created: %s " % rset, "success")
-
-    for r in nr["rules"].split("\n"):
-        r = r.strip()
-        if len(r) < 30 or r.startswith("#") or not r.startswith("MainRule"):
-            continue
-
-        flash("importing: %s" % r, "success")
-        msg = detect = mz = score = sid = 0
-        rs = r.split("\"")
-        logging.debug('%s', rs)
-        rmks = "imported: %s / %s" % (rset, strftime("%Y - %H:%M", localtime(float(ts))))
-        for sr in rs:
-            # stripping leading/ending maskings "
-            sr = sr.strip()
-            if sr == "MainRule":
-                continue
-            try:
-                z = sr.split(":")
-            except:
-                continue
-
-            if len(z) < 2:
-                continue
-            if z[0] == "msg":
-                msg = ":".join(z[1:])
-            elif z[0] == "str":
-                detect = "str:%s" % ":".join(z[1:])
-            elif z[0] == "rx":
-                detect = "rx:%s" % ":".join(z[1:])
-            elif z[0] == "s":
-                score = ":".join(z[1:])
-            elif z[0] == "mz":
-                mz = ":".join(z[1:])
-            elif z[0] == "id":
-                sid = z[1].replace(";", "").strip()
-
-        if NaxsiRules.query.filter(NaxsiRules.sid == sid).first():
-            old_sid = sid
-            sid = check_or_get_latest_sid(sid)
-            flash("changing sid: orig: %s / new: %s" % (old_sid, sid), "success")
-            rmks = "%s \nchanged sid: orig: %s / new: %s " % (rmks, old_sid, sid)
-
-        nrule = NaxsiRules(msg, detect, mz, score, sid, rset, rmks, "1", ts, ts)
-        db.session.add(nrule)
-        db.session.commit()
-        flash("OK: created %s : %s" % (sid, msg), "success")
-
-    return redirect("/rules/export/")
-
-
-@rules.route("/backup/", methods=["GET"])
-def rules_backup_view(action="show"):
-    out_dir = current_app.config["BACKUP_DIR"]
-
-    if not os.path.isdir(out_dir):
-        flash("ERROR while trying to access BACKUP_DIR: %s " % out_dir, "error")
-        flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
-        return redirect("/rules/")
-
-    bfiles = {}
-    bfiles_in = glob("%s/*.sql.*" % out_dir)
-    logging.debug('%s', bfiles_in)
-    for b in bfiles_in:
-        bx = b.split("/")
-        logging.debug(bx)
-        bname = bx[-1]
-        bid = bx[-1].split(".")[-1]
-        bdate = strftime("%F - %H:%M", localtime(float(bx[-1].split(".")[-1])))  # extension is nb sec since epoch
-        bfiles[bid] = [bname, bdate]
-
-    return render_template("rules/backups.html", bfiles=bfiles)
-
-
-@rules.route("/backup/<path:action>", methods=["GET"])
-def rules_backup(action="show"):  # FIXME this is full of duplicate code :/
-    out_dir = current_app.config["BACKUP_DIR"]
-    sqlite_bin = current_app.config["SQLITE_BIN"]
-
-    if not os.path.isdir(out_dir):
-        flash("ERROR while trying to access BACKUP_DIR: %s " % out_dir, "error")
-        flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
-        return redirect("/rules/")
-
-    if action == "create":
-        bdate = int(time())
-        bfile = "%s/rules.sql.%s" % (out_dir, bdate)
-        rules_db = "spike/rules.db"
-        if not os.path.isfile(sqlite_bin) or not os.access(sqlite_bin, os.X_OK):
-            flash("ERROR, no sqlite_bin found in: %s " % sqlite_bin, "error")
-            flash("you might want to adjust your <a href=\"/settings\">Settings</a> and install sqlite", "error")
-            return redirect("/rules/backup")
-
-        with open(bfile, "w") as f:
-            f.write("-- spike-dump %s \n\n" % strftime("%F - %H:%M", localtime(float(bdate))))
-
-        try:
-            os.system("%s %s  .dump >> %s" % (sqlite_bin, rules_db, bfile))
-            flash("creating backup %s" % bdate, "success")
-            flash("backup OK in %s" % bfile, "success")
-        except:
-            flash("ERRORwhile executing dump %s " % bfile, "error")
-
-    elif action == "show":
-        bfiles = {}
-        bfiles_in = glob("%s/*.sql.*" % out_dir)
-        logging.debug(bfiles_in)
-        for b in bfiles_in:  # this is duplicate
-            bx = b.split("/")
-            logging.debug('%s', bx)
-            bname = bx[-1]
-            bid = bx[-1].split(".")[-1]
-            bdate = strftime("%F - %H:%M", localtime(float(bx[-1].split(".")[-1])))
-            bfiles[bid] = [bname, bdate]
-
-        return render_template("rules/backups.html", bfiles=bfiles)
-
-    elif action == "reload":
-        try:
-            bid = request.args.get('bid')
-        except:
-            flash("ERROR, no backup - id selected ", "error")
-            return redirect("/rules/backup")
-
-        bfile = "%s/rules.sql.%s" % (out_dir, bid)
-        rules_db = "spike/rules.db"
-
-        if not os.path.isfile(sqlite_bin) or not os.access(sqlite_bin, os.X_OK):
-            flash("ERROR, no sqlite_bin found in: %s " % sqlite_bin, "error")
-            flash("you might want to adjust your <a href=\"/settings\">Settings</a> and install sqlite", "error")
-            return redirect("/rules/backup")
-
-        try:
-            os.unlink(rules_db)
-            os.system("%s %s < %s" % (sqlite_bin, rules_db, bfile))
-            flash("restored db.backup < %s" % bfile, "success")
-        except:
-            flash("ERROR while executing dump %s " % bfile, "error")
-    elif action == "display":
-        try:
-            bid = request.args.get('bid')
-        except:
-            flash("ERROR, no backup - id selected ", "error")
-            return redirect("/rules/backup")
-
-        if not os.path.isfile("%s/rules.sql.%s" % (out_dir, bid)):
-            flash("ERROR, no backup found for id: %s" % bid, "error")
-            return redirect("/rules/backup")
-
-        return Response("".join(open("%s/rules.sql.%s" % (out_dir, bid), "r").readlines()), mimetype='text/plain')
-
-    elif action == "delete":
-        try:
-            bid = request.args.get('bid')
-        except:
-            flash("ERROR, no backup - id selected ", "error")
-            return redirect("/rules/backup")
-
-        if not os.path.isfile("%s/rules.sql.%s" % (out_dir, bid)):
-            flash("ERROR, no backup found for id: %s" % bid, "error")
-            return redirect("/rules/backup")
-
-        os.unlink("%s/rules.sql.%s" % (out_dir, bid))
-        flash("backup deleted: %s/rules.sql.%s" % (out_dir, bid), "success")
-    else:
-        flash("ERROR, no backup - action selected ", "error")
-
-    return redirect("/rules/backup")
 
 
 def __get_textual_representation_rule(rule, full=1):

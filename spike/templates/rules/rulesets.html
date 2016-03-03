@@ -7,7 +7,6 @@
 <h2>
     Naxsi - RuleSets  &nbsp; &nbsp;
     <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files as plain</a>
-    <a href="/rules/import/" title="Import File" class="btn btn-success btn-lg">Import RulesFile</a>
 </h2>
 
 
@@ -16,15 +15,13 @@
     <tr>
         <td><h4>Name</h4></td>
         <td><h4>File</h4></td>
-        <td><h4>Updated</h4></td>
         <td></td>
     </tr>
 
   {% for rs in rulesets %}
     <tr id="ruleset_{{rs.id}}">
         <td valign="top">{{rs.name}}</td>
-        <td >{{ rs.file }}</td>
-        <td>{% if rs.updated == 1 %} <a href="#" class="btn btn-success btn-lg">New!</a> {%endif %}</td>
+        <td >{{ rs.file }}</td>s
         <td>
           <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> Rules </a>
           <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>

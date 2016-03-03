@@ -33,12 +33,6 @@ def run():
     app.test_request_context().push()
 
     try:
-        eo_dir = Settings.query.filter(Settings.name == 'rules_export_dir').first()
-        app.config["RULES_EXPORT"] = eo_dir.value
-    except:
-        app.config["RULES_EXPORT"] = "exports"
-
-    try:
         backup_dir = Settings.query.filter(Settings.name == 'backup_dir').first()
         app.config["BACKUP_DIR"] = backup_dir.value
     except:
@@ -58,12 +52,6 @@ def run():
     except:
         app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
 
-    # some checks - TODO: should put this in run/init
-    od = app.config["RULES_EXPORT"]
-    if not isdir(od):
-        logging.error("ruleset_export_dir not found: %s", od)
-        logging.error("are you sure you did run: `./%s init` ?", sys.argv[1])
-
     try:
         app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
     except:
@@ -80,11 +68,6 @@ def spike_init():
 
     ds = strftime("%F - %H:%M", localtime(time()))
     app = create_app(config_file())
-
-    od = seeds.settings_seeds['rules_export_dir']
-    if not isdir(od):
-        logging.info("rulesets_export_dir not found, creating it at %s:", od)
-        os.makedirs(os.path.join(od, 'naxsi'))
 
     bd = seeds.settings_seeds['backup_dir']
     if not isdir(bd):

@@ -6,30 +6,28 @@
 <h2>Naxsi - Rules ( {{ rules | length }} )</h2>
  <p><strong>{{ selection }}</strong></p>
   <table class="table table-condensed table-stripped">
+  <thead>
+    <th class="col-md-2">Id</th>
+    <th class="col-md-4">Rule</th>
+    <th class="col-md-pull-2">Edit</th>
+  </thead>
   {% for rule in rules %}
-
-
-        {% if rule.active != 1 %}
+    {% if rule.active != 1 %}
     <tr bgcolor="grey">
-        {% else %}
+    {% else %}
     <tr id="{{rule.sid}}">
-        {% endif %}
-        
-        
+    {% endif %}
             <td valign="top"><h4><a href="/rules/edit/{{rule.sid}}">{{rule.sid}}</a></h4></td>
             <td><h4><a href="/rules/edit/{{rule.sid}}">{{ rule.msg }}</a></h4>
             Detection: {{ rule.detection }}
             
             </td>
             <td>
-              <a href="/rules/edit/{{rule.sid}}" class="btn btn-primary btn-sm" title="Edit Rule">Edit</a>
-            </td>
-            <td>
-              <a href="/rules/view/{{rule.sid}}" class="btn btn-primary btn-sm" title="View Rule">View</a>
+              <a href="/rules/edit/{{rule.sid}}" class="btn btn-primary" title="Edit Rule">Edit</a>
+              <a href="/rules/view/{{rule.sid}}" class="btn btn-primary" title="View Rule">View</a>
+              <a href="/rules/plain/{{rule.sid}}" class="btn btn-primary" title="View Rule">Plain</a>
             </td>
         </tr>
-  
-  
   {% endfor %}
   </table>
 

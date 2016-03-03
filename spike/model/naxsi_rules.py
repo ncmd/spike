@@ -40,14 +40,12 @@ class NaxsiRuleSets(db.Model):
     name = db.Column(db.String(1024), nullable=False, unique=True)
     remarks = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.Integer, nullable=False)
-    updated = db.Column(db.Integer, nullable=False)
     db.UniqueConstraint('file', 'name')
 
-    def __init__(self, file, name, remarks, updated, timestamp):
+    def __init__(self, file, name, remarks, timestamp):
         self.file = file
         self.name = name
         self.remarks = remarks
-        self.updated = updated
         self.timestamp = timestamp
 
 
