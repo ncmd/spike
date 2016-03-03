@@ -1,24 +1,19 @@
 #! /usr/bin/env python
-#
-# spike-server.py
-# 
-# this: v0.8.22 - 2014-10-10
-#
-import base64
+
 import os
 import logging
 import argparse
-from os.path import dirname, abspath, isdir
+from os.path import dirname, abspath
 from shutil import move
 from time import time, strftime, localtime
 
-from spike import create_app, seeds, version, model
+from spike import create_app, seeds, version
 from spike.model import db, Settings, NaxsiRuleSets
 from spike.model.naxsi_rules import ValueTemplates
 
 
 def run():
-    app = create_app(config_file())
+    app = create_app(__get_config_file())
 
     try:
         app_port = int(app.config["APP_PORT"])
@@ -31,12 +26,6 @@ def run():
 
     db.init_app(app)
     app.test_request_context().push()
-
-    try:
-        backup_dir = Settings.query.filter(Settings.name == 'backup_dir').first()
-        app.config["BACKUP_DIR"] = backup_dir.value
-    except:
-        app.config["BACKUP_DIR"] = "backups"
 
     try:
         eo_offset = Settings.query.filter(Settings.name == 'rules_offset').first()
@@ -59,12 +48,7 @@ def spike_init():
     logging.info("Initializing Spike")
 
     ds = strftime("%F - %H:%M", localtime(time()))
-    app = create_app(config_file())
-
-    bd = seeds.settings_seeds['backup_dir']
-    if not isdir(bd):
-        logging.info("rulesets_backup_dir not found, creating: %s", bd)
-        os.mkdir(bd)
+    app = create_app(__get_config_file())
 
     db_files = app.config["SQLALCHEMY_BINDS"]
 
@@ -98,48 +82,20 @@ def spike_init():
         db.session.add(Settings(s, seeds.settings_seeds[s]))
     db.session.commit()
 
-    with open(config_file(), "a") as f:
-        f.write('\nSECRET_KEY="%s"' % base64.b64encode(os.urandom(128)))
-
     logging.info('Spike initialization completed')
 
 
-def spike_update():
-    logging.info('Updating spike')
-    os.system("git pull 2>&1")
-    app = create_app(config_file())
-
-    from spike.model import db
-    from spike.model import Settings
-
-    app.test_request_context().push()
-    db.init_app(app)
-
-    for s in seeds.settings_seeds:
-        if not model.check_constraint("settings", s):
-            logging.info("adding setting: %s", s)
-            db.session.add(Settings(s, seeds.settings_seeds[s]))
-        else:
-            logging.info("Known setting: %s", s)
-    db.session.commit()
-
-    logging.info('Spike is now up to date')
-
-
-def config_file():
+def __get_config_file():
     return os.path.join(dirname(abspath(__name__)), 'config.cfg')
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, format='%(message)s')
     parser = argparse.ArgumentParser(description='Spike %s' % version)
-    parser.add_argument('command', help='Run the spike server', choices=['run', 'init', 'update'])
+    parser.add_argument('command', help='Run the spike server', choices=['run', 'init'])
     args = parser.parse_args()
 
     if args.command == 'run':
         run()
     elif args.command == 'init':
         spike_init()
-    elif args.command == 'update':
-        spike_update()
-
