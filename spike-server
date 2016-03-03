@@ -45,19 +45,11 @@ def run():
         app.config["NAXSI_RULES_OFFSET"] = 20000
 
     try:
-        sqlite_bin = Settings.query.filter(Settings.name == 'sqlite_bin').first()
-        app.config["SQLITE_BIN"] = sqlite_bin.value
-        if app.config["SQLITE_BIN"] is None:
-            app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
-    except:
-        app.config["SQLITE_BIN"] = "/usr/bin/sqlite3"
-
-    try:
         app.config["RULESET_HEADER"] = app.config["RULESET_HEADER"]
     except:
         app.config["RULESET_HEADER"] = ''
 
-    logging.info("Spike is running on @ %s:%s", app_host, app_port)
+    logging.info("Spike is running on %s:%s", app_host, app_port)
     app.run(debug=True, host=app_host, port=app_port)
 
 

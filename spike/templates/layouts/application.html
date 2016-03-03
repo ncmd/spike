@@ -43,7 +43,8 @@
                 <ul class="nav navbar-nav navbar-left">
                     <form class="navbar-form navbar-left" action="/rules/search/" method="get">
                         <div class="form-group">
-                            <input type="text" name="s" size="20" value="{{ lsearch }}" placeholder="Keyword or rule id">
+                            <input type="text" name="s" size="20" value="{{ lsearch }}"
+                                   placeholder="Keyword or rule id">
                             <input type="submit" class="btn btn-primary btn-sm" value="Go">
 
                         </div>
@@ -75,14 +76,18 @@
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-10">
-
-                {% include "layouts/_alerts.html" %}
+                {% with errors = get_flashed_messages() %}
+                    {% if errors %}
+                        <ul class="alert alert-danger">
+                            {%- for msg in errors %}
+                                <li>{{ msg.category }} - {{ msg|safe }}</li>
+                            {% endfor -%}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
                 {% block main %}
                 {% endblock %}
-
             </div>
-
-
         </div>
 
         <div class="row footer">

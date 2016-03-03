@@ -24,37 +24,6 @@ def mz_index():
     return render_template("settings/mz.html", mz=mz)
 
 
-@settings.route("/sql", methods=["GET", "POST"])
-def execute_sql():
-    res = []
-    sqle = ""
-
-    if request.method == "POST":
-        rsql = request.form
-        sqle = []
-        out = 0
-        for s in rsql["sql"].split("\n"):
-            s = s.strip()
-            if len(s) < 20:
-                flash("query is too short", "error")
-                return redirect("/settings/sql")
-            if not s.endswith(';'):  # append the missing ';'
-                s += ' ;'
-            if s[0:10].find("select") > -1:
-                out = 1
-            sqle.append(s)
-        if out == 1:
-            try:
-                res = db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules')).fetchall()
-            except:
-                flash("ERROR while trying to execute : %s" % ("\n".join(sqle)), "error")
-        else:
-            db.session.execute("\n".join(sqle), bind=db.get_engine(current_app, 'rules'))
-            db.session.commit()
-            res = [("OK", "\n".join(sqle))]
-    return render_template("settings/sql.html", res=res, sqlval="\n".join(sqle))
-
-
 @settings.route("/mz/del", methods=["POST"])
 def mz_del():
     dmz = ValueTemplates.query.filter(ValueTemplates.id == request.form["mzid"]).first()
@@ -112,13 +81,6 @@ def scores_del():
     except:
         flash("ERROR while trying to delete : %s" % dsc.value, "error")
     return redirect("/settings/scores")
-
-
-@settings.route("/update")
-def mz_update():
-    flash("OK: update ", "success")
-    return render_template("layouts/pre.html", text="".join(os.popen("./server update")), title="Spike-Update")
-
 
 @settings.route("/save", methods=["POST"])
 def save_settings():

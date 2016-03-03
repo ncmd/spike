@@ -1,5 +1,4 @@
-import os
-from flask import Blueprint, redirect, Response, current_app, send_from_directory
+from flask import Blueprint, redirect, Response, current_app, send_from_directory, flash
 
 default = Blueprint('default', __name__)
 

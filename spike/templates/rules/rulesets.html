@@ -3,27 +3,24 @@
 
 {% block main %}
 
-
 <h2>
-    Naxsi - RuleSets  &nbsp; &nbsp;
+    Naxsi - RuleSets
     <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files as plain</a>
 </h2>
-
-
   <table class="table table-stripped">
 
     <tr>
         <td><h4>Name</h4></td>
         <td><h4>File</h4></td>
-        <td></td>
+        <td> </td>
     </tr>
 
   {% for rs in rulesets %}
     <tr id="ruleset_{{rs.id}}">
         <td valign="top">{{rs.name}}</td>
-        <td >{{ rs.file }}</td>s
+        <td >{{ rs.file }}</td>
         <td>
-          <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> Rules </a>
+          <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> List </a>
           <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>
           <a href="/rules/rulesets/plain/{{rs.id}}" title="View File Plain" class="btn btn-primary btn-lg"> Plain </a>
         </td>

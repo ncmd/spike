@@ -4,6 +4,7 @@ import string
 from time import time, localtime, strftime
 
 from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
+from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates
 from spike.model import check_constraint, db, check_or_get_latest_sid
@@ -90,7 +91,7 @@ def ruleset_new():  # TODO filter parameter
     db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, int(time())))
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         db.session.rollback()
         flash("ERROR while trying to create ruleset: %s " % rfile, "error")
 
@@ -107,7 +108,7 @@ def nx_select(selector=''):
     logging.info("sel: %s ", sel)
     try:
         rs_val = sel.split(":")[1]
-    except:
+    except SQLAlchemyError:
         return redirect("/rules/")
 
     if sel.startswith('r:'):
@@ -186,7 +187,7 @@ def new():
         db.session.commit()
         flash("OK: created %s : %s" % (sid, request.form["msg"]), "success")
         return redirect("/rules/edit/%s" % sid)
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to create %s : %s" % (sid, request.form["msg"]), "error")
 
     return redirect("/rules/new")
@@ -259,7 +260,7 @@ def save(sid=''):  # FIXME this is the exact same method as the `new` one.
     db.session.add(nrule)
     try:
         db.session.commit()
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to update %s : %s" % (sid, msg), "error")
     return redirect("/rules/edit/%s" % sid)
 
@@ -289,7 +290,7 @@ def del_sid(sid=''):
     try:
         db.session.commit()
         flash("OK: deleted %s : %s" % (sid, nrule.msg), "success")
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to update %s : %s" % (sid, nrule.msg), "error")
 
     return redirect("/rules/")
@@ -315,7 +316,7 @@ def deact_sid(sid=''):
     try:
         db.session.commit()
         flash("OK: %s %sd : %s" % (fm, sid, nrule.msg), "success")
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
 
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()

@@ -1,9 +1,0 @@
-{% with errors = get_flashed_messages() %}
-{% if errors %}
-  <ul class="alert alert-danger">
-    {%- for msg in errors %}
-    <li>{{ msg.category }} - {{ msg|safe }}</li>
-    {% endfor -%}
-  </ul>
-{% endif %}
-{% endwith %}

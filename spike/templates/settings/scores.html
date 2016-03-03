@@ -3,36 +3,31 @@
 
 {% block main %}
 
-<h2>Scores</h2>
-  <table class="table table-condensed table-stripped">
-  <tr>
-    <form  action="/settings/scores/new" method="POST">
-    <td>
-      <input type="text" name="nscore" size="45" value="" placeholder="New Score">
-    </td>
-    <td><button class="btn btn-success btn-sm" type="submit">New</button></td>
-    </form>
-  </tr>
-  
-  {% for s in scores %}
+    <h2>Scores</h2>
+    <table class="table table-condensed table-stripped">
+        <tr>
+            <form action="/settings/scores/new" method="POST">
+                <td>
+                    <input type="text" name="nscore" size="45" value="" placeholder="New Score">
+                </td>
+                <td>
+                    <button class="btn btn-success btn-sm" type="submit">New</button>
+                </td>
+            </form>
+        </tr>
 
-    <tr id="{{s.id}}">
-      <td valign="top">{{s.value}}</td>
-        <td>
-          <form  action="/settings/scores/del" method="POST">
-          <input type="hidden" name="scid" value="{{s.id}}">
-          <button class="btn btn-danger btn-sm" type="submit">Delete</a>
-          </form>
-        </td>
-        
-        
-    </tr>
-  
-  
-  {% endfor %}
-  
-
-  </table>
+        {% for s in scores %}
+            <tr id="{{ s.id }}">
+                <td valign="top">{{ s.value }}</td>
+                <td>
+                    <form action="/settings/scores/del" method="POST">
+                        <input type="hidden" name="scid" value="{{ s.id }}">
+                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 
 {% endblock main %}
 
