@@ -21,5 +21,3 @@ settings_seeds = {
     'backup_dir': 'backups',
     'sqlite_bin': '/usr/bin/sqlite3',  # needed for dumps/reloads
 }
-
-allowed_chars = "abcdefghijklmnopqrstuvwyzABCDEFGHIJKLMNOPQRSTUVWYZ1234567890-"

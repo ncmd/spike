@@ -20,13 +20,11 @@ def __render_md(md_file):
     return ret.getvalue()
 
 
-@docs.route("/")
-def index():
-    return render_template("docs/index.html", doc_display=__render_md("docs/docs.md"))
-
-
 @docs.route("/<path:doc_file>")
 def display(doc_file=''):
+    if not doc_file:
+        return render_template("docs/index.html", doc_display=__render_md("docs/docs.md"))
+
     doc_path = os.path.join("docs", doc_file)
     if doc_path in glob.glob("docs/*.md"):
         return render_template("docs/display.html", display=__render_md(doc_path))

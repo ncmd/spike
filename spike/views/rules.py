@@ -2,17 +2,18 @@ import logging
 import os
 import re
 import string
+from bsddb import rnopen
 from glob import glob
 from time import time, localtime, strftime
 
 from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
-from sqlalchemy.exc import IntegrityError
 
 from spike.model import NaxsiRules, NaxsiRuleSets, ValueTemplates
 from spike.model import check_constraint, db, check_or_get_latest_sid
 
 rules = Blueprint('rules', __name__, url_prefix='/rules')
 
+# TODO : merge `ruleset_plain` and `ruleset_view`
 
 @rules.route("/")
 def index():
@@ -29,35 +30,52 @@ def rulesets():
     return render_template("rules/rulesets.html", rulesets=_rulesets)
 
 
-@rules.route("/rulesets/view/<path:rid>")
+def __get_rules_for_ruleset(ruleset, with_header = True):
+
+    _rules = NaxsiRules.query.filter(
+        NaxsiRules.ruleset == ruleset.file,
+        NaxsiRules.active == 1
+    ).all()
+
+    nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == ruleset.file).first()
+    nxruleset.updated = 0
+    db.session.add(nxruleset)
+    db.session.commit()
+    text_rules = ''.join(map(__get_textual_representation_rule, _rules))
+
+    if with_header is False:
+        return text_rules
+
+    header = current_app.config["RULESET_HEADER"]
+    header = header.replace("RULESET_DESC", ruleset.name)
+    header = header.replace("RULESET_FILE", ruleset.file)
+    header = header.replace( "RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
+
+    return header + text_rules
+
+@rules.route("/rulesets/plain/")
+@rules.route("/rulesets/plain/<int:rid>")
+def ruleset_plain(rid=0):
+    """
+    Show the rule `rid` in plain text
+    :param int rid: Rule id
+    """
+    if not rid:
+        out = ''.join(map(__get_rules_for_ruleset, NaxsiRuleSets.query.all()))
+    else:
+        out = __get_rules_for_ruleset(NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first())
+    return Response(out, mimetype='text/plain')
+
+
+@rules.route("/rulesets/view/<int:rid>")
 def ruleset_view(rid=0):
     if not rid:
         return redirect("/rulesets/")
-
-    out_dir = current_app.config["RULES_EXPORT"]
-    if not os.path.isdir(out_dir):
-        flash("ERROR while trying to access EXPORT_DIR: %s " % out_dir, "error")
-        flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
-        return redirect("/rules/rulesets/")
-
-    r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-    rf = os.path.join(out_dir, 'naxsi', r.file)
-    if not os.path.isfile(rf):
-        flash("ERROR while trying to read %s " % rf, "error")
-        return redirect("/rules/rulesets/")
-
-    return render_template("rules/ruleset_view.html", r=r, rout=''.join(open(rf, "r")))
-
+    ruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
+    return render_template("rules/ruleset_view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
 
 @rules.route("/rulesets/new", methods=["POST"])
-def ruleset_new():
-    out_dir = current_app.config["RULES_EXPORT"]
-    if not os.path.isdir(out_dir):
-        flash("ERROR while trying to access EXPORT_DIR: %s " % out_dir, "error")
-        flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
-        return redirect("/rules/rulesets/")
-
-    # create new rule
+def ruleset_new():  # TODO filter parameter
     rfile = request.form["rfile"].strip().lower()
     rname = request.form["rname"].strip().upper()
 
@@ -69,36 +87,12 @@ def ruleset_new():
     db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, 0, int(time())))
     try:
         db.session.commit()
-        flash("OK created: %s " % rfile, "success")
-    except IntegrityError:
+    except:
+        db.session.rollback()
         flash("ERROR while trying to create ruleset: %s " % rfile, "error")
 
     flash("OK created: %s " % rfile, "success")
     return redirect("/rules/rulesets/")
-
-
-@rules.route("/rulesets/plain/<path:rid>")
-def ruleset_plain(rid=0):
-    """
-    Show the rule `rid` in plain text
-    :param int rid: Rule id
-    """
-    if not rid:
-        return redirect("/rulesets/")
-    out_dir = current_app.config["RULES_EXPORT"]
-
-    if not os.path.isdir(out_dir):
-        flash("ERROR while trying to access EXPORT_DIR: %s " % out_dir, "error")
-        flash("you might want to adjust your <a href=\"/settings\">Settings</a> ", "error")
-        return redirect("/rules/rulesets/")
-
-    r = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-    rf = "%s/naxsi/%s" % (out_dir, r.file)
-    if not os.path.isfile(rf):
-        flash("ERROR while trying to read %s " % rf, "error")
-        return redirect("/rules/rulesets/")
-
-    return Response("".join(open(rf, "r")), mimetype='text/plain')
 
 
 @rules.route("/select/<path:selector>", methods=["GET"])
@@ -182,9 +176,10 @@ def new():
     ruleset = request.form["ruleset"]
     negative = 'negative' in request.form and request.form['negative'] == 'checked'
 
+    nrule = NaxsiRules(request.form["msg"], detect, mz, score, sid, ruleset, rmks, "1", negative, int(time()))
+    db.session.add(nrule)
+
     try:
-        nrule = NaxsiRules(request.form["msg"], detect, mz, score, sid, ruleset, rmks, "1", negative, int(time()))
-        db.session.add(nrule)
         db.session.commit()
         flash("OK: created %s : %s" % (sid, request.form["msg"]), "success")
         return redirect("/rules/edit/%s" % sid)
@@ -279,7 +274,7 @@ def view(sid=''):
     if not rinfo:
         return redirect("/rules/")
 
-    return render_template("rules/view.html", rule=rinfo, rtext=z_display_rule(rinfo, full=0))
+    return render_template("rules/view.html", rule=rinfo, rtext=__get_textual_representation_rule(rinfo, full=0))
 
 
 @rules.route("/del/<path:sid>", methods=["GET"])
@@ -335,50 +330,6 @@ def deact_sid(sid=''):
     score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
     _rulesets = NaxsiRuleSets.query.all()
     return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo)
-
-
-@rules.route("/export/", methods=["GET"])
-@rules.route("/export/<path:rid>", methods=["GET"])
-def export_ruleset(rid='all'):
-    out_dir = current_app.config["RULES_EXPORT"]
-    naxsi_out = "%s/naxsi" % out_dir
-    export_date = strftime("%F - %H:%M", localtime(time()))
-
-    if rid == "all":
-        rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.updated != 0).all()
-    else:
-        rsets = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).all()
-
-    if not rsets:
-        flash("Nothing to export, no rules changed", "success")
-        return redirect("/rules/rulesets/")
-
-    # naxsi-exports
-    for rs in rsets:
-        of = "%s/%s" % (naxsi_out, rs.file)
-        logging.info("exporting %s", of)
-        try:
-            f = open(of, "w")
-            head = current_app.config["RULESET_HEADER"].replace("RULESET_DESC", rs.name).replace("RULESET_FILE",
-                                                                                                 rs.file).replace(
-                "RULESET_DATE", export_date)
-            f.write(head)
-        except:
-            flash("ERROR while trying to export %s" % rs.file, "error")
-            return redirect("/rules/")
-        _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, NaxsiRules.active == 1).order_by(
-            NaxsiRules.sid.desc()).all()
-        nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == rs.file).first()
-        nxruleset.updated = 0
-        db.session.add(nxruleset)
-        db.session.commit()
-        for rule in _rules:
-            rout = z_display_rule(rule)
-            f.write("%s \n" % rout)
-        f.close()
-        flash("Exported: %s / %s" % (rid, of), "success")
-
-    return redirect("/rules/rulesets/")
 
 
 @rules.route("/import/", methods=["GET", "POST"])
@@ -572,19 +523,20 @@ def rules_backup(action="show"):  # FIXME this is full of duplicate code :/
     return redirect("/rules/backup")
 
 
-def z_display_rule(rule, full=1):
+def __get_textual_representation_rule(rule, full=1):
     rdate = strftime("%F - %H:%M", localtime(float(str(rule.timestamp))))
     rmks = "# ".join(rule.rmks.strip().split("\n"))
     detect = rule.detection.lower() if rule.detection.startswith("str:") else rule.detection
     negate = 'negative' if rule.negative == 1 else ''
 
     if full == 1:
-        nout = """#
+        nout = """
+#
 # sid: %s | date: %s 
 #
 # %s
 #
-MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;
+MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
       
       """ % (rule.sid, rdate, rmks, negate, detect, rule.msg, rule.mz, rule.score, rule.sid)
     else:

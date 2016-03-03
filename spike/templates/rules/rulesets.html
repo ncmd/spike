@@ -4,49 +4,43 @@
 {% block main %}
 
 
-<h2>Naxsi - RuleSets  &nbsp; &nbsp; 
-    <a href="/rules/export/" title="Export ALL Files" class="btn btn-success btn-lg">Export All Files</a> ||
-    <a href="/rules/import/" title="Import File" class="btn btn-success btn-lg">Import RulesFile</a></h2>
+<h2>
+    Naxsi - RuleSets  &nbsp; &nbsp;
+    <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files as plain</a>
+    <a href="/rules/import/" title="Import File" class="btn btn-success btn-lg">Import RulesFile</a>
+</h2>
 
 
   <table class="table table-stripped">
 
     <tr>
-        <td><h4>DESC</h4></td>
-        <td><h4>FILE</h4></td>
+        <td><h4>Name</h4></td>
+        <td><h4>File</h4></td>
         <td><h4>Updated</h4></td>
         <td></td>
-      
     </tr>
 
   {% for rs in rulesets %}
-
     <tr id="ruleset_{{rs.id}}">
         <td valign="top">{{rs.name}}</td>
-        <td >{{ rs.file }}
-        </td>
+        <td >{{ rs.file }}</td>
         <td>{% if rs.updated == 1 %} <a href="#" class="btn btn-success btn-lg">New!</a> {%endif %}</td>
         <td>
           <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> Rules </a>
           <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>
           <a href="/rules/rulesets/plain/{{rs.id}}" title="View File Plain" class="btn btn-primary btn-lg"> Plain </a>
-          <a href="/rules/export/{{rs.id}}" title="Export File" class="btn btn-success btn-lg">Export </a>
         </td>
     </tr>
-    
-      
-  
-  
   {% endfor %}
 
   <form action="/rules/rulesets/new" method="POST">
-  <tr>
-    <td><input type="text" name="rname" placeholder="RULESET_DESC" required></td>
-    <td><input type="text" name="rfile" placeholder="ruleset_name.rules" required></td>
-    <td>
-      <button type="submit" class="btn btn-success btn-lg">New Ruleset</button>
-    </td>
-  </tr>
+      <tr>
+        <td><input type="text" name="rname" placeholder="RULESET_DESC" required></td>
+        <td><input type="text" name="rfile" placeholder="ruleset_name.rules" required></td>
+        <td>
+          <button type="submit" class="btn btn-success btn-lg">New Ruleset</button>
+        </td>
+      </tr>
   </form>
   
   </table>

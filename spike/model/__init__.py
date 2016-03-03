@@ -5,17 +5,6 @@ db = SQLAlchemy()
 from naxsi_rules import NaxsiRules, NaxsiRuleSets, ValueTemplates
 from settings import Settings
 
-__all__ = [
-    "db",
-    "NaxsiRules",
-    "NaxsiRuleSets",
-    "ValueTemplates",
-    "Settings",
-    "check_constraint",
-    "check_or_get_latest_sid",
-
-]
-
 
 def check_constraint(ctype, value):
     if ctype == "settings":
