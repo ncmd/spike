@@ -87,7 +87,7 @@ def ruleset_new():  # TODO filter parameter
         flash("ERROR, ruleset exists: %s " % rfile, "error")
         return redirect("/rules/rulesets/")
 
-    db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, 0, int(time())))
+    db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, int(time())))
     try:
         db.session.commit()
     except:
