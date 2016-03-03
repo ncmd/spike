@@ -1,17 +1,18 @@
-
-
 # Spike! - Naxsi Rules Builder
 
-Spike! is a simple webapp that generates Naxsi-Rules.
-Rules are stored in a sqlite-db and might be exported
-into separate ruleset-files for further processing. 
+[![Code Health](https://landscape.io/github/nbs-system/spike/master/landscape.svg?style=flat)](https://landscape.io/github/nbs-system/spike/master)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/f16a87616f3c4e14ac914fea520298e7)](https://www.codacy.com/app/julien-voisin/spike)
 
-This Software is intended for people or dc-operators who
-already use Naxsi and are familiar with writing Naxsi-Signatures
-and was intially created to help with keeping the Doxi-Rulesets
-up-to-date.
+Spike is a simple web application to manage [naxsi]( https://github.com/nbs-system/naxsi] rules.
+Rules are stored in a [sqlite]( https://www.sqlite.org/ ) database, and can be added,
+deleted, modified, searched, importable and exportable in plain-text.
 
-See: http://spike.nginx-goodies.com/rules/ for live, legacy version
+This software was initially created to help with keeping the [Doxi]( https://bitbucket.org/lazy_dogtown/doxi-rules/src )
+rulesets up-to-date. It was created with love by the people of [mare system]( https://www.mare-system.de/ ) in 2011,
+maintained by [8ack]( https://8ack.de/corporate ), and now, it's being adopted by the naxsi project.
+
+You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live (legacy) version.
+
 
 # Installation and Requirements 
 
