@@ -9,7 +9,9 @@ into separate ruleset-files for further processing.
 This Software is intended for people or dc-operators who
 already use Naxsi and are familiar with writing Naxsi-Signatures
 and was intially created to help with keeping the Doxi-Rulesets
-up-to-date. 
+up-to-date.
+
+See: http://spike.nginx-goodies.com/rules/ for live, legacy version
 
 # Installation and Requirements 
 
