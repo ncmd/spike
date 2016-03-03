@@ -10,10 +10,10 @@ settings = Blueprint('settings', __name__, url_prefix='/settings')
 
 @settings.route("/")
 def index():
-    settings = Settings.query.order_by(Settings.name).all()
-    if not settings:
+    _settings = Settings.query.order_by(Settings.name).all()
+    if not _settings:
         return redirect("/rules")
-    return render_template("settings/index.html", settings=settings)
+    return render_template("settings/index.html", settings=_settings)
 
 
 @settings.route("/mz")
@@ -137,8 +137,3 @@ def save_settings():
     db.session.commit()
     os.system("touch spike/__init__.py")
     return redirect("/settings")
-
-
-@settings.route("/<path:szone>")
-def szone(szone=0):
-    return render_template("notyet.html", text="")

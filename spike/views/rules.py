@@ -15,11 +15,11 @@ rules = Blueprint('rules', __name__, url_prefix='/rules')
 
 @rules.route("/")
 def index():
-    rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
-    if not rules:
+    _rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
+    if not _rules:
         flash("no rules found, please create one", "success")
         return redirect("/rules/new")
-    return render_template("rules/index.html", rules=rules)
+    return render_template("rules/index.html", rules=_rules)
 
 
 @rules.route("/rulesets/")
@@ -112,15 +112,15 @@ def nx_select(selector=''):
         return redirect("/rules/")
 
     if sel.startswith('r:'):
-        rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs_val).order_by(NaxsiRules.sid.desc()).all()
+        _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs_val).order_by(NaxsiRules.sid.desc()).all()
         selection = "Search ruleset: %s " % rs_val
     elif sel.startswith('id:'):
-        rules = NaxsiRules.query.filter(NaxsiRules.sid == rs_val).order_by(NaxsiRules.sid.desc()).all()
+        _rules = NaxsiRules.query.filter(NaxsiRules.sid == rs_val).order_by(NaxsiRules.sid.desc()).all()
         selection = "Search sid: %s " % rs_val
     else:
         return redirect("/rules/")
 
-    return render_template("rules/index.html", rules=rules, selection=selection)
+    return render_template("rules/index.html", rules=_rules, selection=selection)
 
 
 @rules.route("/search/", methods=["GET"])
@@ -136,17 +136,17 @@ def search():  # FIXME plz refactor me. PLEASE !
                 sclean = "%s%s" % (sclean, cc)
         try:
             sclean = int(sclean)
-            rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == sclean).all()
+            _rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == sclean).all()
         except:
             sclean = sclean.replace("---", "%")
             sclean = "%" + sclean + "%"
-            rules = db.session.query(NaxsiRules).filter(
+            _rules = db.session.query(NaxsiRules).filter(
                 db.or_(NaxsiRules.msg.like(sclean), NaxsiRules.rmks.like(sclean),
                        NaxsiRules.detection.like(sclean))).order_by(NaxsiRules.sid.desc()).all()
     else:
         return redirect("/rules/")
     selz = "Search: %s" % srch
-    return render_template("rules/index.html", rules=rules, selection=selz, lsearch=request.args.get('s', ''))
+    return render_template("rules/index.html", rules=_rules, selection=selz, lsearch=request.args.get('s', ''))
 
 
 @rules.route("/new", methods=["GET", "POST"])
@@ -155,9 +155,9 @@ def new():
 
     if request.method == "GET":
         mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
-        rulesets = NaxsiRuleSets.query.all()
+        _rulesets = NaxsiRuleSets.query.all()
         score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
-        return render_template("rules/new.html", mz=mz, rulesets=rulesets, score=score, latestn=sid)
+        return render_template("rules/new.html", mz=mz, rulesets=_rulesets, score=score, latestn=sid)
 
     # create new rule
     logging.debug('Posted new request: %s', request.form)
@@ -204,14 +204,14 @@ def edit(sid=''):
 
     mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
     score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
-    rulesets = NaxsiRuleSets.query.all()
+    _rulesets = NaxsiRuleSets.query.all()
     rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
     custom_mz = ""
     mz_check = rinfo.mz
     if re.search(r"^\$[A-Z]+:(.*)\|[A-Z]+", mz_check):
         custom_mz = mz_check
         rinfo.mz = "custom"
-    return render_template("rules/edit.html", mz=mz, rulesets=rulesets, score=score, rules_info=rinfo,
+    return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo,
                            rule_ruleset=rruleset, custom_mz=custom_mz)
 
 
@@ -332,8 +332,8 @@ def deact_sid(sid=''):
 
     mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
     score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
-    rulesets = NaxsiRuleSets.query.all()
-    return render_template("rules/edit.html", mz=mz, rulesets=rulesets, score=score, rules_info=rinfo)
+    _rulesets = NaxsiRuleSets.query.all()
+    return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo)
 
 
 @rules.route("/export/", methods=["GET"])
@@ -365,13 +365,13 @@ def export_ruleset(rid='all'):
         except:
             flash("ERROR while trying to export %s" % rs.file, "error")
             return redirect("/rules/")
-        rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, NaxsiRules.active == 1).order_by(
+        _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs.file, NaxsiRules.active == 1).order_by(
             NaxsiRules.sid.desc()).all()
         nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == rs.file).first()
         nxruleset.updated = 0
         db.session.add(nxruleset)
         db.session.commit()
-        for rule in rules:
+        for rule in _rules:
             rout = z_display_rule(rule)
             f.write("%s \n" % rout)
         f.close()
