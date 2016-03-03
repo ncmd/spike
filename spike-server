@@ -6,7 +6,6 @@
 #
 import base64
 import os
-import sys
 import logging
 import argparse
 from os.path import dirname, abspath, isdir
@@ -14,7 +13,8 @@ from shutil import move
 from time import time, strftime, localtime
 
 from spike import create_app, seeds, version, model
-from spike.model import db, Settings, NaxsiRuleSets, ValueTemplates
+from spike.model import db, Settings, NaxsiRuleSets
+from spike.model.naxsi_rules import ValueTemplates
 
 
 def run():

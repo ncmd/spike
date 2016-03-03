@@ -52,15 +52,9 @@ def f_scoresplit(value):
     :param str value: A string of the form "name:score"
     :return list: Return a list of the form [name, score], with score being an int
     """
-    try:
-        return value.split(":")[0:2]
-    except:
-        return value, 8
+    return value.split(":")[0:2]
 
 
 def f_mzsplit(value):
-    try:
-        return value.split("|")
-    except:
-        return [value]
+    return value.split("|")
 

@@ -1,9 +1,11 @@
 import os
 import logging
 
-from flask import current_app, Blueprint, render_template, request, redirect, flash
+from flask import Blueprint, render_template, request, redirect, flash
+from sqlalchemy.exc import SQLAlchemyError
 
-from spike.model import Settings, ValueTemplates, db
+from spike.model import Settings, db
+from spike.model.naxsi_rules import ValueTemplates
 
 settings = Blueprint('settings', __name__, url_prefix='/settings')
 
@@ -35,7 +37,7 @@ def mz_del():
     try:
         db.session.commit()
         flash("OK: deleted %s " % dmz.value, "success")
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to delete : %s" % dmz.value, "error")
     return redirect("/settings/mz")
 
@@ -78,7 +80,7 @@ def scores_del():
     try:
         db.session.commit()
         flash("OK: deleted %s " % dsc.value, "success")
-    except:
+    except SQLAlchemyError:
         flash("ERROR while trying to delete : %s" % dsc.value, "error")
     return redirect("/settings/scores")
 
