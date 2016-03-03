@@ -3,17 +3,19 @@
 
 {% block main %}
 
-<h2>RuleSet - {{r.name }}</h2>
+    <h2>RuleSet - {{ r.name }}</h2>
 
-  <table class="table table-condensed table-stripped">
+    <table class="table table-condensed table-stripped">
 
-  <tr><td>
-  
-  <textarea cols="90" rows="30">{{rout}}</textarea>
-  
-  </td></tr>
+        <tr>
+            <td>
 
-  </table>
+                <textarea cols="90" rows="30">{{ rout }}</textarea>
+
+            </td>
+        </tr>
+
+    </table>
 
 {% endblock main %}
 

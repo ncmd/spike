@@ -1,117 +1,136 @@
 {% extends "layouts/application.html" %}
-{% block title %}Edit {{rules_info.sid}} {% endblock %}
+{% block title %}Edit {{ rules_info.sid }} {% endblock %}
 
 {% block main %}
-  {% if rules_info.active == 0 %}
-  <br>
-  <div class="deactivated">
-  {% endif %}
-  <h3><a href="/rules/view/{{rules_info.sid}}">{{rules_info.sid}} - {{rules_info.msg}}</a> <a href="/rules/view/{{rules_info.sid}}" class="btn btn-lg btn-primary">View Rule</a></h3>
-  <form action="/rules/save/{{rules_info.sid}}" method="POST">
-  
-  <table  class="table table-condensed table-stripped">
-    <tr><td>SID : </td>
-      <td>
-        <input type="hidden" name="sid" value="{{ rules_info.sid }}">
-        <input type="hidden" name="active" value="{{ rules_info.active }}">
-        {{ rules_info.sid }}
-        
-        </td></tr>
-    <tr><td>Msg :</td><td><input type="text" name="msg" size="60"  placeholder="Message" value="{{rules_info.msg}}" required></td></tr>
-    <tr><td>Detect :</td><td><input type="text" name="detection" size="60" placeholder="str|rx" value="{{rules_info.detection}}" required></td></tr>
-    <tr>
-      <td> MZ: </td>
-      <td>
-      <table>
+    {% if rules_info.active == 0 %}
+        <br>
+        <div class="deactivated">
+    {% endif %}
+<h3><a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.sid }} - {{ rules_info.msg }}</a> <a
+        href="/rules/view/{{ rules_info.sid }}" class="btn btn-lg btn-primary">View Rule</a></h3>
+<form action="/rules/save/{{ rules_info.sid }}" method="POST">
+
+    <table class="table table-condensed table-stripped">
         <tr>
-      <td> 
-      {% set rmz = rules_info.mz | mzsplit %}
-      {% set dmz = [] %}
-      {% for z in mz %}
-        <input type="checkbox" name="mz" value="{{z.value}}" 
-        {% if z.value in rmz %}
-        {% if dmz.append(z.value) %} {% endif %}
-          checked> <strong> {{ z.value }}</strong>
-        {% else  %}
-          > {{ z.value }}
-        {% endif %}  
-           <br>
-      {% endfor %}
-      {% for r in rmz  %}
-      {% if r not in dmz %}
-        {% if r != "custom" %}
-        <input type="checkbox" name="mz" value="{{r}}" checked> <strong>{{ r }} </strong><br>
-        {% endif %}
-      {% endif %}
-      {% endfor %}
-        <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}> <input type="text" name="custom_mz_val" value="{{custom_mz}}" placeholder="Custom MZ" size="35"><br>
-      </td>
-    <td valign="top">&nbsp; &nbsp; &nbsp; </td>
-    <td valign="top">
-      <strong>Score</strong> <br>
-      {% for s in score %}
-      {% set sc,sv = rules_info.score | scoresplit %}
-        {% if s.value  == sc %}
-          <input type="text" name="score_{{s.value}}" value="{{sv}}" size="3">
-        {% else %}
-          <input type="text" name="score_{{s.value}}" value="8" size="3">
-        {% endif %}
-        <input type="checkbox" name="score" value="{{s.value}}"
-        {% if s.value  == sc %} 
-          checked><strong> {{ s.value }}</strong>
-        {% else %}
-          > {{ s.value }}
-          {% endif %}   
-         <br>
-      {% endfor %}
-      <hr>
-      <strong>Negative</strong> <br>
+            <td>SID :</td>
+            <td>
+                <input type="hidden" name="sid" value="{{ rules_info.sid }}">
+                <input type="hidden" name="active" value="{{ rules_info.active }}">
+                {{ rules_info.sid }}
 
-      <input type="checkbox" id="on" name="negative" value="checked" {% if rules_info.negative == 1 %} checked {% endif %}> On
+            </td>
+        </tr>
+        <tr>
+            <td>Msg :</td>
+            <td><input type="text" name="msg" size="60" placeholder="Message" value="{{ rules_info.msg }}" required>
+            </td>
+        </tr>
+        <tr>
+            <td>Detect :</td>
+            <td><input type="text" name="detection" size="60" placeholder="str|rx" value="{{ rules_info.detection }}"
+                       required></td>
+        </tr>
+        <tr>
+            <td> MZ:</td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            {% set rmz = rules_info.mz | mzsplit %}
+                            {% set dmz = [] %}
+                            {% for z in mz %}
+                                <input type="checkbox" name="mz" value="{{ z.value }}"
+                                        {% if z.value in rmz %}
+                                            {% if dmz.append(z.value) %} {% endif %}
+                                       checked> <strong> {{ z.value }}</strong>
+                                        {% else %}
+                                            > {{ z.value }}
+                                        {% endif %}
+                                <br>
+                            {% endfor %}
+                            {% for r in rmz %}
+                                {% if r not in dmz %}
+                                    {% if r != "custom" %}
+                                        <input type="checkbox" name="mz" value="{{ r }}" checked>
+                                        <strong>{{ r }} </strong><br>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}>
+                            <input type="text" name="custom_mz_val" value="{{ custom_mz }}" placeholder="Custom MZ"
+                                   size="35"><br>
+                        </td>
+                        <td valign="top">&nbsp; &nbsp; &nbsp; </td>
+                        <td valign="top">
+                            <strong>Score</strong> <br>
+                            {% for s in score %}
+                                {% set sc,sv = rules_info.score | scoresplit %}
+                                {% if s.value  == sc %}
+                                    <input type="text" name="score_{{ s.value }}" value="{{ sv }}" size="3">
+                                {% else %}
+                                    <input type="text" name="score_{{ s.value }}" value="8" size="3">
+                                {% endif %}
+                                <input type="checkbox" name="score" value="{{ s.value }}"
+                                        {% if s.value  == sc %}
+                                       checked><strong> {{ s.value }}</strong>
+                                        {% else %}
+                                            > {{ s.value }}
+                                        {% endif %}
+                                <br>
+                            {% endfor %}
+                            <hr>
+                            <strong>Negative</strong> <br>
+
+                            <input type="checkbox" id="on" name="negative" value="checked"
+                                    {% if rules_info.negative == 1 %} checked {% endif %}> On
 
 
-      </td>
-      </tr>
-      
-      </table>
-      </td>
-    </tr>
+                        </td>
+                    </tr>
 
-    
-    <tr><td>Remarks</td>
-    <td>
-      <textarea cols="60" rows="10" name="rmks" >{{rules_info.rmks}}</textarea>
-    </td>
-    </tr>
-    <tr><td>RuleSet</td>
-    <td>
-      <select name="ruleset">
-      {% for r in rulesets %}
-        <option value="{{ r.file }}"
-          {% if r.file  == rules_info.ruleset %} selected {% endif %}>  
-        {{ r.file }} <br>
-      {% endfor %}
-      </select>
-      </td>  
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-        <button type="submit" class="btn btn-success btn-lg">Save Rule</button> | 
-        <a href="/rules/select/r:{{rules_info.ruleset}}" class="btn btn-primary btn-lg">View Ruleset-Rules</a></button><br><br><br>
-        {% if rules_info.active == 0 %}        
-          <a href="/rules/deact/{{rules_info.sid}}" class="btn btn-success btn-lg">Re-Activate Rule</a>
-        {% else %}
-          <a href="/rules/deact/{{rules_info.sid}}" class="btn btn-warning btn-lg">Deactivate Rule</a>
-        {% endif %}
-        <a href="/rules/del/{{rules_info.sid}}"  class="btn btn-danger btn-lg">Delete Rule</a>
-      </td>
-    </tr>
-  </table>
-  </form>
-  {% if rules_info.active == 0 %}
-  </div>
-  {% endif %}
+                </table>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>Remarks</td>
+            <td>
+                <textarea cols="60" rows="10" name="rmks">{{ rules_info.rmks }}</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>RuleSet</td>
+            <td>
+                <select name="ruleset">
+                    {% for r in rulesets %}
+                        <option value="{{ r.file }}"
+                                {% if r.file  == rules_info.ruleset %} selected {% endif %}>
+                        {{ r.file }} <br>
+                    {% endfor %}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit" class="btn btn-success btn-lg">Save Rule</button>
+                |
+                <a href="/rules/select/r:{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View
+                    Ruleset-Rules</a></button><br><br><br>
+                {% if rules_info.active == 0 %}
+                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success btn-lg">Re-Activate Rule</a>
+                {% else %}
+                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-warning btn-lg">Deactivate Rule</a>
+                {% endif %}
+                <a href="/rules/del/{{ rules_info.sid }}" class="btn btn-danger btn-lg">Delete Rule</a>
+            </td>
+        </tr>
+    </table>
+</form>
+{% if rules_info.active == 0 %}
+    </div>
+{% endif %}
 
 {% endblock %}
 

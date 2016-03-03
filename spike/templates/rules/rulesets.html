@@ -3,41 +3,44 @@
 
 {% block main %}
 
-<h2>
-    Naxsi - RuleSets
-    <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files as plain</a>
-</h2>
-  <table class="table table-stripped">
+    <h2>
+        Naxsi - RuleSets
+        <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files
+            as plain</a>
+    </h2>
+    <table class="table table-stripped">
 
-    <tr>
-        <td><h4>Name</h4></td>
-        <td><h4>File</h4></td>
-        <td> </td>
-    </tr>
+        <tr>
+            <td><h4>Name</h4></td>
+            <td><h4>File</h4></td>
+            <td></td>
+        </tr>
 
-  {% for rs in rulesets %}
-    <tr id="ruleset_{{rs.id}}">
-        <td valign="top">{{rs.name}}</td>
-        <td >{{ rs.file }}</td>
-        <td>
-          <a href="/rules/select/r:{{rs.file}}" title="View Rules" class="btn btn-primary btn-lg"> List </a>
-          <a href="/rules/rulesets/view/{{rs.id}}" title="View File" class="btn btn-primary btn-lg"> View </a>
-          <a href="/rules/rulesets/plain/{{rs.id}}" title="View File Plain" class="btn btn-primary btn-lg"> Plain </a>
-        </td>
-    </tr>
-  {% endfor %}
+        {% for rs in rulesets %}
+            <tr id="ruleset_{{ rs.id }}">
+                <td valign="top">{{ rs.name }}</td>
+                <td>{{ rs.file }}</td>
+                <td>
+                    <a href="/rules/select/r:{{ rs.file }}" title="View Rules" class="btn btn-primary btn-lg"> List </a>
+                    <a href="/rules/rulesets/view/{{ rs.id }}" title="View File" class="btn btn-primary btn-lg">
+                        View </a>
+                    <a href="/rules/rulesets/plain/{{ rs.id }}" title="View File Plain" class="btn btn-primary btn-lg">
+                        Plain </a>
+                </td>
+            </tr>
+        {% endfor %}
 
-  <form action="/rules/rulesets/new" method="POST">
-      <tr>
-        <td><input type="text" name="rname" placeholder="RULESET_DESC" required></td>
-        <td><input type="text" name="rfile" placeholder="ruleset_name.rules" required></td>
-        <td>
-          <button type="submit" class="btn btn-success btn-lg">New Ruleset</button>
-        </td>
-      </tr>
-  </form>
-  
-  </table>
+        <form action="/rules/rulesets/new" method="POST">
+            <tr>
+                <td><input type="text" name="rname" placeholder="RULESET_DESC" required></td>
+                <td><input type="text" name="rfile" placeholder="ruleset_name.rules" required></td>
+                <td>
+                    <button type="submit" class="btn btn-success btn-lg">New Ruleset</button>
+                </td>
+            </tr>
+        </form>
+
+    </table>
 
 {% endblock main %}
 

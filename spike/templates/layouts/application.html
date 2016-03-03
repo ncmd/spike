@@ -36,7 +36,6 @@
                     <li class="cdrops"><a href="/rules">View Rules</a></li>
                     <li class="cdrops"><a href="/rules/rulesets/">Rulesets</a></li>
                     <li class="cdrops"><a href="/rules/new">New rule</a></li>
-                    <li class="cdrops"><a href="/backup">Download database</a></li>
                 </ul>
             </div>
             <div class="navbar-right">
@@ -46,12 +45,12 @@
                             <input type="text" name="s" size="20" value="{{ lsearch }}"
                                    placeholder="Keyword or rule id">
                             <input type="submit" class="btn btn-primary btn-sm" value="Go">
-
                         </div>
                     </form>
                     <li class="dropdown cdrop">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin &amp; Docs<b class="caret"></b></a>
                         <ul class="dropdown-menu">
+                            <li><a href="/backup">Download database</a></li>
                             <li><a href="/settings">Settings</a></li>
                             <li><a href="/settings/mz">Edit MatchingZones</a></li>
                             <li><a href="/settings/scores">Edit Scores</a></li>
@@ -63,7 +62,7 @@
                 </ul>
             </div>
         </div>
-    </nav><!-- /.navbar-collapse -->
+    </nav>
 
 
 {% endblock %}
