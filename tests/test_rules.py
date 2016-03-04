@@ -12,7 +12,6 @@ import unittest
 
 
 class FlaskrTestCase(unittest.TestCase):
-
     def setUp(self):
         app = create_app()
         db.init_app(app)
@@ -21,6 +20,23 @@ class FlaskrTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def __create_rule(self):
+        """
+
+        :return int: The id of the new rule
+        """
+        current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        current_sid = 1337 if current_sid is None else current_sid.sid + 1
+
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'web_server.rules',
+                                  u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+        self.sid_to_delete = current_sid
+        return current_sid
+
+    def __delete_rule(self, sid=None):
+        sid = self.sid_to_delete if sid is None else sid
+        db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
 
     def test_robotstxt(self):
         assert self.app.get('/robots.txt').data == 'User-agent: *\n Disallow: /'
@@ -43,31 +59,33 @@ class FlaskrTestCase(unittest.TestCase):
             'ruleset': 'scanner.rules'
         }
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
-        rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        self.assertIn(('<li> - OK: created %d : %s</li>' % (rule.sid, rule.msg)), rv.data)
-        self.assertEqual(rule.msg, data['msg'])
-        self.assertEqual(rule.detection, 'str:' + data['detection'])
-        self.assertEqual(rule.mz, data['mz'])
-        self.assertEqual(rule.score, data['score'] + ':' + str(data['score_$SQL']))
-        self.assertEqual(rule.rmks, data['rmks'])
-        self.assertEqual(rule.ruleset, data['ruleset'])
+        self.assertIn(('<li> - OK: created %d : %s</li>' % (_rule.sid, _rule.msg)), rv.data)
+        self.assertEqual(_rule.msg, data['msg'])
+        self.assertEqual(_rule.detection, 'str:' + data['detection'])
+        self.assertEqual(_rule.mz, data['mz'])
+        self.assertEqual(_rule.score, data['score'] + ':' + str(data['score_$SQL']))
+        self.assertEqual(_rule.rmks, data['rmks'])
+        self.assertEqual(_rule.ruleset, data['ruleset'])
 
-        db.session.delete(NaxsiRules.query.filter(rule.sid == NaxsiRules.sid).first())
+        self.__delete_rule(_rule.sid)
 
     def test_del_rule(self):
-        current_sid = int(NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
-        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid+1, u'web_server.rules',
-            u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+        old_sid = self.__create_rule()
 
-        sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
-        rv = self.app.get('/rules/del/%d' % sid)
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'web_server.rules',
+                                  u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+        rv = self.app.get('/rules/del/%d' % (old_sid + 1))
         self.assertEqual(rv.status_code, 302)
 
-        rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        self.assertEqual(rule.sid, current_sid)
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        self.assertEqual(_rule.sid, old_sid)
+
+        self.__delete_rule()
 
     def test_plain_rule(self):
+        self.__create_rule()
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
         self.assertEqual(rv.status_code, 200)
@@ -85,7 +103,7 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
         self.assertEqual(expected, rv.data)
-        db.session.delete(NaxsiRules.query.filter(_rule.sid == NaxsiRules.sid).first())
+        self.__delete_rule()
 
 
 if __name__ == '__main__':
