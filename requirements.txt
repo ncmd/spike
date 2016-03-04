@@ -1,4 +1,7 @@
 sqlalchemy
+wtforms
+markdown
 flask
 flask-bootstrap
 flask-sqlalchemy
+flask-wtf

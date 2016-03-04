@@ -37,7 +37,10 @@ To run, spike needs:
 - python2.7
 - python-sqlite
 - sqlalchemy
+- wtforms
+- markdown
 - flask
+- flask-wtf
 - flask-bootstrap
 - flask-sqlalchemy
 
