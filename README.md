@@ -51,11 +51,8 @@ To run, spike needs:
 
 ```bash
 git clone https://github.com/spike
-pip install flask
-pip install flask-bootstrap
-pip install flask-sqlalchemy
-pip install flask-wtf
-pip install markdown
+pip install -r requirements.txt
+python ./spike-server.py init
 python ./spike-server.py run
 ```
 
@@ -63,12 +60,12 @@ python ./spike-server.py run
 
 Check the config.cfg file:
 
-- APP_PORT -> the port the spike-server listens on (defaults to 5555)
-- APP_HOST -> the ip to bind to (defaults to 127.0.0.1)
-- RULESET_HEADER -> the header that get written to each ruleset.rules; you might use some placeholders:
-    - RULESET_DESC -> value from DESC
-    - RULESET_FILE -> ruleset_filename
-    - RULESET_DATE -> export-date
+- **APP_PORT**: the port the spike-server listens on (defaults to 5555)
+- **APP_HOST**: the ip to bind to (defaults to 127.0.0.1)
+- **RULESET_HEADER**: the header that get written to each ruleset.rules; you might use some placeholders:
+    - **RULESET_DESC**: value from DESC
+    - **RULESET_FILE**: ruleset_filename
+    - **RULESET_DATE**: export-date
 
 
 ### Putting Spike behind Nginx
