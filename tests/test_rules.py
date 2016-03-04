@@ -38,14 +38,6 @@ class FlaskrTestCase(unittest.TestCase):
         sid = self.sid_to_delete if sid is None else sid
         db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
 
-    def test_robotstxt(self):
-        assert self.app.get('/robots.txt').data == 'User-agent: *\n Disallow: /'
-
-    def test_redirect_root(self):
-        rv = self.app.get('/', follow_redirects=False)
-        self.assertEqual(rv.status_code, 302)
-        self.assertEqual(urlparse(rv.location).path, '/rules')
-
     def test_add_rule(self):
         data = {
             'msg': 'this is a test message',
