@@ -6,9 +6,8 @@ from time import time, localtime, strftime
 from flask import Blueprint, render_template, request, redirect, flash, Response
 from sqlalchemy.exc import SQLAlchemyError
 
-from spike.model import NaxsiRules, NaxsiRuleSets
 from spike.model import db
-from spike.model.naxsi_rules import ValueTemplates
+from spike.model.naxsi_rules import ValueTemplates, NaxsiRules, NaxsiRuleSets
 
 rules = Blueprint('rules', __name__)
 

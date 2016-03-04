@@ -2,7 +2,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-from naxsi_rules import NaxsiRules, NaxsiRuleSets
+from naxsi_rules import NaxsiRuleSets
 
 
 def check_constraint(ctype, value):

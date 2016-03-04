@@ -1,6 +1,3 @@
-import os
-import logging
-
 from flask import Blueprint, render_template, request, redirect, flash
 from sqlalchemy.exc import SQLAlchemyError
 

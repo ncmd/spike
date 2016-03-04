@@ -1,5 +1,5 @@
 from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
-from spike.model import NaxsiRules, NaxsiRuleSets
+from spike.model.naxsi_rules import NaxsiRules, NaxsiRuleSets
 from time import time, localtime, strftime
 from spike.model import check_constraint, db
 from sqlalchemy.exc import SQLAlchemyError
