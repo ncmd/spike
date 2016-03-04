@@ -17,6 +17,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     def setUp(self):
         app = create_app()
+        db.init_app(app)
         app.config['TESTING'] = True
         self.app = app.test_client()
 
@@ -45,6 +46,7 @@ class FlaskrTestCase(unittest.TestCase):
         }
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
         rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+
         assert ('<li> - OK: created %d : %s</li>' % (rule.sid, rule.msg)) in rv.data
         assert rule.msg == data['msg']
         assert rule.detection == 'str:' + data['detection']
@@ -53,9 +55,13 @@ class FlaskrTestCase(unittest.TestCase):
         assert rule.rmks == data['rmks']
         assert rule.ruleset == data['ruleset']
 
+        _rule = NaxsiRules.query.filter(rule.sid == NaxsiRules.sid).first()
+        db.session.delete(_rule)
+
     def test_del_rule(self):
-        current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
-        self.test_add_rule()
+        current_sid = int(NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
+        db.session.add(NaxsiRules(u'POUET', 'str:OIJEFOJEWFOIJEWF', u'BODY', u'$SQL:8', current_sid+1, u'web_server.rules',
+         u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
 
         sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
         rv = self.app.get('/rules/del/%d' % sid)
@@ -65,8 +71,6 @@ class FlaskrTestCase(unittest.TestCase):
         assert rule.sid == current_sid
 
     def test_plain_rule(self):
-        self.test_add_rule()
-
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
         assert rv.status_code == 200
@@ -84,6 +88,8 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
         assert expected == rv.data
+        _rule = NaxsiRules.query.filter(_rule.sid == NaxsiRules.sid).first()
+        db.session.delete(_rule)
 
 
 if __name__ == '__main__':
