@@ -1,14 +1,20 @@
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:  # python3
+    from urllib.parse import urlparse
+
 import re
 
-import spike
+from spike import create_app
+from spike.model import db
+from spike.model.naxsi_rules import ValueTemplates, NaxsiRules, NaxsiRuleSets
 import unittest
 
 
 class FlaskrTestCase(unittest.TestCase):
 
     def setUp(self):
-        app = spike.create_app()
+        app = create_app()
         app.config['TESTING'] = True
         self.app = app.test_client()
 
@@ -36,7 +42,7 @@ class FlaskrTestCase(unittest.TestCase):
             'ruleset': 'scanner.rules'
         }
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
-        rule = spike.model.NaxsiRules.query.order_by(spike.model.NaxsiRules.sid.desc()).first()
+        rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         assert ('<li> - OK: created %d : %s</li>' % (rule.sid, rule.msg)) in rv.data
         assert rule.msg == data['msg']
         assert rule.detection == 'str:' + data['detection']
@@ -44,6 +50,19 @@ class FlaskrTestCase(unittest.TestCase):
         assert rule.score == data['score'] + ':' + str(data['score_$SQL'])
         assert rule.rmks == data['rmks']
         assert rule.ruleset == data['ruleset']
+
+    def test_del_rule(self):
+        current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
+        self.test_add_rule()
+
+        sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
+        rv = self.app.get('/rules/del/%d' % sid)
+        assert rv.status_code == 302
+
+        rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+
+        assert rule.sid == current_sid
+
 
 
 if __name__ == '__main__':
