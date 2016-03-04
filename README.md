@@ -35,9 +35,11 @@ You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live 
 To run, spike needs:
 
 - python2.7
+- python-sqlite
 - sqlalchemy
 - flask
-- python-sqlite
+- flask-bootstrap
+- flask-sqlalchemy
 
 
 ### Setup
