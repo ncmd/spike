@@ -75,7 +75,7 @@ def spike_init():
     for r in seeds.rulesets_seeds:
         logging.info("adding ruleset: %s / %s", r, seeds.rulesets_seeds[r])
         rmks = "naxsi-ruleset for %s / auto-created %s" % (r, ds)
-        db.session.add(NaxsiRuleSets(seeds.rulesets_seeds[r], r, rmks, ts, ts))
+        db.session.add(NaxsiRuleSets(seeds.rulesets_seeds[r], r, rmks, ts))
 
     for s in seeds.settings_seeds:
         logging.info("adding setting: %s", s)
