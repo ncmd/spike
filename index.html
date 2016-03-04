@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Spike by nbs-system</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/nbs-system/spike">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/nbs-system/spike/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/nbs-system/spike/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Spike</h1>
+          <p>A cool web interface for naxsi</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/nbs-system">nbs-system</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a id="spike---naxsi-rules-builder" class="anchor" href="#spike---naxsi-rules-builder" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Spike! - Naxsi Rules Builder</h1>
+
+<p><a href="https://landscape.io/github/nbs-system/spike/master"><img src="https://landscape.io/github/nbs-system/spike/master/landscape.svg?style=flat" alt="Code Health"></a>
+<a href="https://www.codacy.com/app/julien-voisin/spike"><img src="https://api.codacy.com/project/badge/grade/f16a87616f3c4e14ac914fea520298e7" alt="Codacy Badge"></a>
+<a href="https://scrutinizer-ci.com/g/nbs-system/spike/?branch=master"><img src="https://scrutinizer-ci.com/g/nbs-system/spike/badges/quality-score.png?b=master" alt="Scrutinizer Code Quality"></a></p>
+
+<p>Spike is a simple web application to manage [naxsi]( <a href="https://github.com/nbs-system/naxsi">https://github.com/nbs-system/naxsi</a>] rules.
+Rules are stored in a <a href="https://www.sqlite.org/">sqlite</a> database, and can be added,
+deleted, modified, searched, importable and exportable in plain-text.</p>
+
+<p>This software was initially created to help with keeping the <a href="https://bitbucket.org/lazy_dogtown/doxi-rules/src">Doxi</a>
+rulesets up-to-date. It was created with love by the people of <a href="https://www.mare-system.de/">mare system</a> in 2011,
+maintained by <a href="https://8ack.de/corporate">8ack</a>, and now, it's being adopted by the naxsi project.</p>
+
+<p>It's proudly powered by <a href="http://flask.pocoo.org/">flask</a> and <a href="http://www.sqlalchemy.org/">sqlalchemy</a>.</p>
+
+<p>You can take a look <a href="http://spike.nginx-goodies.com/rules/">here</a> for a  live (legacy) version.</p>
+
+<h1>
+<a id="warning" class="anchor" href="#warning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>WARNING</h1>
+
+<blockquote>
+<p>Spike ist still very early alpha.</p>
+
+<p>NEVER run Spike! on a public facing Server; there's absolutely 
+no protection or user-login atm; exposing Spike! to the public could
+lead into damaged or deleted rules </p>
+
+<p>Really</p>
+</blockquote>
+
+<h1>
+<a id="spike-installation-and-setup" class="anchor" href="#spike-installation-and-setup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Spike Installation and Setup</h1>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>To run, spike needs:</p>
+
+<ul>
+<li>python2.7</li>
+<li>sqlalchemy</li>
+<li>flask</li>
+<li>python-sqlite</li>
+</ul>
+
+<h3>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup</h3>
+
+<div class="highlight highlight-source-shell"><pre>git clone https://github.com/spike
+pip install flask
+pip install flask-bootstrap
+pip install flask-sqlalchemy
+pip install flask-wtf
+pip install markdown
+python ./spike-server.py run</pre></div>
+
+<h3>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h3>
+
+<p>Check the config.cfg file:</p>
+
+<ul>
+<li>APP_PORT -&gt; the port the spike-server listens on (defaults to 5555)</li>
+<li>APP_HOST -&gt; the ip to bind to (defaults to 127.0.0.1)</li>
+<li>RULESET_HEADER -&gt; the header that get written to each ruleset.rules; you might use some placeholders:
+
+<ul>
+<li>RULESET_DESC -&gt; value from DESC</li>
+<li>RULESET_FILE -&gt; ruleset_filename</li>
+<li>RULESET_DATE -&gt; export-date</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="putting-spike-behind-nginx" class="anchor" href="#putting-spike-behind-nginx" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Putting Spike behind Nginx</h3>
+
+<pre><code>server {
+    server_tokens off;
+    listen 443 ssl;
+    server_name spike.nginx-goodies.com  ;
+
+    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header    X-Real-IP         $remote_addr;
+    proxy_set_header    Host              $host;
+    proxy_set_header    X-Forwarded-Proto $scheme;
+
+    access_log  /var/log/nginx/spike.access.log; 
+    error_log  /var/log/nginx/error.log;
+
+    root /var//www/spike;
+
+    location  /static {
+        autoindex off;
+        expires 1d;
+    }
+
+    location / {
+        proxy_cache off;
+        proxy_redirect off;
+        proxy_pass http://127.0.0.1:5555;
+        expires off;
+        include /etc/nginx/doxi-rules/active-mode.rules;
+        include /etc/nginx/doxi-rules/local.rules;
+        include /etc/nginx/doxi-rules/spike-wl.rules;
+    }
+}
+
+# spike-wl.rules for naxsi (you're running naxsi on your nginx setup, right ?)
+
+BasicRule wl:1100 "mz:$BODY_VAR:rmks";
+BasicRule wl:1101 "mz:$BODY_VAR:rmks";
+</code></pre>
+
+<h1>
+<a id="screenshots" class="anchor" href="#screenshots" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots</h1>
+
+<p><img src="https://raw.githubusercontent.com/nbs-system/spike/master/docs/rule_creation.png" alt="Rules creation">
+<img src="https://github.com/nbs-system/spike/raw/master/docs/rulesets.png" alt="Rules set management"></p>
+
+<h1>
+<a id="links" class="anchor" href="#links" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h1>
+
+<ul>
+<li><a href="https://github.com/nbs-system/naxsi">Naxsi</a></li>
+<li><a href="https://bitbucket.org/lazy_dogtown/doxi-rules/src">Doxi-Rules</a></li>
+<li><a href="https://github.com/nbs-system/naxsi/wiki">Naxsi wiki</a></li>
+</ul>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
