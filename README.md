@@ -106,8 +106,8 @@ Check the config.cfg file:
 
 # Screenshots
 
-![Rules creation]( ./docs/rule_creation.png )
-![Rules set management]( ./docs/rulesets.png )
+![Rules creation]( https://raw.githubusercontent.com/nbs-system/spike/master/docs/rule_creation.png )
+![Rules set management]( https://raw.githubusercontent.com/nbs-system/spike/master/docs/rulesets.png )
 
 
 # Links
