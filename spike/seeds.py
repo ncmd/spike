@@ -5,10 +5,4 @@ vtemplate_seeds = {
                  "$HEADERS_VAR:Accept-Encoding", "$HEADERS_VAR:Connection"],
 }
 
-rulesets_seeds = {
-    'WEB_SERVER': 'web_server.rules',
-    'APP_SERVER': 'app_server.rules',
-    'WEB_APPS': 'web_apps.rules',
-    'SCANNER': 'scanner.rules',
-    'MALWARE': 'malware.rules',
-}
+rulesets_seeds = {'WEB_SERVER', 'APP_SERVER', 'WEB_APPS', 'SCANNER', 'MALWARE'}

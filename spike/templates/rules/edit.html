@@ -105,9 +105,9 @@
             <td>
                 <select name="ruleset">
                     {% for r in rulesets %}
-                        <option value="{{ r.file }}"
-                                {% if r.file  == rules_info.ruleset %} selected {% endif %}>
-                        {{ r.file }} <br>
+                        <option value="{{ r.name }}"
+                                {% if r.name  == rules_info.ruleset %} selected {% endif %}>
+                        {{ r.name }} <br>
                     {% endfor %}
                 </select>
             </td>

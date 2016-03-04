@@ -48,9 +48,9 @@ def spike_init():
             db.session.add(ValueTemplates(v, val))
 
     for r in seeds.rulesets_seeds:
-        logging.info("Adding ruleset: %s / %s", r, seeds.rulesets_seeds[r])
+        logging.info("Adding ruleset: %s", r)
         rmks = "Ruleset for %s / auto-created %s" % (r, strftime("%F - %H:%M", localtime(time())))
-        db.session.add(NaxsiRuleSets(seeds.rulesets_seeds[r], r, rmks, timestamp))
+        db.session.add(NaxsiRuleSets(r, rmks, timestamp))
 
     db.session.commit()
     logging.info('Spike initialization completed')

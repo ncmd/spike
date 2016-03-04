@@ -43,31 +43,30 @@ def view(rid=0):
 
 @rulesets.route("/new", methods=["POST"])
 def new():  # TODO filter parameter
-    rfile = request.form["rfile"].strip().lower()
     rname = request.form["rname"].strip().upper()
 
-    if NaxsiRuleSets.query.filter(NaxsiRuleSets.file == rfile).first():
-        flash("ERROR, ruleset exists: %s " % rfile, "error")
+    if NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rname).first():
+        flash("ERROR, ruleset exists: %s " % rname, "error")
         return redirect("/rulesets/")
 
-    db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, int(time())))
+    db.session.add(NaxsiRuleSets(rname, "naxsi-ruleset: %s" % rname, int(time())))
     try:
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
-        flash("ERROR while trying to create ruleset: %s " % rfile, "error")
+        flash("ERROR while trying to create ruleset: %s " % rname, "error")
 
-    flash("OK created: %s " % rfile, "success")
+    flash("OK created: %s " % rname, "success")
     return redirect("/rulesets/")
 
 
 def __get_rules_for_ruleset(ruleset, with_header=True):
     _rules = NaxsiRules.query.filter(
-        NaxsiRules.ruleset == ruleset.file,
+        NaxsiRules.ruleset == ruleset.name,
         NaxsiRules.active == 1
     ).all()
 
-    nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == ruleset.file).first()
+    nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == ruleset.name).first()
     db.session.add(nxruleset)
     db.session.commit()
     text_rules = ''.join(map(__get_textual_representation_rule, _rules))
@@ -77,7 +76,6 @@ def __get_rules_for_ruleset(ruleset, with_header=True):
 
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", ruleset.name)
-    header = header.replace("RULESET_FILE", ruleset.file)
     header = header.replace("RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
 
     return header + text_rules
