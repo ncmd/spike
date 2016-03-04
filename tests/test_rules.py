@@ -7,7 +7,7 @@ except ImportError:  # python3
 
 from spike import create_app
 from spike.model import db
-from spike.model.naxsi_rules import  NaxsiRules
+from spike.model.naxsi_rules import NaxsiRules
 import unittest
 
 
@@ -58,7 +58,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_del_rule(self):
         current_sid = int(NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
         db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid+1, u'web_server.rules',
-         u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+            u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
 
         sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
         rv = self.app.get('/rules/del/%d' % sid)

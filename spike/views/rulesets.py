@@ -1,7 +1,11 @@
-from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
-from spike.model.naxsi_rules import NaxsiRules, NaxsiRuleSets
 from time import time, localtime, strftime
-from spike.model import check_constraint, db
+
+from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
+
+from spike.model import db
+from spike.model.naxsi_rules import NaxsiRules
+from spike.model.naxsi_rulesets import NaxsiRuleSets
+
 from sqlalchemy.exc import SQLAlchemyError
 
 from rules import __get_textual_representation_rule
@@ -42,8 +46,7 @@ def new():  # TODO filter parameter
     rfile = request.form["rfile"].strip().lower()
     rname = request.form["rname"].strip().upper()
 
-    cie = check_constraint("ruleset", rfile)
-    if cie:
+    if NaxsiRuleSets.query.filter(NaxsiRuleSets.file == rfile).first():
         flash("ERROR, ruleset exists: %s " % rfile, "error")
         return redirect("/rulesets/")
 

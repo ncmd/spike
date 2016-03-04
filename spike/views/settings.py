@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, flash
 from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
-from spike.model.naxsi_rules import ValueTemplates
+from spike.model.value_templates import ValueTemplates
 
 settings = Blueprint('settings', __name__)
 

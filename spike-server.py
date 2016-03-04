@@ -7,9 +7,9 @@ from os.path import dirname, abspath
 from time import time, strftime, localtime
 
 from spike import create_app, seeds, version
-from spike.model import db,  NaxsiRuleSets
-from spike.model.naxsi_rules import ValueTemplates
-
+from spike.model import db
+from spike.model.value_templates import ValueTemplates
+from spike.model.naxsi_rulesets import NaxsiRuleSets
 
 def run(debug=False):
     app = create_app(__get_config_file())

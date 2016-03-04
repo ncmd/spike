@@ -7,7 +7,9 @@ from flask import Blueprint, render_template, request, redirect, flash, Response
 from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
-from spike.model.naxsi_rules import ValueTemplates, NaxsiRules, NaxsiRuleSets
+from spike.model.naxsi_rules import NaxsiRules
+from spike.model.value_templates import ValueTemplates
+from spike.model.naxsi_rulesets import NaxsiRuleSets
 
 rules = Blueprint('rules', __name__)
 
