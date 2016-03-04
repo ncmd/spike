@@ -1,6 +1,3 @@
-
-from time import strftime, localtime
-
 try:
     from urlparse import urlparse
     from StringIO import StringIO
@@ -17,6 +14,7 @@ class FlaskrTestCase(unittest.TestCase):
         app = create_app()
         db.init_app(app)
         app.config['TESTING'] = True
+
         self.app = app.test_client()
 
     def tearDown(self):
