@@ -43,7 +43,7 @@ def spike_init():
 
     logging.info("Filling default_vals")
     for v in seeds.vtemplate_seeds:
-        logging.info("Adding templates: %s" , v)
+        logging.info("Adding templates: %s", v)
         for val in seeds.vtemplate_seeds[v]:
             db.session.add(ValueTemplates(v, val))
 

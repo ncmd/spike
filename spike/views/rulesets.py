@@ -14,6 +14,7 @@ def index():
     _rulesets = NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all()
     return render_template("/rulesets/index.html", rulesets=_rulesets)
 
+
 @rulesets.route("/plain/")
 @rulesets.route("/plain/<int:rid>")
 def plain(rid=0):
@@ -57,7 +58,7 @@ def new():  # TODO filter parameter
     return redirect("/rulesets/")
 
 
-def __get_rules_for_ruleset(ruleset, with_header = True):
+def __get_rules_for_ruleset(ruleset, with_header=True):
     _rules = NaxsiRules.query.filter(
         NaxsiRules.ruleset == ruleset.file,
         NaxsiRules.active == 1
@@ -74,6 +75,6 @@ def __get_rules_for_ruleset(ruleset, with_header = True):
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", ruleset.name)
     header = header.replace("RULESET_FILE", ruleset.file)
-    header = header.replace( "RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
+    header = header.replace("RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
 
     return header + text_rules

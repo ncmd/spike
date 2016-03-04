@@ -11,8 +11,6 @@ from spike.model.naxsi_rules import ValueTemplates, NaxsiRules, NaxsiRuleSets
 
 rules = Blueprint('rules', __name__)
 
-# TODO : merge `ruleset_plain` and `ruleset_view`
-
 
 @rules.route("/")
 def index():

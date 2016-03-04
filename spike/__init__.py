@@ -32,7 +32,7 @@ def create_app(config_filename=''):
     # add blueprints
     app.register_blueprint(default.default)
     app.register_blueprint(rules.rules, url_prefix='/rules')
-    app.register_blueprint(rulesets.rulesets, url_prefix = '/rulesets')
+    app.register_blueprint(rulesets.rulesets, url_prefix='/rulesets')
     app.register_blueprint(settings.settings, url_prefix='/settings')
     app.register_blueprint(docs.docs, url_prefix='/docs')
 

@@ -5,11 +5,9 @@ try:
 except ImportError:  # python3
     from urllib.parse import urlparse
 
-import re
-
 from spike import create_app
 from spike.model import db
-from spike.model.naxsi_rules import ValueTemplates, NaxsiRules, NaxsiRuleSets
+from spike.model.naxsi_rules import  NaxsiRules
 import unittest
 
 
@@ -29,8 +27,8 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_redirect_root(self):
         rv = self.app.get('/', follow_redirects=False)
-        assert rv.status_code == 302
-        assert urlparse(rv.location).path == '/rules'
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(urlparse(rv.location).path, '/rules')
 
     def test_add_rule(self):
         data = {
@@ -47,33 +45,32 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
         rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        assert ('<li> - OK: created %d : %s</li>' % (rule.sid, rule.msg)) in rv.data
-        assert rule.msg == data['msg']
-        assert rule.detection == 'str:' + data['detection']
-        assert rule.mz == data['mz']
-        assert rule.score == data['score'] + ':' + str(data['score_$SQL'])
-        assert rule.rmks == data['rmks']
-        assert rule.ruleset == data['ruleset']
+        self.assertIn(('<li> - OK: created %d : %s</li>' % (rule.sid, rule.msg)), rv.data)
+        self.assertEqual(rule.msg, data['msg'])
+        self.assertEqual(rule.detection, 'str:' + data['detection'])
+        self.assertEqual(rule.mz, data['mz'])
+        self.assertEqual(rule.score, data['score'] + ':' + str(data['score_$SQL']))
+        self.assertEqual(rule.rmks, data['rmks'])
+        self.assertEqual(rule.ruleset, data['ruleset'])
 
-        _rule = NaxsiRules.query.filter(rule.sid == NaxsiRules.sid).first()
-        db.session.delete(_rule)
+        db.session.delete(NaxsiRules.query.filter(rule.sid == NaxsiRules.sid).first())
 
     def test_del_rule(self):
         current_sid = int(NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
-        db.session.add(NaxsiRules(u'POUET', 'str:OIJEFOJEWFOIJEWF', u'BODY', u'$SQL:8', current_sid+1, u'web_server.rules',
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid+1, u'web_server.rules',
          u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
 
         sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
         rv = self.app.get('/rules/del/%d' % sid)
-        assert rv.status_code == 302
+        self.assertEqual(rv.status_code, 302)
 
         rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        assert rule.sid == current_sid
+        self.assertEqual(rule.sid, current_sid)
 
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
-        assert rv.status_code == 200
+        self.assertEqual(rv.status_code, 200)
         rdate = strftime("%F - %H:%M", localtime(float(str(_rule.timestamp))))
         rmks = "# ".join(_rule.rmks.strip().split("\n"))
         detect = _rule.detection.lower() if _rule.detection.startswith("str:") else _rule.detection
@@ -87,9 +84,8 @@ class FlaskrTestCase(unittest.TestCase):
 MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
-        assert expected == rv.data
-        _rule = NaxsiRules.query.filter(_rule.sid == NaxsiRules.sid).first()
-        db.session.delete(_rule)
+        self.assertEqual(expected, rv.data)
+        db.session.delete(NaxsiRules.query.filter(_rule.sid == NaxsiRules.sid).first())
 
 
 if __name__ == '__main__':
