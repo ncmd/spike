@@ -3,11 +3,6 @@ import re
 
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
-try:
-    from urlparse import urlparse
-except ImportError:  # python3
-    from urllib.parse import urlparse
-
 from spike import create_app
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules

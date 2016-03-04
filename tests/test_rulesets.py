@@ -1,5 +1,3 @@
-from time import strftime, localtime
-
 try:
     from urlparse import urlparse
 except ImportError:  # python3
