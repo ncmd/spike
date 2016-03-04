@@ -23,13 +23,24 @@ def index():
     return render_template("rules/index.html", rules=_rules)
 
 
-@rules.route("/plain/<int:sid>")
+@rules.route("/plain/<int:sid>", methods=["GET"])
 def plain(sid):
-    sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    if not sid:
+    _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+    if not _rule:
         flash("no rules found, please create one", "error")
         return redirect("/rules/new")
-    return Response(__get_textual_representation_rule(sid), mimetype='text/plain')
+
+    return Response(__get_textual_representation_rule(_rule), mimetype='text/plain')
+
+
+@rules.route("/view/<path:sid>", methods=["GET"])
+def view(sid=''):
+    _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+    if not _rule:
+        flash("no rules found, please create one", "error")
+        return redirect("/rules/")
+
+    return render_template("rules/view.html", rule=_rule, rtext=__get_textual_representation_rule(_rule, full=0))
 
 
 @rules.route("/select/<path:selector>", methods=["GET"])
@@ -202,18 +213,6 @@ def save(sid=''):  # FIXME this is the exact same method as the `new` one.
     return redirect("/rules/edit/%s" % sid)
 
 
-@rules.route("/view/<path:sid>", methods=["GET"])
-def view(sid=''):
-    if not sid:
-        return redirect("/rules/")
-
-    rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    if not rinfo:
-        return redirect("/rules/")
-
-    return render_template("rules/view.html", rule=rinfo, rtext=__get_textual_representation_rule(rinfo, full=0))
-
-
 @rules.route("/del/<path:sid>", methods=["GET"])
 def del_sid(sid=''):
     if not sid:
@@ -275,13 +274,13 @@ def __get_textual_representation_rule(rule, full=1):
     if full == 1:
         nout = """
 #
-# sid: %s | date: %s 
+# sid: %s | date: %s
 #
 # %s
 #
 MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
-      
-      """ % (rule.sid, rdate, rmks, negate, detect, rule.msg, rule.mz, rule.score, rule.sid)
+
+""" % (rule.sid, rdate, rmks, negate, detect, rule.msg, rule.mz, rule.score, rule.sid)
     else:
         nout = """MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
                (negate, rule.detection, rule.msg, rule.mz, rule.score, rule.sid)

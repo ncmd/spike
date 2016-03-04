@@ -1,3 +1,5 @@
+from time import strftime, localtime
+
 try:
     from urlparse import urlparse
 except ImportError:  # python3
@@ -60,9 +62,28 @@ class FlaskrTestCase(unittest.TestCase):
         assert rv.status_code == 302
 
         rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-
         assert rule.sid == current_sid
 
+    def test_plain_rule(self):
+        self.test_add_rule()
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        rv = self.app.get('/rules/plain/%d' % _rule.sid)
+        assert rv.status_code == 200
+        rdate = strftime("%F - %H:%M", localtime(float(str(_rule.timestamp))))
+        rmks = "# ".join(_rule.rmks.strip().split("\n"))
+        detect = _rule.detection.lower() if _rule.detection.startswith("str:") else _rule.detection
+        negate = 'negative' if _rule.negative == 1 else ''
+        expected = """
+#
+# sid: %s | date: %s
+#
+# %s
+#
+MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
+
+""" % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
+        assert expected == rv.data
 
 
 if __name__ == '__main__':
