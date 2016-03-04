@@ -8,8 +8,8 @@ def index():
     return redirect("/rules")
 
 
-@default.route("/backup")
-def backup():
+@default.route("/download")
+def download():
     return send_from_directory(directory=current_app.root_path, filename='rules.db', as_attachment=True)
 
 @default.route("/robots.txt")

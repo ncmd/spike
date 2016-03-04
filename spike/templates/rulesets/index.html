@@ -5,7 +5,7 @@
 
     <h2>
         Naxsi - RuleSets
-        <a href="/rules/rulesets/plain/" title="View all files as plain" class="btn btn-success btn-lg">View all files
+        <a href="{{ url_for('rulesets.plain') }}" title="View all files as plain" class="btn btn-success btn-lg">View all files
             as plain</a>
     </h2>
     <table class="table table-stripped">
@@ -22,15 +22,15 @@
                 <td>{{ rs.file }}</td>
                 <td>
                     <a href="/rules/select/r:{{ rs.file }}" title="View Rules" class="btn btn-primary btn-lg"> List </a>
-                    <a href="/rules/rulesets/view/{{ rs.id }}" title="View File" class="btn btn-primary btn-lg">
+                    <a href="/rulesets/view/{{ rs.id }}" title="View File" class="btn btn-primary btn-lg">
                         View </a>
-                    <a href="/rules/rulesets/plain/{{ rs.id }}" title="View File Plain" class="btn btn-primary btn-lg">
+                    <a href="/rulesets/plain/{{ rs.id }}" title="View File Plain" class="btn btn-primary btn-lg">
                         Plain </a>
                 </td>
             </tr>
         {% endfor %}
 
-        <form action="/rules/rulesets/new" method="POST">
+        <form action="{{ url_for('rulesets.new') }}" method="POST">
             <tr>
                 <td><input type="text" name="rname" placeholder="RULESET_DESC" required></td>
                 <td><input type="text" name="rfile" placeholder="ruleset_name.rules" required></td>

@@ -3,25 +3,26 @@
 
 {% block main %}
     {% if rules_info.active == 0 %}
-        <br>
-        <div class="deactivated">
+        <br><div class="deactivated">
     {% endif %}
-<h3><a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.sid }} - {{ rules_info.msg }}</a> <a
-        href="/rules/view/{{ rules_info.sid }}" class="btn btn-lg btn-primary">View Rule</a></h3>
-<form action="/rules/save/{{ rules_info.sid }}" method="POST">
+
+    <h3>
+        <a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.sid }} - {{ rules_info.msg }}</a>
+        <a href="/rules/view/{{ rules_info.sid }}" class="btn btn-lg btn-primary">View Rule</a>
+    </h3>
+    <form action="/rules/save/{{ rules_info.sid }}" method="POST">
 
     <table class="table table-condensed table-stripped">
         <tr>
-            <td>SID :</td>
+            <td>SID:</td>
             <td>
                 <input type="hidden" name="sid" value="{{ rules_info.sid }}">
                 <input type="hidden" name="active" value="{{ rules_info.active }}">
                 {{ rules_info.sid }}
-
             </td>
         </tr>
         <tr>
-            <td>Msg :</td>
+            <td>Msg:</td>
             <td><input type="text" name="msg" size="60" placeholder="Message" value="{{ rules_info.msg }}" required>
             </td>
         </tr>
@@ -60,7 +61,7 @@
                             <input type="text" name="custom_mz_val" value="{{ custom_mz }}" placeholder="Custom MZ"
                                    size="35"><br>
                         </td>
-                        <td valign="top">&nbsp; &nbsp; &nbsp; </td>
+                        <td valign="top"></td>
                         <td valign="top">
                             <strong>Score</strong> <br>
                             {% for s in score %}
@@ -115,11 +116,9 @@
             <td></td>
             <td>
                 <button type="submit" class="btn btn-success btn-lg">Save Rule</button>
-                |
-                <a href="/rules/select/r:{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View
-                    Ruleset-Rules</a></button><br><br><br>
+                <a href="/rules/select/r:{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View Ruleset</a>
                 {% if rules_info.active == 0 %}
-                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success btn-lg">Re-Activate Rule</a>
+                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success btn-lg">Activate Rule</a>
                 {% else %}
                     <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-warning btn-lg">Deactivate Rule</a>
                 {% endif %}

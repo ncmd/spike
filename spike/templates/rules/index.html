@@ -7,9 +7,11 @@
     <p><strong>{{ selection }}</strong></p>
     <table class="table table-condensed table-stripped">
         <thead>
-        <th class="col-md-2">Id</th>
-        <th class="col-md-4">Rule</th>
-        <th class="col-md-pull-2">Edit</th>
+            <tr>
+                <th class="col-md-2">Id</th>
+                <th class="col-md-4">Rule</th>
+                <th class="col-md-pull-2">Edit</th>
+            </tr>
         </thead>
         {% for rule in rules %}
             {% if rule.active != 1 %}

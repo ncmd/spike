@@ -8,7 +8,7 @@ version = "0.5 "
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 
-from spike.views import default, rules, settings, docs
+from spike.views import default, rules, settings, docs, rulesets
 from spike.model import db
 
 
@@ -34,10 +34,11 @@ def create_app(config_filename=''):
     Bootstrap(app)  # add bootstrap templates and css
 
     # add blueprints
-    app.register_blueprint(default.default, templates_folder='templates')
-    app.register_blueprint(rules.rules, templates_folder='templates')
-    app.register_blueprint(settings.settings, templates_folder='templates')
-    app.register_blueprint(docs.docs, templates_folder='templates')
+    app.register_blueprint(default.default)
+    app.register_blueprint(rules.rules)
+    app.register_blueprint(rulesets.rulesets, url_prefix = '/rulesets')
+    app.register_blueprint(settings.settings)
+    app.register_blueprint(docs.docs)
 
     # register filters
     app.jinja_env.filters['scoresplit'] = f_scoresplit

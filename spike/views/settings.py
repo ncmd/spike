@@ -51,7 +51,7 @@ def mz_new():
 
 
 @settings.route("/scores")
-def score_index():
+def scores_index():
     sc = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").order_by(ValueTemplates.value).all()
     if not sc:
         return redirect("/settings")
@@ -59,7 +59,7 @@ def score_index():
 
 
 @settings.route("/scores/new", methods=["POST"])
-def score_new():
+def scores_new():
     if not request.form["nscore"].startswith("$"):
         request.form["nscore"] = '$' + request.form["nscore"]
 
@@ -70,7 +70,7 @@ def score_new():
 
 
 @settings.route("/scores/del", methods=["POST"])
-def scores_del():
+def scoress_del():
     dsc = ValueTemplates.query.filter(ValueTemplates.id == request.form["scid"]).first()
     if not dsc:
         flash("Nothing found in %s " % (request.form["scid"]), "error")

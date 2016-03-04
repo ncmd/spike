@@ -7,7 +7,7 @@ from flask import current_app, Blueprint, render_template, request, redirect, fl
 from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import NaxsiRules, NaxsiRuleSets
-from spike.model import check_constraint, db, check_or_get_latest_sid
+from spike.model import check_constraint, db, get_latest_sid
 from spike.model.naxsi_rules import ValueTemplates
 
 rules = Blueprint('rules', __name__, url_prefix='/rules')
@@ -24,84 +24,16 @@ def index():
     return render_template("rules/index.html", rules=_rules)
 
 @rules.route("/plain/<int:sid>")
-def rule_plain(sid):
+def plain(sid):
     sid = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+    if not sid:
+        flash("no rules found, please create one", "error")
+        return redirect("/rules/new")
     return Response(__get_textual_representation_rule(sid), mimetype='text/plain')
 
 
-@rules.route("/rulesets/")
-def rulesets():
-    _rulesets = NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all()
-    return render_template("rules/rulesets.html", rulesets=_rulesets)
-
-
-def __get_rules_for_ruleset(ruleset, with_header = True):
-
-    _rules = NaxsiRules.query.filter(
-        NaxsiRules.ruleset == ruleset.file,
-        NaxsiRules.active == 1
-    ).all()
-
-    nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.file == ruleset.file).first()
-    db.session.add(nxruleset)
-    db.session.commit()
-    text_rules = ''.join(map(__get_textual_representation_rule, _rules))
-
-    if with_header is False:
-        return text_rules
-
-    header = current_app.config["RULESET_HEADER"]
-    header = header.replace("RULESET_DESC", ruleset.name)
-    header = header.replace("RULESET_FILE", ruleset.file)
-    header = header.replace( "RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
-
-    return header + text_rules
-
-
-@rules.route("/rulesets/plain/")
-@rules.route("/rulesets/plain/<int:rid>")
-def ruleset_plain(rid=0):
-    """
-    Show the rule `rid` in plain text
-    :param int rid: Rule id
-    """
-    if not rid:
-        out = ''.join(map(__get_rules_for_ruleset, NaxsiRuleSets.query.all()))
-    else:
-        out = __get_rules_for_ruleset(NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first())
-    return Response(out, mimetype='text/plain')
-
-
-@rules.route("/rulesets/view/<int:rid>")
-def ruleset_view(rid=0):
-    if not rid:
-        return redirect("/rulesets/")
-    ruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-    return render_template("rules/ruleset_view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
-
-@rules.route("/rulesets/new", methods=["POST"])
-def ruleset_new():  # TODO filter parameter
-    rfile = request.form["rfile"].strip().lower()
-    rname = request.form["rname"].strip().upper()
-
-    cie = check_constraint("ruleset", rfile)
-    if cie:
-        flash("ERROR, ruleset exists: %s " % rfile, "error")
-        return redirect("/rules/rulesets/")
-
-    db.session.add(NaxsiRuleSets(rfile, rname, "naxsi-ruleset: %s" % rfile, int(time())))
-    try:
-        db.session.commit()
-    except SQLAlchemyError:
-        db.session.rollback()
-        flash("ERROR while trying to create ruleset: %s " % rfile, "error")
-
-    flash("OK created: %s " % rfile, "success")
-    return redirect("/rules/rulesets/")
-
-
 @rules.route("/select/<path:selector>", methods=["GET"])
-def nx_select(selector=''):
+def select(selector=''):
     if not selector:
         return redirect("/rules/")
 
@@ -151,7 +83,7 @@ def search():
 
 @rules.route("/new", methods=["GET", "POST"])
 def new():
-    sid = check_or_get_latest_sid()
+    sid = get_latest_sid()
 
     if request.method == "GET":
         mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
@@ -298,7 +230,7 @@ def del_sid(sid=''):
 
 
 @rules.route("/deact/<path:sid>", methods=["GET"])
-def deact_sid(sid=''):
+def deact(sid=''):
     if not sid:
         return redirect("/rules/")
 
