@@ -6,8 +6,6 @@ from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
-from sqlalchemy.exc import SQLAlchemyError
-
 from rules import __get_textual_representation_rule
 
 rulesets = Blueprint('rulesets', __name__)
@@ -50,11 +48,7 @@ def new():  # TODO filter parameter
         return redirect("/rulesets/")
 
     db.session.add(NaxsiRuleSets(rname, "naxsi-ruleset: %s" % rname, int(time())))
-    try:
-        db.session.commit()
-    except SQLAlchemyError:
-        db.session.rollback()
-        flash("ERROR while trying to create ruleset: %s " % rname, "error")
+    db.session.commit()
 
     flash("OK created: %s " % rname, "success")
     return redirect("/rulesets/")

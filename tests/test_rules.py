@@ -1,4 +1,7 @@
 from time import strftime, localtime
+import re
+
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 try:
     from urlparse import urlparse
@@ -36,7 +39,16 @@ class FlaskrTestCase(unittest.TestCase):
 
     def __delete_rule(self, sid=None):
         sid = self.sid_to_delete if sid is None else sid
-        db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
+        try:
+            db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
+        except UnmappedInstanceError:  # who cares ?
+            pass
+
+    def test_index(self):
+        rv = self.app.get('/', follow_redirects=True)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('<title>SPIKE! - WAF Rules Builder</title>', rv.data)
+        self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', rv.data) is not None)
 
     def test_add_rule(self):
         data = {
@@ -96,7 +108,3 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
         self.assertEqual(expected, rv.data)
         self.__delete_rule()
-
-
-if __name__ == '__main__':
-    unittest.main()
