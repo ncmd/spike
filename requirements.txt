@@ -1,0 +1,4 @@
+sqlalchemy
+flask
+flask-bootstrap
+flask-sqlalchemy
