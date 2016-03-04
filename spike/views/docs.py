@@ -18,7 +18,7 @@ def __render_md(md_file):
     :return str: html rendering of the `md_file` markdown file
     """
     ret = StringIO()
-    markdown.markdownFromFile(input=md_file, output=ret)
+    markdown.markdownFromFile(input=md_file, output=ret, encoding='utf-8')
     return ret.getvalue()
 
 

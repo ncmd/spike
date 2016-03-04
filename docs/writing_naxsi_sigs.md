@@ -8,7 +8,7 @@ some Use-Cases on How to use Naxsi. Please always check the
 latest Naxsi-documentation. 
 
 
-If you are new to Naxsi please read the Naxsi-Wiki first
+If you are new to Naxsi please read the Na  xsi-Wiki first
 to understand how and why this WAF works.
 
 Beside this, we maintain and develop a set of tools (Doxi-Tools) for
