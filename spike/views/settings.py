@@ -4,18 +4,10 @@ import logging
 from flask import Blueprint, render_template, request, redirect, flash
 from sqlalchemy.exc import SQLAlchemyError
 
-from spike.model import Settings, db
+from spike.model import db
 from spike.model.naxsi_rules import ValueTemplates
 
-settings = Blueprint('settings', __name__, url_prefix='/settings')
-
-
-@settings.route("/")
-def index():
-    _settings = Settings.query.order_by(Settings.name).all()
-    if not _settings:
-        return redirect("/rules")
-    return render_template("settings/index.html", settings=_settings)
+settings = Blueprint('settings', __name__)
 
 
 @settings.route("/mz")
@@ -83,21 +75,3 @@ def scoress_del():
     except SQLAlchemyError:
         flash("ERROR while trying to delete : %s" % dsc.value, "error")
     return redirect("/settings/scores")
-
-@settings.route("/save", methods=["POST"])
-def save_settings():
-    s = ''
-    for s in request.form:
-        sfind = Settings.query.filter(Settings.name == s).first()
-        if not sfind:
-            logging.error("no value for %s", sfind)
-            continue
-
-        if sfind.value != request.form[s]:
-            sfind.value = request.form[s]
-            db.session.add(sfind)
-
-    flash("Updated setting: %s" % s, "success")
-    db.session.commit()
-    os.system("touch spike/__init__.py")
-    return redirect("/settings")

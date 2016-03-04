@@ -1,13 +1,7 @@
-venv
-exports/*
-backups/*
 spike/rules.db*
-spike/settings.db*
-spike/spike.pid
 *~
 *.pyc
 *.pyo
-config.cfg
 *.log
 *.pid
 *.out

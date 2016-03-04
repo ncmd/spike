@@ -1,5 +1,4 @@
 vtemplate_seeds = {
-
     'naxsi_score': ["$SQL", "$RFI", "$TRAVERSAL", "$EVADE", "$XSS", "$UWA", "$ATTACK"],
     'naxsi_mz': ["BODY", "ARGS", "HEADERS", "FILE_EXT",
                  "$HEADERS_VAR:Cookie", "$HEADERS_VAR:Content-Type", "$HEADERS_VAR:User-Agent",
@@ -12,9 +11,4 @@ rulesets_seeds = {
     'WEB_APPS': 'web_apps.rules',
     'SCANNER': 'scanner.rules',
     'MALWARE': 'malware.rules',
-}
-
-settings_seeds = {
-
-    'rules_offset': '200000',
 }

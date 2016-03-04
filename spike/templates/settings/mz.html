@@ -6,7 +6,7 @@
     <h2>MatchingZones</h2>
     <table class="table table-condensed table-stripped">
         <tr>
-            <form action="/settings/mz/new" method="POST">
+            <form action="{{ url_for('settings.mz_new') }}" method="POST">
                 <td>
                     <input type="text" name="nmz" size="45" value="" placeholder="New MZ">
                 </td>
@@ -20,7 +20,7 @@
             <tr id="{{ m.id }}">
                 <td valign="top">{{ m.value }}</td>
                 <td>
-                    <form action="/settings/mz/del" method="POST">
+                    <form action="{{ url_for('settings.mz_del') }}" method="POST">
                         <input type="hidden" name="mzid" value="{{ m.id }}">
                         <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                     </form>

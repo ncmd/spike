@@ -3,14 +3,14 @@ import re
 import string
 from time import time, localtime, strftime
 
-from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
+from flask import Blueprint, render_template, request, redirect, flash, Response
 from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import NaxsiRules, NaxsiRuleSets
-from spike.model import check_constraint, db, get_latest_sid
+from spike.model import db
 from spike.model.naxsi_rules import ValueTemplates
 
-rules = Blueprint('rules', __name__, url_prefix='/rules')
+rules = Blueprint('rules', __name__)
 
 # TODO : merge `ruleset_plain` and `ruleset_view`
 
@@ -22,6 +22,7 @@ def index():
         flash("no rules found, please create one", "success")
         return redirect("/rules/new")
     return render_template("rules/index.html", rules=_rules)
+
 
 @rules.route("/plain/<int:sid>")
 def plain(sid):
@@ -83,7 +84,11 @@ def search():
 
 @rules.route("/new", methods=["GET", "POST"])
 def new():
-    sid = get_latest_sid()
+    latest_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+    if latest_sid is None:
+        sid = 200001
+    else:
+        sid = latest_sid + 1
 
     if request.method == "GET":
         mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()

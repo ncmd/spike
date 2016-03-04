@@ -1,11 +1,15 @@
 import os
 import glob
 import markdown
-import StringIO
+
+try:  # python3 ftw !
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from flask import Blueprint, render_template, redirect
 
-docs = Blueprint('docs', __name__, url_prefix='/docs')
+docs = Blueprint('docs', __name__)
 
 
 def __render_md(md_file):
@@ -13,7 +17,7 @@ def __render_md(md_file):
     :param str md_file: Path to a markdown file
     :return str: html rendering of the `md_file` markdown file
     """
-    ret = StringIO.StringIO()
+    ret = StringIO()
     markdown.markdownFromFile(input=md_file, output=ret)
     return ret.getvalue()
 

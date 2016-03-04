@@ -2,14 +2,13 @@ import base64
 import os
 import logging
 
-version = "0.5 "
-
-
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 
 from spike.views import default, rules, settings, docs, rulesets
 from spike.model import db
+
+version = "0.5 "
 
 
 def create_app(config_filename=''):
@@ -17,16 +16,13 @@ def create_app(config_filename=''):
 
     app = Flask(__name__)
 
-    if config_filename != "":
+    if config_filename:
         app.config.from_pyfile(config_filename)
 
     if not app.config["SECRET_KEY"]:
         app.config["SECRET_KEY"] = base64.b64encode(os.urandom(128))
 
-    app.config["SQLALCHEMY_BINDS"] = {
-        'rules': 'sqlite:///rules.db',
-        'settings': 'sqlite:///settings.db',
-    }
+    app.config["SQLALCHEMY_BINDS"] = {'rules': 'sqlite:///rules.db'}
 
     db.init_app(app)
     db.app = app
@@ -35,10 +31,10 @@ def create_app(config_filename=''):
 
     # add blueprints
     app.register_blueprint(default.default)
-    app.register_blueprint(rules.rules)
+    app.register_blueprint(rules.rules, url_prefix='/rules')
     app.register_blueprint(rulesets.rulesets, url_prefix = '/rulesets')
-    app.register_blueprint(settings.settings)
-    app.register_blueprint(docs.docs)
+    app.register_blueprint(settings.settings, url_prefix='/settings')
+    app.register_blueprint(docs.docs, url_prefix='/docs')
 
     # register filters
     app.jinja_env.filters['scoresplit'] = f_scoresplit

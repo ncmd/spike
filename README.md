@@ -54,13 +54,14 @@ python ./spike-server.py run
 
 ### Configuration
 
-- most config-options are accessible through the webinterface via http://spike.local:5555/settings/, except:
-    - APP_PORT -> the port the spike-server listens on (defaults to 5555)
-    - APP_HOST -> the ip to bind to (defaults to 127.0.0.1)
-    - RULESET_HEADER -> the header that get written to each ruleset.rules; you might use some placeholders:
-        - RULESET_DESC -> value from DESC
-        - RULESET_FILE -> ruleset_filename
-        - RULESET_DATE -> export-date
+Check the config.cfg file:
+
+- APP_PORT -> the port the spike-server listens on (defaults to 5555)
+- APP_HOST -> the ip to bind to (defaults to 127.0.0.1)
+- RULESET_HEADER -> the header that get written to each ruleset.rules; you might use some placeholders:
+    - RULESET_DESC -> value from DESC
+    - RULESET_FILE -> ruleset_filename
+    - RULESET_DATE -> export-date
 
 
 ### Putting Spike behind Nginx
