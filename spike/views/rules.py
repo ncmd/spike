@@ -87,7 +87,7 @@ def new():
     if latest_sid is None:
         sid = 200001
     else:
-        sid = latest_sid + 1
+        sid = latest_sid.sid + 1
 
     if request.method == "GET":
         mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
