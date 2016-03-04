@@ -1,2 +1,5 @@
-- [Spike Installation-Manual](/docs/install.md)
-- [Writing Naxsi Signatures Handbook](/docs/writing_naxsi_sigs.md)
+- [Naxsi repository]( https://github.com/nbs-system/naxsi )
+- [Naxsi documentation]( https://github.com/nbs-system/naxsi/wiki )
+- [Spike repository]( https://github.com/nbs-system/spike )
+- [Spike documentation]( /docs/README.md )
+- [Writing Naxsi Signatures Handbook]( /docs/writing_naxsi_sigs.md )

@@ -66,44 +66,43 @@ Check the config.cfg file:
 
 ### Putting Spike behind Nginx
 
-~~~
-  server {
-    server_tokens off;
-    listen 443 ssl;
-    server_name spike.nginx-goodies.com  ;
-
-    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
-    proxy_set_header    X-Real-IP         $remote_addr;
-    proxy_set_header    Host              $host;
-    proxy_set_header    X-Forwarded-Proto $scheme;
-
-    access_log  /var/log/nginx/spike.access.log; 
-    error_log  /var/log/nginx/error.log;
-
-    root /var//www/spike;
-
-    location  /static {
-        autoindex off;
-        expires 1d;
+    
+    server {
+        server_tokens off;
+        listen 443 ssl;
+        server_name spike.nginx-goodies.com  ;
+        
+        proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Real-IP         $remote_addr;
+        proxy_set_header    Host              $host;
+        proxy_set_header    X-Forwarded-Proto $scheme;
+        
+        access_log  /var/log/nginx/spike.access.log; 
+        error_log  /var/log/nginx/error.log;
+        
+        root /var//www/spike;
+        
+        location  /static {
+            autoindex off;
+            expires 1d;
+        }
+        
+        location / {
+            proxy_cache off;
+            proxy_redirect off;
+            proxy_pass http://127.0.0.1:5555;
+            expires off;
+            include /etc/nginx/doxi-rules/active-mode.rules;
+            include /etc/nginx/doxi-rules/local.rules;
+            include /etc/nginx/doxi-rules/spike-wl.rules;
+        }
     }
+    
+    # spike-wl.rules for naxsi (you're running naxsi on your nginx setup, right ?)
+    
+    BasicRule wl:1100 "mz:$BODY_VAR:rmks";
+    BasicRule wl:1101 "mz:$BODY_VAR:rmks";
 
-    location / {
-        proxy_cache off;
-        proxy_redirect off;
-        proxy_pass http://127.0.0.1:5555;
-        expires off;
-        include /etc/nginx/doxi-rules/active-mode.rules;
-        include /etc/nginx/doxi-rules/local.rules;
-        include /etc/nginx/doxi-rules/spike-wl.rules;
-    }
-  }
-
-# spike-wl.rules for naxsi (you're running naxsi on your nginx setup, right ?)
-
-BasicRule wl:1100 "mz:$BODY_VAR:rmks";
-BasicRule wl:1101 "mz:$BODY_VAR:rmks";
-
-```
 
 # Screenshots
 

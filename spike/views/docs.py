@@ -29,7 +29,10 @@ def index():
 
 @docs.route("/<path:doc_file>")
 def display(doc_file):
-    doc_path = os.path.join("docs", doc_file)
-    if doc_path not in glob.glob("docs/*.md"):
-        return redirect('/docs')
+    if doc_file == 'README.md':
+        doc_path = 'README.md'
+    else:
+        doc_path = os.path.join("docs", doc_file)
+        if doc_path not in glob.glob("docs/*.md"):
+            return redirect('/docs')
     return render_template("docs/index.html", data=__render_md(doc_path), title='<a href="/docs">Spike - Docs</a>')
