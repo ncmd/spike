@@ -45,7 +45,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertIn('<title>SPIKE! - WAF Rules Builder</title>', rv.data)
         self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', rv.data) is not None)
 
-    def test_add_rule(self):
+    def test_new_rule(self):
         data = {
             'msg': 'this is a test message',
             'detection': 'DETECTION',
@@ -68,6 +68,9 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(_rule.rmks, data['rmks'])
         self.assertEqual(_rule.ruleset, data['ruleset'])
 
+        rv = self.app.get('/rules/new')
+        self.assertEqual(rv.status_code, 200)
+
         self.__delete_rule(_rule.sid)
 
     def test_del_rule(self):
@@ -81,10 +84,14 @@ class FlaskrTestCase(unittest.TestCase):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         self.assertEqual(_rule.sid, old_sid)
 
+        rv = self.app.get('/rules/del/%d' % (_rule.sid + 1))
+        self.assertEqual(rv.status_code, 302)
+
         self.__delete_rule()
 
     def test_plain_rule(self):
         self.__create_rule()
+
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
         self.assertEqual(rv.status_code, 200)
@@ -102,4 +109,21 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
         self.assertEqual(expected, rv.data)
+
+        rv = self.app.get('/rules/plain/%d' % (_rule.sid + 1))
+        self.assertEqual(rv.status_code, 302)
+
         self.__delete_rule()
+
+    def test_deact_rule(self):
+        rv = self.app.get('/rules/deact/')
+        self.assertEqual(rv.status_code, 404)
+        self.__create_rule()
+        non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
+
+        rv = self.app.get('/rules/deact/%d' % non_existent_sid)
+        self.assertEqual(rv.status_code, 302)
+
+        self.__delete_rule()
+
+

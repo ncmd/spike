@@ -142,10 +142,7 @@ def new():
 
 
 @rules.route("/edit/<path:sid>", methods=["GET", "POST"])
-def edit(sid=''):
-    if not sid:
-        return redirect("/rules/")
-
+def edit(sid):
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not rinfo:
         return redirect("/rules/")
@@ -164,9 +161,7 @@ def edit(sid=''):
 
 
 @rules.route("/save/<path:sid>", methods=["POST"])
-def save(sid=''):  # FIXME this is the exact same method as the `new` one.
-    if not sid:
-        return redirect("/rules/")
+def save(sid):  # FIXME this is the exact same method as the `new` one.
 
     # create new rule
     try:
@@ -215,9 +210,6 @@ def save(sid=''):  # FIXME this is the exact same method as the `new` one.
 
 @rules.route("/del/<path:sid>", methods=["GET"])
 def del_sid(sid=''):
-    if not sid:
-        return redirect("/rules/")
-
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not nrule:
         return redirect("/rules/")
@@ -233,10 +225,7 @@ def del_sid(sid=''):
 
 
 @rules.route("/deact/<path:sid>", methods=["GET"])
-def deact(sid=''):
-    if not sid:
-        return redirect("/rules/")
-
+def deact(sid):
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not nrule:
         return redirect("/rules/")
