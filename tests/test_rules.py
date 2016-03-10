@@ -126,4 +126,30 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
         self.__delete_rule()
 
+    def test_search_rule(self):
 
+        self.__create_rule()
+        rv = self.app.get('/rules/search/')
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/rules/search/?s=a')
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/rules/search/?s="OR 1=1;--')
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('<input type="text" name="s" size="20" value="&#34;OR 1=1;--"', rv.data)
+        self.assertIn('<p><strong>Search: OR 11--</strong></p>', rv.data)  # filtered data
+
+        rv = self.app.get('/rules/search/?s=1337')  # get rule by id
+        self.assertEqual(rv.status_code, 200)
+
+        self.__delete_rule()
+
+
+    def test_edit_rule(self):
+
+        non_nxistent_sid = self.__create_rule() + 1
+        rv = self.app.get('/rules/edit/%d' % non_nxistent_sid)
+        self.assertEqual(rv.status_code, 302)
+
+        self.__delete_rule()
