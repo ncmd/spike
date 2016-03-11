@@ -54,6 +54,20 @@ def new():  # TODO filter parameter
     return redirect("/rulesets/")
 
 
+@rulesets.route("/del/<int:rname>", methods=["POST"])
+def remove(rname):
+    _rset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rname).first()
+    if _rset is None:
+        flash("ERROR, ruleset doesn't exists: %s " % rname, "error")
+        return redirect("/rulesets/")
+
+    db.session.delete(_rset)
+    db.session.commit()
+
+    flash("OK deleted: %s " % rname, "success")
+    return redirect("/rulesets/")
+
+
 def __get_rules_for_ruleset(ruleset, with_header=True):
     _rules = NaxsiRules.query.filter(
         NaxsiRules.ruleset == ruleset.name,

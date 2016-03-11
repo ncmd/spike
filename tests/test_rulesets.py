@@ -1,3 +1,5 @@
+from spike.model.naxsi_rulesets import NaxsiRuleSets
+
 try:
     from urlparse import urlparse
 except ImportError:  # python3
@@ -5,7 +7,10 @@ except ImportError:  # python3
 
 from spike import create_app, seeds
 from spike.model import db
+from time import time
 import unittest
+import random
+import string
 
 
 class FlaskrTestCase(unittest.TestCase):
@@ -38,6 +43,26 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertTrue(any(i for i in seeds.rulesets_seeds if i in rv.data))
 
     def test_new(self):
-        rv = self.app.post('/rulesets/new', data={'rname': next(iter(seeds.rulesets_seeds))})
+        rname = next(iter(seeds.rulesets_seeds))
+        rv = self.app.post('/rulesets/new', data={'rname': rname})
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(urlparse(rv.location).path, '/rulesets/')
+
+        random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+        rv = self.app.post('/rulesets/new', data={'rname': random_name})
+        self.assertEqual(rv.status_code, 302)
+        _rule = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first()
+        self.assertEqual(_rule.name, random_name)
+        db.session.delete(_rule)
+        db.session.commit()
+
+    def test_del(self):
+        random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+        db.session.add(NaxsiRuleSets(random_name, "naxsi-ruleset: %s" % random_name, int(time())))
+        db.session.commit()
+        _rid = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first().id
+
+        rv = self.app.post('/rulesets/del/%d' % _rid)
+        self.assertEqual(rv.status_code, 302)
+        _rule = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first()
+        self.assertEqual(_rule, None)
