@@ -224,18 +224,14 @@ def del_sid(sid=''):
     return redirect("/rules/")
 
 
-@rules.route("/deact/<path:sid>", methods=["GET"])
+@rules.route("/deact/<int:sid>", methods=["GET"])
 def deact(sid):
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    if not nrule:
+    if nrule is None:
         return redirect("/rules/")
 
-    if nrule.active == 0:
-        nrule.active = 1
-        fm = "reactivate"
-    else:
-        nrule.active = 0
-        fm = "deactivate"
+    fm = 'deactivate' if nrule.active else 'reactivate'
+    nrule.active = not nrule.active
 
     db.session.add(nrule)
     try:
@@ -244,14 +240,10 @@ def deact(sid):
     except SQLAlchemyError:
         flash("ERROR while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
 
-    rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    if not rinfo:
-        return redirect("/rules/")
-
-    mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
-    score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
+    _mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
+    _score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
     _rulesets = NaxsiRuleSets.query.all()
-    return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo)
+    return render_template("rules/edit.html", mz=_mz, rulesets=_rulesets, score=_score, rules_info=nrule)
 
 
 def __get_textual_representation_rule(rule, full=1):

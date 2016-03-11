@@ -118,11 +118,23 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
     def test_deact_rule(self):
         rv = self.app.get('/rules/deact/')
         self.assertEqual(rv.status_code, 404)
-        self.__create_rule()
-        non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
+
+        last_insert = self.__create_rule()
+        non_existent_sid = last_insert + 1
+
+        rv = self.app.get('/rules/deact/%d' % last_insert)  # deactivate
+        self.assertEqual(rv.status_code, 200)
+        _rule = NaxsiRules.query.filter(NaxsiRules.sid == last_insert).first()
+        self.assertEqual(_rule.active, 0)
+
+        rv = self.app.get('/rules/deact/%d' % last_insert)  # activate
+        self.assertEqual(rv.status_code, 200)
+        _rule = NaxsiRules.query.filter(NaxsiRules.sid == last_insert).first()
+        self.assertEqual(_rule.active, 1)
 
         rv = self.app.get('/rules/deact/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
+
 
         self.__delete_rule()
 
@@ -145,9 +157,7 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
         self.__delete_rule()
 
-
     def test_edit_rule(self):
-
         non_nxistent_sid = self.__create_rule() + 1
         rv = self.app.get('/rules/edit/%d' % non_nxistent_sid)
         self.assertEqual(rv.status_code, 302)
