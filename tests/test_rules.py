@@ -39,7 +39,7 @@ class FlaskrTestCase(unittest.TestCase):
         return current_sid
 
     def __delete_rule(self, sid=None):
-        sid = sid  if sid else self.sid_to_delete
+        sid = sid if sid else self.sid_to_delete
         db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
 
     def test_index(self):
@@ -149,7 +149,6 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
         rv = self.app.get('/rules/deact/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
-
 
         self.__delete_rule()
 

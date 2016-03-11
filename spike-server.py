@@ -11,6 +11,7 @@ from spike.model import db
 from spike.model.value_templates import ValueTemplates
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
+
 def run(debug=False):
     app = create_app(__get_config_file())
     db.init_app(app)

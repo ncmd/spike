@@ -9,6 +9,7 @@ from spike import create_app
 from spike.model import db
 import unittest
 
+
 class FlaskrTestCase(unittest.TestCase):
     def setUp(self):
         app = create_app()
