@@ -1,8 +1,6 @@
 from time import strftime, localtime
 import re
 
-from sqlalchemy.orm.exc import UnmappedInstanceError
-
 from spike import create_app
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules

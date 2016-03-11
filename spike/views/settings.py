@@ -59,7 +59,7 @@ def scores_new():
 
 
 @settings.route("/scores/del", methods=["POST"])
-def scoress_del():
+def scores_del():
     dsc = ValueTemplates.query.filter(ValueTemplates.id == request.form["scid"]).first()
     if not dsc:
         flash("Nothing found in %s " % (request.form["scid"]), "error")
