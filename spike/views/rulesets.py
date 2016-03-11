@@ -32,9 +32,7 @@ def plain(rid=0):
 
 
 @rulesets.route("/view/<int:rid>")
-def view(rid=0):
-    if not rid:
-        return redirect("/rulesets/")
+def view(rid):
     ruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
     return render_template("/rulesets/view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
 
@@ -69,6 +67,9 @@ def remove(rname):
 
 
 def __get_rules_for_ruleset(ruleset, with_header=True):
+    if not ruleset:
+        return ''
+
     _rules = NaxsiRules.query.filter(
         NaxsiRules.ruleset == ruleset.name,
         NaxsiRules.active == 1

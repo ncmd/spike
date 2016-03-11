@@ -6,6 +6,12 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from spike import create_app
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
+
+try:
+    from urlparse import urlparse
+except ImportError:  # python3
+    from urllib.parse import urlparse
+
 import unittest
 
 
@@ -44,6 +50,18 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertIn('<title>SPIKE! - WAF Rules Builder</title>', rv.data)
         self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', rv.data) is not None)
+
+    def test_view(self):
+        self.__create_rule()
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        rv = self.app.get('/rules/view/%d' % _rule.sid)
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.get('/rules/view/%d' % (_rule.sid + 1))
+        self.assertEqual(urlparse(rv.location).path, '/rules/')
+
+        self.__delete_rule()
 
     def test_new_rule(self):
         data = {

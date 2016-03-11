@@ -33,10 +33,10 @@ def plain(sid):
     return Response(__get_textual_representation_rule(_rule), mimetype='text/plain')
 
 
-@rules.route("/view/<path:sid>", methods=["GET"])
-def view(sid=''):
+@rules.route("/view/<int:sid>", methods=["GET"])
+def view(sid):
     _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    if not _rule:
+    if _rule is None:
         flash("no rules found, please create one", "error")
         return redirect("/rules/")
 

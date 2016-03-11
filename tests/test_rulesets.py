@@ -42,6 +42,14 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/rulesets/plain/1', follow_redirects=True)
         self.assertTrue(any(i for i in seeds.rulesets_seeds if i in rv.data))
 
+    def test_view(self):
+        _rid = NaxsiRuleSets.query.filter().first()
+        rv = self.app.get('/rulesets/view/%d' % _rid.id, follow_redirects=False)
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.get('/rulesets/view/%d' % (_rid.id + 1), follow_redirects=False)
+        self.assertEqual(rv.status_code, 200)
+
     def test_new(self):
         rname = next(iter(seeds.rulesets_seeds))
         rv = self.app.post('/rulesets/new', data={'rname': rname})
@@ -61,6 +69,9 @@ class FlaskrTestCase(unittest.TestCase):
         db.session.add(NaxsiRuleSets(random_name, "naxsi-ruleset: %s" % random_name, int(time())))
         db.session.commit()
         _rid = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first().id
+
+        rv = self.app.post('/rulesets/del/%d' % (_rid + 1))
+        self.assertEqual(rv.status_code, 302)
 
         rv = self.app.post('/rulesets/del/%d' % _rid)
         self.assertEqual(rv.status_code, 302)
