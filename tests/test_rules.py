@@ -39,11 +39,8 @@ class FlaskrTestCase(unittest.TestCase):
         return current_sid
 
     def __delete_rule(self, sid=None):
-        sid = self.sid_to_delete if sid is None else sid
-        try:
-            db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
-        except UnmappedInstanceError:  # who cares ?
-            pass
+        sid = sid  if sid else self.sid_to_delete
+        db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
 
     def test_index(self):
         rv = self.app.get('/', follow_redirects=True)
