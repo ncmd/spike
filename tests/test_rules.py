@@ -19,9 +19,10 @@ class FlaskrTestCase(unittest.TestCase):
         db.init_app(app)
         app.config['TESTING'] = True
         self.app = app.test_client()
+        self.created_rules = list()
 
     def tearDown(self):
-        pass
+        self.__delete_rule()
 
     def __create_rule(self):
         """
@@ -33,12 +34,16 @@ class FlaskrTestCase(unittest.TestCase):
 
         db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
-        self.sid_to_delete = current_sid
+        self.created_rules.append(current_sid)
         return current_sid
 
     def __delete_rule(self, sid=None):
-        sid = sid if sid else self.sid_to_delete
-        db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
+        if sid:
+            db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
+        for sid in self.created_rules:
+            _rule = NaxsiRules.query.filter(sid == NaxsiRules.sid).first()
+            if _rule:
+                db.session.delete(_rule)
 
     def test_index(self):
         rv = self.app.get('/', follow_redirects=True)
@@ -47,16 +52,12 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', rv.data) is not None)
 
     def test_view(self):
-        self.__create_rule()
-
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/view/%d' % _rule.sid)
         self.assertEqual(rv.status_code, 200)
 
         rv = self.app.get('/rules/view/%d' % (_rule.sid + 1))
         self.assertEqual(urlparse(rv.location).path, '/rules/')
-
-        self.__delete_rule()
 
     def test_new_rule(self):
         data = {
@@ -89,7 +90,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_del_rule(self):
         old_sid = self.__create_rule()
 
-        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'WEB_APPS',
+        db.session.add(NaxsiRules(u'PIF', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
         rv = self.app.get('/rules/del/%d' % (old_sid + 1))
         self.assertEqual(rv.status_code, 302)
@@ -103,8 +104,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.__delete_rule()
 
     def test_plain_rule(self):
-        self.__create_rule()
-
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
         self.assertEqual(rv.status_code, 200)
@@ -122,11 +121,6 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
 """ % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
         self.assertEqual(expected, rv.data)
-
-        rv = self.app.get('/rules/plain/%d' % (_rule.sid + 1))
-        self.assertEqual(rv.status_code, 302)
-
-        self.__delete_rule()
 
     def test_deact_rule(self):
         rv = self.app.get('/rules/deact/')
@@ -151,8 +145,6 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
         self.__delete_rule()
 
     def test_search_rule(self):
-
-        self.__create_rule()
         rv = self.app.get('/rules/search/')
         self.assertEqual(rv.status_code, 302)
 
@@ -166,8 +158,6 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
 
         rv = self.app.get('/rules/search/?s=1337')  # get rule by id
         self.assertEqual(rv.status_code, 200)
-
-        self.__delete_rule()
 
     def test_edit_rule(self):
         non_nxistent_sid = self.__create_rule() + 1
