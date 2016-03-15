@@ -77,3 +77,13 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 302)
         _rule = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first()
         self.assertEqual(_rule, None)
+
+    def test_select(self):
+        _ruleset = NaxsiRuleSets.query.filter().first()
+        rv = self.app.get('/rulesets/select/%s' % 'WEB_APPS')
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('WEB_APPS', rv.data)
+
+        random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+        rv = self.app.get('/rulesets/select/%s' % random_name)
+        self.assertEqual(rv.status_code, 200)
