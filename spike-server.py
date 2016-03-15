@@ -4,6 +4,7 @@ import os
 import logging
 import argparse
 from os.path import dirname, abspath
+import sys
 from time import time, strftime, localtime
 
 from spike import create_app, version
@@ -64,6 +65,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == 'run':
-        run(args.debug)
+        if not os.path.exists(os.path.join(dirname(abspath(__name__)), 'spike', 'rules.db')):
+            print('You should run `python %s init` before using Spike' % sys.argv[0])
+        else:
+            run(args.debug)
     elif args.command == 'init':
         spike_init()
