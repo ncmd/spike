@@ -67,7 +67,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         data = {
             'msg': 'this is a test message',
-            'detection': 'str:detection',
+            'detection': 'DETECTION',
             'mz': 'BODY',
             'custom_mz_val': '',
             'negative': 'checked',
@@ -79,6 +79,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+
         self.assertIn(('<li> - OK: created %d : %s</li>' % (_rule.sid, _rule.msg)), rv.data)
         self.assertEqual(_rule.msg, data['msg'])
         self.assertEqual(_rule.detection, data['detection'])
