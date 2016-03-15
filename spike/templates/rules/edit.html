@@ -116,7 +116,7 @@
             <td></td>
             <td>
                 <button type="submit" class="btn btn-success btn-lg">Save Rule</button>
-                <a href="/rules/select/r:{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View Ruleset</a>
+                <a href="/rulesets/select/{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View Ruleset</a>
                 {% if rules_info.active == 0 %}
                     <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success btn-lg">Activate Rule</a>
                 {% else %}

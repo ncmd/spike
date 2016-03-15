@@ -66,6 +66,15 @@ def remove(rname):
     return redirect("/rulesets/")
 
 
+@rulesets.route("/select/<string:selector>", methods=["GET"])
+def select_id(selector):
+    _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == selector).order_by(NaxsiRules.sid.desc()).all()
+    _selection = "Search sid: %s " % selector
+    if _rules is None:
+        return redirect("/rulesets/")
+    return render_template("rules/index.html", rules=_rules, selection=_selection)
+
+
 def __get_rules_for_ruleset(ruleset, with_header=True):
     if not ruleset:
         return ''

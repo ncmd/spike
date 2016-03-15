@@ -43,30 +43,6 @@ def view(sid):
     return render_template("rules/view.html", rule=_rule, rtext=__get_textual_representation_rule(_rule, full=0))
 
 
-@rules.route("/select/<path:selector>", methods=["GET"])
-def select(selector=''):
-    if not selector:
-        return redirect("/rules/")
-
-    sel = str(selector)
-    logging.info("sel: %s ", sel)
-    try:
-        rs_val = sel.split(":")[1]
-    except SQLAlchemyError:
-        return redirect("/rules/")
-
-    if sel.startswith('r:'):
-        _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == rs_val).order_by(NaxsiRules.sid.desc()).all()
-        selection = "Search ruleset: %s " % rs_val
-    elif sel.startswith('id:'):
-        _rules = NaxsiRules.query.filter(NaxsiRules.sid == rs_val).order_by(NaxsiRules.sid.desc()).all()
-        selection = "Search sid: %s " % rs_val
-    else:
-        return redirect("/rules/")
-
-    return render_template("rules/index.html", rules=_rules, selection=selection)
-
-
 @rules.route("/search/", methods=["GET"])
 def search():
     terms = request.args.get('s', '')

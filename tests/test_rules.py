@@ -31,7 +31,7 @@ class FlaskrTestCase(unittest.TestCase):
         current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         current_sid = 1337 if current_sid is None else current_sid.sid + 1
 
-        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'web_server.rules',
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
         self.sid_to_delete = current_sid
         return current_sid
@@ -68,7 +68,7 @@ class FlaskrTestCase(unittest.TestCase):
             'score_$SQL': 8,
             'score': '$SQL',
             'rmks': 'this is a test remark',
-            'ruleset': 'scanner.rules'
+            'ruleset': 'WEB_APPS'
         }
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
@@ -89,7 +89,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_del_rule(self):
         old_sid = self.__create_rule()
 
-        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'web_server.rules',
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
         rv = self.app.get('/rules/del/%d' % (old_sid + 1))
         self.assertEqual(rv.status_code, 302)
