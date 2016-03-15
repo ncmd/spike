@@ -5,8 +5,8 @@ try:
 except ImportError:  # python3
     from urllib.parse import urlparse
 
-from spike import create_app, seeds
-from spike.model import db
+from spike import create_app
+from spike.model import db, rulesets_seeds
 from time import time
 import unittest
 import random
@@ -36,11 +36,11 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 301)
 
         rv = self.app.get('/rulesets/plain', follow_redirects=True)
-        for seed in seeds.rulesets_seeds:
+        for seed in rulesets_seeds:
             self.assertIn(seed, rv.data)
 
         rv = self.app.get('/rulesets/plain/1', follow_redirects=True)
-        self.assertTrue(any(i for i in seeds.rulesets_seeds if i in rv.data))
+        self.assertTrue(any(i for i in rulesets_seeds if i in rv.data))
 
     def test_view(self):
         _rid = NaxsiRuleSets.query.filter().first()
@@ -51,7 +51,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
 
     def test_new(self):
-        rname = next(iter(seeds.rulesets_seeds))
+        rname = next(iter(rulesets_seeds))
         rv = self.app.post('/rulesets/new', data={'rname': rname})
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(urlparse(rv.location).path, '/rulesets/')

@@ -6,8 +6,8 @@ import argparse
 from os.path import dirname, abspath
 from time import time, strftime, localtime
 
-from spike import create_app, seeds, version
-from spike.model import db
+from spike import create_app, version
+from spike.model import db, rulesets_seeds
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
 
@@ -43,7 +43,7 @@ def spike_init():
 
     logging.info("Filling default_vals")
 
-    for r in seeds.rulesets_seeds:
+    for r in rulesets_seeds:
         logging.info("Adding ruleset: %s", r)
         rmks = "Ruleset for %s / auto-created %s" % (r, strftime("%F - %H:%M", localtime(time())))
         db.session.add(NaxsiRuleSets(r, rmks, timestamp))
