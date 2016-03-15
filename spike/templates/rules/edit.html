@@ -40,12 +40,12 @@
                             {% set rmz = rules_info.mz | mzsplit %}
                             {% set dmz = [] %}
                             {% for z in mz %}
-                                <input type="checkbox" name="mz" value="{{ z.value }}"
-                                        {% if z.value in rmz %}
-                                            {% if dmz.append(z.value) %} {% endif %}
-                                       checked> <strong> {{ z.value }}</strong>
+                                <input type="checkbox" name="mz" value="{{ z }}"
+                                        {% if z in rmz %}
+                                            {% if dmz.append(z) %} {% endif %}
+                                       checked> <strong> {{ z }}</strong>
                                         {% else %}
-                                            > {{ z.value }}
+                                            > {{ z }}
                                         {% endif %}
                                 <br>
                             {% endfor %}
@@ -66,16 +66,16 @@
                             <strong>Score</strong> <br>
                             {% for s in score %}
                                 {% set sc,sv = rules_info.score | scoresplit %}
-                                {% if s.value  == sc %}
-                                    <input type="text" name="score_{{ s.value }}" value="{{ sv }}" size="3">
+                                {% if s  == sc %}
+                                    <input type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
                                 {% else %}
-                                    <input type="text" name="score_{{ s.value }}" value="8" size="3">
+                                    <input type="text" name="score_{{ s }}" value="8" size="3">
                                 {% endif %}
-                                <input type="checkbox" name="score" value="{{ s.value }}"
+                                <input type="checkbox" name="score" value="{{ s }}"
                                         {% if s.value  == sc %}
-                                       checked><strong> {{ s.value }}</strong>
+                                       checked><strong> {{ s }}</strong>
                                         {% else %}
-                                            > {{ s.value }}
+                                            > {{ s }}
                                         {% endif %}
                                 <br>
                             {% endfor %}

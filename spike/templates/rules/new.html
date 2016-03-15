@@ -24,7 +24,7 @@
                 <td>MZ:</td>
                 <td>
                     {% for z in mz %}
-                        <input type="checkbox" name="mz" value="{{ z.value }}"> {{ z.value }} <br>
+                        <input type="checkbox" name="mz" value="{{ z }}"> {{ z }} <br>
                     {% endfor %}
                     <input type="checkbox" name="custom_mz" value="on">
                     <input type="text" name="custom_mz_val" placeholder="Custom MZ">
@@ -38,8 +38,8 @@
                 <td>Score</td>
                 <td>
                     {% for s in score %}
-                        <input type="text" name="score_{{ s.value }}" value="8" size="3">
-                        <input type="checkbox" name="score" value="{{ s.value }}"> {{ s.value }}
+                        <input type="text" name="score_{{ s }}" value="8" size="3">
+                        <input type="checkbox" name="score" value="{{ s }}"> {{ s }}
                         <br>
                     {% endfor %}
                 </td>

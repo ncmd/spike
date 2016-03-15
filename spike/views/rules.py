@@ -8,8 +8,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
-from spike.model.value_templates import ValueTemplates
 from spike.model.naxsi_rulesets import NaxsiRuleSets
+from spike.model import naxsi_mz, naxsi_score
 
 rules = Blueprint('rules', __name__)
 
@@ -101,10 +101,8 @@ def new():
         sid = latest_sid.sid + 1
 
     if request.method == "GET":
-        mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
         _rulesets = NaxsiRuleSets.query.all()
-        score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
-        return render_template("rules/new.html", mz=mz, rulesets=_rulesets, score=score, latestn=sid)
+        return render_template("rules/new.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, latestn=sid)
 
     # create new rule
     logging.debug('Posted new request: %s', request.form)
@@ -147,8 +145,6 @@ def edit(sid):
     if not rinfo:
         return redirect("/rules/")
 
-    mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
-    score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
     _rulesets = NaxsiRuleSets.query.all()
     rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
     custom_mz = ""
@@ -156,7 +152,7 @@ def edit(sid):
     if re.search(r"^\$[A-Z]+:(.*)\|[A-Z]+", mz_check):
         custom_mz = mz_check
         rinfo.mz = "custom"
-    return render_template("rules/edit.html", mz=mz, rulesets=_rulesets, score=score, rules_info=rinfo,
+    return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=rinfo,
                            rule_ruleset=rruleset, custom_mz=custom_mz)
 
 
@@ -240,10 +236,8 @@ def deact(sid):
     except SQLAlchemyError:
         flash("ERROR while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
 
-    _mz = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_mz").all()
-    _score = ValueTemplates.query.filter(ValueTemplates.name == "naxsi_score").all()
     _rulesets = NaxsiRuleSets.query.all()
-    return render_template("rules/edit.html", mz=_mz, rulesets=_rulesets, score=_score, rules_info=nrule)
+    return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)
 
 
 def __get_textual_representation_rule(rule, full=1):

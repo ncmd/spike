@@ -8,7 +8,6 @@ from time import time, strftime, localtime
 
 from spike import create_app, seeds, version
 from spike.model import db
-from spike.model.value_templates import ValueTemplates
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
 
@@ -43,10 +42,6 @@ def spike_init():
         db.create_all()
 
     logging.info("Filling default_vals")
-    for v in seeds.vtemplate_seeds:
-        logging.info("Adding templates: %s", v)
-        for val in seeds.vtemplate_seeds[v]:
-            db.session.add(ValueTemplates(v, val))
 
     for r in seeds.rulesets_seeds:
         logging.info("Adding ruleset: %s", r)
