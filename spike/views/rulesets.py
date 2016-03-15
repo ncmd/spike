@@ -6,7 +6,7 @@ from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
-from rules import __get_textual_representation_rule
+from .rules import __get_textual_representation_rule
 
 rulesets = Blueprint('rulesets', __name__)
 
@@ -73,7 +73,7 @@ def select_id(selector):
     return render_template("rules/index.html", rules=_rules, selection=_selection)
 
 
-def __get_rules_for_ruleset(ruleset, with_header=True):
+def __get_rules_for_ruleset(ruleset):
     if not ruleset:
         return ''
 
@@ -86,9 +86,6 @@ def __get_rules_for_ruleset(ruleset, with_header=True):
     db.session.add(nxruleset)
     db.session.commit()
     text_rules = ''.join(map(__get_textual_representation_rule, _rules))
-
-    if with_header is False:
-        return text_rules
 
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", ruleset.name)

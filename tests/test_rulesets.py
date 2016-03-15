@@ -42,6 +42,11 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/rulesets/plain/1', follow_redirects=True)
         self.assertTrue(any(i for i in rulesets_seeds if i in rv.data))
 
+        rv = self.app.get('/rulesets/plain/123456789', follow_redirects=True)
+        self.assertEqual(rv.data, '')
+
+        self.assertTrue(True)
+
     def test_view(self):
         _rid = NaxsiRuleSets.query.filter().first()
         rv = self.app.get('/rulesets/view/%d' % _rid.id, follow_redirects=False)
