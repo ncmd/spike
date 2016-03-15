@@ -1,3 +1,4 @@
+from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
 try:
@@ -52,7 +53,8 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/rulesets/view/%d' % _rid.id, follow_redirects=False)
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.app.get('/rulesets/view/%d' % (_rid.id + 1), follow_redirects=False)
+        _nonexistent_rid = _rid.id + 1
+        rv = self.app.get('/rulesets/view/%d' % _nonexistent_rid, follow_redirects=False)
         self.assertEqual(rv.status_code, 200)
 
     def test_new(self):
@@ -75,7 +77,8 @@ class FlaskrTestCase(unittest.TestCase):
         db.session.commit()
         _rid = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == random_name).first().id
 
-        rv = self.app.post('/rulesets/del/%d' % (_rid + 1))
+        _nonexistent_rid = _rid + 1
+        rv = self.app.post('/rulesets/del/%d' % _nonexistent_rid)
         self.assertEqual(rv.status_code, 302)
 
         rv = self.app.post('/rulesets/del/%d' % _rid)
@@ -84,10 +87,10 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(_rule, None)
 
     def test_select(self):
-        _ruleset = NaxsiRuleSets.query.filter().first()
-        rv = self.app.get('/rulesets/select/%s' % 'WEB_APPS')
+        _ruleset = NaxsiRules.query.first().ruleset
+        rv = self.app.get('/rulesets/select/%s' % _ruleset)
         self.assertEqual(rv.status_code, 200)
-        self.assertIn('WEB_APPS', rv.data)
+        self.assertIn(_ruleset, rv.data)
 
         random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
         rv = self.app.get('/rulesets/select/%s' % random_name)

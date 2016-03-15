@@ -25,7 +25,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/docs/docs.md', follow_redirects=True)
         self.assertIn('<h2><a href="/docs">Spike - Docs</a></h2>', rv.data)
 
-    def test_LFI(self):
+    def test_lfi(self):
         rv = self.app.get('/docs/../../../../etc/passwd', follow_redirects=True)
         self.assertIn('<h2>Spike - Docs - Overview</h2>', rv.data)
         self.assertNotIn('root:x:0:0:root:/root:', rv.data)

@@ -1,8 +1,8 @@
 import logging
 import re
 import string
-from time import time, localtime, strftime
 
+from time import time
 from flask import Blueprint, render_template, request, redirect, flash, Response
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -82,27 +82,16 @@ def new():
 
     # create new rule
     logging.debug('Posted new request: %s', request.form)
-
-    detect = str(request.form["detection"]).strip()
-    if not detect.startswith("str:") and not detect.startswith("rx:"):
-        detect = "str:%s" % detect
-
-    mz = "|".join(request.form.getlist("mz"))
-
-    try:
-        if request.form["custom_mz"] == "on":
-            mz = "%s|%s" % (mz, request.form["custom_mz_val"])
-    except:
-        pass
-
-    score_raw = request.form["score"].strip()
-    score_val = request.form["score_%s" % score_raw].strip()
-    score = "%s:%s" % (score_raw, score_val)
-    rmks = request.form["rmks"]
-    ruleset = request.form["ruleset"]
-    negative = 'negative' in request.form and request.form['negative'] == 'checked'
-
-    nrule = NaxsiRules(request.form["msg"], detect, mz, score, sid, ruleset, rmks, "1", negative, int(time()))
+    mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
+    score = "{}:{}".format(request.form["score"], request.form["score_%s" % request.form["score"]])
+    nrule = NaxsiRules(request.form["msg"], request.form["detection"], mz, score, sid, request.form["ruleset"],
+                       request.form["rmks"], "1", request.form['negative'], int(time()))
+    nrule.validate()
+    if len(nrule.error):
+        flash("ERROR: {0}".format(",".join(nrule.error)))
+        return redirect("/rules/new")
+    if len(nrule.warnings):
+        flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
     db.session.add(nrule)
 
     try:
@@ -133,45 +122,27 @@ def edit(sid):
 
 
 @rules.route("/save/<int:sid>", methods=["POST"])
-def save(sid):  # FIXME this is the exact same method as the `new` one.
-
-    # create new rule
-    try:
-        msg = request.form["msg"]
-        detect = str(request.form["detection"]).strip()
-        if not detect.startswith("str:") and not detect.startswith("rx:"):
-            detect = "str:%s" % detect
-        mz = "|".join(request.form.getlist("mz"))
-        try:
-            if request.form["custom_mz"] == "on":
-                if len(mz) > 1:
-                    mz = "%s|%s" % (request.form["custom_mz_val"], mz)
-                else:
-                    mz = "%s" % (request.form["custom_mz_val"])
-        except:
-            pass
-        score_raw = request.form["score"].strip()
-        score_val = request.form["score_%s" % score_raw].strip()
-        score = "%s:%s" % (score_raw, score_val)
-        # sid = nr["sid"]
-        rmks = request.form["rmks"]
-        ruleset = request.form["ruleset"]
-        active = request.form["active"]
-        negative = 'negative' in request.form and request.form['negative'] == 'checked'
-    except:
-        flash('ERROR - please select MZ/Score <a href="javascript:alert(history.back)">Go Back</a>', "error")
-        return redirect("/rules/edit/%s" % sid)
-
+def save(sid):
+    mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
+    score = "{}:{}".format(request.form["score"], request.form["score_%s" % request.form["score"]])
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    nrule.msg = msg
-    nrule.detection = detect
+    nrule.msg = request.form["msg"]
+    nrule.detection = request.form["detection"]
     nrule.mz = mz
     nrule.score = score
-    nrule.ruleset = ruleset
-    nrule.rmks = rmks
-    nrule.active = active
-    nrule.negative = negative
+    nrule.ruleset = request.form["ruleset"]
+    nrule.rmks = request.form["rmks"]
+    nrule.active = request.form["active"]
+    nrule.negative = request.form["negative"]
     nrule.timestamp = int(time())
+    nrule.validate()
+    if len(nrule.error):
+        flash("ERROR: {0}".format(",".join(nrule.error)))
+        logging.debug("ERROR: {0}".format(",".join(nrule.error)))
+        return redirect("/rules/edit/%s" % sid)
+    if len(nrule.warnings):
+        flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
+        logging.debug("WARNINGS: {0}".format(",".join(nrule.warnings)))
     db.session.add(nrule)
     try:
         db.session.commit()
@@ -217,23 +188,7 @@ def deact(sid):
 
 
 def __get_textual_representation_rule(rule, full=1):
-    rdate = strftime("%F - %H:%M", localtime(float(str(rule.timestamp))))
-    rmks = "# ".join(rule.rmks.strip().split("\n"))
-    detect = rule.detection.lower() if rule.detection.startswith("str:") else rule.detection
-    negate = 'negative' if rule.negative == 1 else ''
-
     if full == 1:
-        nout = """
-#
-# sid: %s | date: %s
-#
-# %s
-#
-MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
-
-""" % (rule.sid, rdate, rmks, negate, detect, rule.msg, rule.mz, rule.score, rule.sid)
+        return rule.fullstr()
     else:
-        nout = """MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s  ;""" % \
-               (negate, rule.detection, rule.msg, rule.mz, rule.score, rule.sid)
-
-    return nout
+        return str(rule)

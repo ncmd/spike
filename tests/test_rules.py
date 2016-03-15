@@ -20,6 +20,7 @@ class FlaskrTestCase(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
         self.created_rules = list()
+        self.__create_rule()
 
     def tearDown(self):
         self.__delete_rule()
@@ -35,7 +36,7 @@ class FlaskrTestCase(unittest.TestCase):
         db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
         self.created_rules.append(current_sid)
-        return current_sid
+        return int(current_sid)
 
     def __delete_rule(self, sid=None):
         if sid:
@@ -56,13 +57,17 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/rules/view/%d' % _rule.sid)
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.app.get('/rules/view/%d' % (_rule.sid + 1))
+        _sid = _rule.sid + 1
+        rv = self.app.get('/rules/view/%d' % _sid)
         self.assertEqual(urlparse(rv.location).path, '/rules/')
 
     def test_new_rule(self):
+        rv = self.app.get('/rules/new')
+        self.assertEqual(rv.status_code, 200)
+
         data = {
             'msg': 'this is a test message',
-            'detection': 'DETECTION',
+            'detection': 'str:detection',
             'mz': 'BODY',
             'custom_mz_val': '',
             'negative': 'checked',
@@ -72,36 +77,29 @@ class FlaskrTestCase(unittest.TestCase):
             'ruleset': 'WEB_APPS'
         }
         rv = self.app.post('/rules/new', data=data, follow_redirects=True)
-        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         self.assertIn(('<li> - OK: created %d : %s</li>' % (_rule.sid, _rule.msg)), rv.data)
         self.assertEqual(_rule.msg, data['msg'])
-        self.assertEqual(_rule.detection, 'str:' + data['detection'])
+        self.assertEqual(_rule.detection, data['detection'])
         self.assertEqual(_rule.mz, data['mz'])
         self.assertEqual(_rule.score, data['score'] + ':' + str(data['score_$SQL']))
         self.assertEqual(_rule.rmks, data['rmks'])
         self.assertEqual(_rule.ruleset, data['ruleset'])
-
-        rv = self.app.get('/rules/new')
-        self.assertEqual(rv.status_code, 200)
-
-        self.__delete_rule(_rule.sid)
+        db.session.delete(_rule)
+        db.session.commit()
 
     def test_del_rule(self):
-        old_sid = self.__create_rule()
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        db.session.add(NaxsiRules(u'PIF', 'str:test', u'BODY', u'$SQL:8', old_sid + 1, u'WEB_APPS',
+        db.session.add(NaxsiRules(u'PIF', 'str:test', u'BODY', u'$SQL:8', _rule.sid + 1, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
-        rv = self.app.get('/rules/del/%d' % (old_sid + 1))
+        _sid = _rule.sid + 1
+        rv = self.app.get('/rules/del/%d' % _sid)
         self.assertEqual(rv.status_code, 302)
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        self.assertEqual(_rule.sid, old_sid)
-
-        rv = self.app.get('/rules/del/%d' % (_rule.sid + 1))
-        self.assertEqual(rv.status_code, 302)
-
-        self.__delete_rule()
+        self.assertEqual(_rule.sid, _rule.sid)
 
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
@@ -109,25 +107,16 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         rdate = strftime("%F - %H:%M", localtime(float(str(_rule.timestamp))))
         rmks = "# ".join(_rule.rmks.strip().split("\n"))
-        detect = _rule.detection.lower() if _rule.detection.startswith("str:") else _rule.detection
-        negate = 'negative' if _rule.negative == 1 else ''
-        expected = """
-#
+        expected = """#
 # sid: %s | date: %s
 #
 # %s
 #
-MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
-
-""" % (_rule.sid, rdate, rmks, negate, detect, _rule.msg, _rule.mz, _rule.score, _rule.sid)
+%s""" % (_rule.sid, rdate, rmks, str(_rule))
         self.assertEqual(expected, rv.data)
 
     def test_deact_rule(self):
-        rv = self.app.get('/rules/deact/')
-        self.assertEqual(rv.status_code, 404)
-
-        last_insert = self.__create_rule()
-        non_existent_sid = last_insert + 1
+        last_insert = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
 
         rv = self.app.get('/rules/deact/%d' % last_insert)  # deactivate
         self.assertEqual(rv.status_code, 200)
@@ -139,10 +128,12 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
         _rule = NaxsiRules.query.filter(NaxsiRules.sid == last_insert).first()
         self.assertEqual(_rule.active, 1)
 
+        non_existent_sid = last_insert + 1
         rv = self.app.get('/rules/deact/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
 
-        self.__delete_rule()
+        rv = self.app.get('/rules/deact/')
+        self.assertEqual(rv.status_code, 404)
 
     def test_search_rule(self):
         rv = self.app.get('/rules/search/')
@@ -160,8 +151,6 @@ MainRule %s "%s" "msg:%s" "mz:%s" "s:%s" id:%s ;
         self.assertEqual(rv.status_code, 200)
 
     def test_edit_rule(self):
-        non_nxistent_sid = self.__create_rule() + 1
-        rv = self.app.get('/rules/edit/%d' % non_nxistent_sid)
+        non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
+        rv = self.app.get('/rules/edit/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
-
-        self.__delete_rule()
