@@ -15,16 +15,18 @@ from spike.model.naxsi_rulesets import NaxsiRuleSets
 def run(debug=False):
     app = create_app(__get_config_file())
     db.init_app(app)
-    app.test_request_context().push()
+
+    if debug:
+        app.test_request_context().push()
 
     try:
         host = app.config["APP_HOST"]
-    except:
+    except KeyError:
         host = '127.0.0.1'
 
     try:
-        port = int(app.config["APP_HPOST"])
-    except:
+        port = int(app.config["APP_PORT"])
+    except KeyError:
         port = 5555
 
     app.run(debug=debug, host=host, port=port)
@@ -35,14 +37,10 @@ def spike_init():
     timestamp = int(time())
 
     app = create_app(__get_config_file())
-
-    app.test_request_context().push()
     db.init_app(app)
 
     with app.app_context():
         db.create_all()
-
-    logging.info("Filling default_vals")
 
     for r in rulesets_seeds:
         logging.info("Adding ruleset: %s", r)

@@ -30,7 +30,7 @@ def index():
 @docs.route("/<path:doc_file>")
 def display(doc_file):
     if doc_file == 'README.md':
-        doc_path = 'README.md'
+        doc_path = doc_file
     else:
         doc_path = os.path.join("docs", doc_file)
         if doc_path not in glob.glob("docs/*.md"):
