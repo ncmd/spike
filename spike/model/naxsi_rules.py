@@ -77,27 +77,25 @@ class NaxsiRules(db.Model):
             self.detection = s
         return True
 
-    def p_genericstr(self, s, assign=False):
-        if s and not s.islower():
-            self.warnings.append("Pattern ({0}) is not lower-case.".format(s))
+    def p_genericstr(self, p_str, assign=False):
+        if p_str and not p_str.islower():
+            self.warnings.append("Pattern ({0}) is not lower-case.".format(p_str))
         return True
 
-    def p_mz(self, s, assign=False):
+    def p_mz(self, p_str, assign=False):
         has_zone = False
         mz_state = set()
-        locs = s.split('|')
+        locs = p_str.split('|')
         for loc in locs:
-            kw = loc
-            arg = None
+            keyword, arg = loc, None
             if loc.startswith("$"):
-                try:
-                    kw, arg = loc.split(":")
-                except ValueError:
+                if loc.find(":") == -1:
                     return self.fail("Missing 2nd part after ':' in {0}".format(loc))
+                keyword, arg = loc.split(":")
             # check it is a valid keyword
-            if kw not in self.sub_mz:
-                return self.fail("'{0}' no a known sub-part of mz : {1}".format(kw, self.sub_mz))
-            mz_state.add(kw)
+            if keyword not in self.sub_mz:
+                return self.fail("'{0}' no a known sub-part of mz : {1}".format(keyword, self.sub_mz))
+            mz_state.add(keyword)
             # verify the rule doesn't attempt to target REGEX and STATIC _VAR/URL at the same time
             if len(self.rx_mz & mz_state) and len(self.static_mz & mz_state):
                 return self.fail("You can't mix static $* with regex $*_X ({})".format(str(mz_state)))
@@ -105,24 +103,24 @@ class NaxsiRules(db.Model):
             if arg and arg.islower() is False:
                 self.warnings.append("{0} in {1} is not lowercase. naxsi is case-insensitive".format(arg, loc))
             # the rule targets an actual zone
-            if kw not in ["$URL", "$URL_X"] and kw in (self.rx_mz | self.full_zones | self.static_mz):
+            if keyword not in ["$URL", "$URL_X"] and keyword in (self.rx_mz | self.full_zones | self.static_mz):
                 has_zone = True
         if has_zone is False:
             return self.fail("The rule/whitelist doesn't target any zone.")
         if assign is True:
-            self.mz = s
+            self.mz = p_str
         return True
 
-    def p_id(self, s, assign=False):
+    def p_id(self, p_str, assign=False):
         try:
-            x = int(s)
-            if x < 10000:
-                self.warnings.append("rule IDs below 10k are reserved ({0})".format(x))
+            num = int(p_str)
+            if num < 10000:
+                self.warnings.append("rule IDs below 10k are reserved ({0})".format(num))
         except ValueError:
             self.error.append("id:{0} is not numeric".format(s))
             return False
         if assign is True:
-            self.sid = x
+            self.sid = num
         return True
 
     @staticmethod
@@ -134,20 +132,18 @@ class NaxsiRules(db.Model):
         return ([i for i in items if i[0] in "\"'"] +
                 [i for i in items if i[0] not in "\"'"])
 
-    def parse_rule(self, x):
+    def parse_rule(self, full_str):
         """
         Parse and validate a full naxsi rule
-        :param x: raw rule
+        :param full_str: raw rule
         :return: [True|False, dict]
         """
-        xfrag_kw = {"id:": self.p_id, "str:": self.p_genericstr,
+        func_map = {"id:": self.p_id, "str:": self.p_genericstr,
                     "rx:": self.p_genericstr, "msg:": self.p_dummy, "mz:": self.p_mz,
                     "negative": self.p_dummy, "s:": self.p_dummy}
 
-        split = self.splitter(x)  # parse string
-
-
-        sect = set(self.mr_kw) & set(split) # check if it's a MainRule/BasicRule, store&delete kw
+        split = self.splitter(full_str)  # parse string
+        sect = set(self.mr_kw) & set(split)
 
         if len(sect) != 1:
             return self.fail("no (or multiple) mainrule/basicrule keyword.")
@@ -159,29 +155,29 @@ class NaxsiRules(db.Model):
 
         while True:  # iterate while there is data, as handlers can defer
 
-            if not split: # we are done
+            if not split:  # we are done
                 break
 
-            for kw in split:
-                okw = kw
-                kw = kw.strip()
+            for keyword in split:
+                orig_kw = keyword
+                keyword = keyword.strip()
 
                 # clean-up quotes or semicolon
-                if kw.endswith(";"):
-                    kw = kw[:-1]
-                if kw.startswith(('"', "'")) and (kw[0] == kw[-1]):
-                    kw = kw[1:-1]
-                for frag_kw in xfrag_kw:
+                if keyword.endswith(";"):
+                    keyword = keyword[:-1]
+                if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):
+                    keyword = keyword[1:-1]
+                for frag_kw in func_map:
                     ret = False
-                    if kw.startswith(frag_kw):
+                    if keyword.startswith(frag_kw):
                         # parser funcs returns True/False
-                        ret = xfrag_kw[frag_kw](kw[len(frag_kw):])
+                        ret = func_map[frag_kw](keyword[len(frag_kw):])
                         if ret is False:
-                            return self.fail("parsing of element '{0}' failed.".format(kw))
+                            return self.fail("parsing of element '{0}' failed.".format(keyword))
                         if ret is True:
-                            split.remove(okw)
+                            split.remove(orig_kw)
                         break
                 # we have an item that wasn't successfully parsed
-                if okw in split and ret is not None:
+                if orig_kw in split and ret is not None:
                     return False
         return True
