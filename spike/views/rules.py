@@ -147,7 +147,7 @@ def save(sid):
     try:
         db.session.commit()
     except SQLAlchemyError:
-        flash("ERROR while trying to update %s : %s" % (sid, msg), "error")
+        flash("ERROR while trying to update %s : %s" % (sid, nrule.error), "error")
     return redirect("/rules/edit/%s" % sid)
 
 
