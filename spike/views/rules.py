@@ -187,6 +187,21 @@ def deact(sid):
     return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)
 
 
+@rules.route("/sandbox/", methods=["GET", "POST"])
+def sandbox():
+    if request.method == 'GET':
+        return render_template("rules/sandbox.html")
+    _textual_rule = request.form["rule"]
+    _rule = NaxsiRules()
+    _rule.parse_rule(_textual_rule)
+    _rule.validate()
+    if len(_rule.error):
+        flash("ERROR: {0}".format(",".join(_rule.error)))
+    if len(_rule.warnings):
+        flash("WARNINGS: {0}".format(",".join(_rule.warnings)))
+    return render_template("rules/sandbox.html")
+
+
 def __get_textual_representation_rule(rule, full=1):
     if full == 1:
         return rule.fullstr()
