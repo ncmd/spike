@@ -68,13 +68,13 @@ class NaxsiRules(db.Model):
     def p_dummy(self, s, assign=False):
         return True
 
-    def p_detection(self, s, assign=False):
-        if not s.startswith("str:") and not s.startswith("rx:"):
-            self.fail("detection {} is neither rx: or str:".format(s))
-        if not s.islower():
-            self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(s))
+    def p_detection(self, p_str, assign=False):
+        if not p_str.startswith("str:") and not p_str.startswith("rx:"):
+            self.fail("detection {} is neither rx: or str:".format(p_str))
+        if not p_str.islower():
+            self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
         if assign is True:
-            self.detection = s
+            self.detection = p_str
         return True
 
     def p_genericstr(self, p_str, assign=False):
