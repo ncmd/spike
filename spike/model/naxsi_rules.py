@@ -20,8 +20,7 @@ class NaxsiRules(db.Model):
     negative = db.Column(db.Integer, nullable=False, server_default='0')
     timestamp = db.Column(db.Integer, nullable=False)
 
-    warnings = []
-    error = []
+
     mr_kw = ["MainRule", "BasicRule", "main_rule", "basic_rule"]
     static_mz = {"$ARGS_VAR", "$BODY_VAR", "$URL", "$HEADERS_VAR"}
     full_zones = {"ARGS", "BODY", "URL", "HEADERS", "FILE_EXT", "RAW_BODY"}
@@ -39,6 +38,8 @@ class NaxsiRules(db.Model):
         self.active = active
         self.negative = 1 if negative == 'checked' else 0
         self.timestamp = timestamp
+        self.warnings = []
+        self.error = []
 
     def fullstr(self):
         rdate = strftime("%F - %H:%M", localtime(float(str(self.timestamp))))
@@ -136,6 +137,9 @@ class NaxsiRules(db.Model):
         :param full_str: raw rule
         :return: [True|False, dict]
         """
+        self.warnings = []
+        self.error = []
+
         func_map = {"id:": self.__validate_id, "str:": self.__validate_genericstr,
                     "rx:": self.__validate_genericstr, "msg:": self.__validate_dummy, "mz:": self.__validate_matchzone,
                     "negative": self.__validate_dummy, "s:": self.__validate_dummy}
@@ -148,7 +152,7 @@ class NaxsiRules(db.Model):
         elif len(intersection) > 1:
             return self.__fail("Multiple mainrule/basicrule keywords.")
 
-        split.remove(intersection[0])  # remove the mainrule/basicrule keyword
+        split.remove(intersection.pop())  # remove the mainrule/basicrule keyword
 
         if ";" in split:
             split.remove(";")
@@ -166,7 +170,7 @@ class NaxsiRules(db.Model):
                     ret = False
                     if keyword.startswith(frag_kw):
                         # parser funcs returns True/False
-                        ret = func_map[frag_kw](keyword[len(frag_kw):])
+                        ret = func_map[frag_kw](keyword[len(frag_kw):], assign=True)
                         if ret is True:
                             split.remove(orig_kw)
                         else:
