@@ -126,7 +126,7 @@ class NaxsiRules(db.Model):
             mz_state.add(keyword)
             # verify the rule doesn't attempt to target REGEX and STATIC _VAR/URL at the same time
             if len(self.rx_mz & mz_state) and len(self.static_mz & mz_state):
-                return self.__fail("You can't mix static $* with regex $*_X ({})".format(str(mz_state)))
+                return self.__fail("You can't mix static $* with regex $*_X ({})".format(', '.join(mz_state)))
             # just a gentle reminder
             if arg and arg.islower() is False:
                 self.warnings.append("{0} in {1} is not lowercase. naxsi is case-insensitive".format(arg, loc))

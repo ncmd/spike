@@ -109,12 +109,12 @@ class FlaskrTestCase(unittest.TestCase):
         rdate = strftime("%F - %H:%M", localtime(float(str(_rule.timestamp))))
         rmks = "# ".join(_rule.rmks.strip().split("\n"))
         expected = """#
-# sid: %s | date: %s
+# sid: {0} | date: {1}
 #
-# %s
+# {2}
 #
-%s""" % (_rule.sid, rdate, rmks, str(_rule))
-        self.assertEqual(expected, str(rv.data))
+{3}""".format(_rule.sid, rdate, rmks, str(_rule))
+        self.assertEqual(expected.encode(), rv.data)
 
     def test_deact_rule(self):
         last_insert = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
@@ -164,4 +164,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rule_parser.warnings, ['Cookie in $HEADERS_VAR:Cookie is not lowercase. naxsi is case-insensitive', 'rule IDs below 10k are reserved (1000)'])
         rv = rule_parser.parse_rule("""BasicRule "rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$" id:4200001 "s:$SQL:8";""")
         self.assertEqual(rv, False)
-        self.assertEqual(rule_parser.error, ["You can't mix static $* with regex $*_X (set(['$BODY_VAR_X', '$URL']))", "parsing of element 'mz:$URL:/foobar|$BODY_VAR_X:^tutu$' failed."])
+        self.assertIn('$BODY_VAR_X', str(rule_parser.error))
+        self.assertIn('$URL', str(rule_parser.error))
+        self.assertIn("You can't mix static $* with regex $*_X", str(rule_parser.error))
+        self.assertIn("parsing of element 'mz:$URL:/foobar|$BODY_VAR_X:^tutu$' failed.", rule_parser.error)
