@@ -143,8 +143,10 @@ class NaxsiRules(db.Model):
         split = self.splitter(full_str)  # parse string
         intersection = set(split).intersection(set(self.mr_kw))
 
-        if len(intersection) != 1:
-            return self.__fail("no (or multiple) mainrule/basicrule keyword.")
+        if not intersection:
+            return self.__fail("No mainrule/basicrule keyword.")
+        elif len(intersection) > 1:
+            return self.__fail("Multiple mainrule/basicrule keywords.")
 
         split.remove(intersection[0])  # remove the mainrule/basicrule keyword
 
