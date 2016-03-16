@@ -28,7 +28,7 @@ class NaxsiRules(db.Model):
     rx_mz = {"$ARGS_VAR_X", "$BODY_VAR_X", "$URL_X", "$HEADERS_VAR_X"}
     sub_mz = list(static_mz) + list(full_zones) + list(rx_mz)
 
-    def __init__(self, msg, detection, mz, score, sid, ruleset, rmks, active, negative, timestamp):
+    def __init__(self, msg="", detection="", mz="", score="", sid=42000, ruleset="", rmks="", active=0, negative=0, timestamp=0):
         self.msg = msg
         self.detection = detection
         self.mz = mz
