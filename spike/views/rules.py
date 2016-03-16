@@ -83,9 +83,9 @@ def new():
     # create new rule
     logging.debug('Posted new request: %s', request.form)
     mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
-    score = "{}:{}".format(request.form["score"], request.form["score_%s" % request.form["score"]])
-    nrule = NaxsiRules(request.form["msg"], request.form["detection"], mz, score, sid, request.form["ruleset"],
-                       request.form["rmks"], "1", request.form['negative'], int(time()))
+    score = "{}:{}".format(request.form.get("score", ""), request.form.get("score_%s" % request.form.get("score", ""), ""))
+    nrule = NaxsiRules(request.form.get("msg", ""), request.form.get("detection", ""), mz, score, sid, request.form.get("ruleset", ""),
+                       request.form.get("rmks", ""), "1", request.form.get("negative", ""), int(time()))
     nrule.validate()
     if len(nrule.error):
         flash("ERROR: {0}".format(",".join(nrule.error)))
@@ -96,10 +96,10 @@ def new():
 
     try:
         db.session.commit()
-        flash("OK: created %s : %s" % (sid, request.form["msg"]), "success")
+        flash("OK: created %s : %s" % (sid, request.form.get("msg", "")), "success")
         return redirect("/rules/edit/%s" % sid)
     except SQLAlchemyError:
-        flash("ERROR while trying to create %s : %s" % (sid, request.form["msg"]), "error")
+        flash("ERROR while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
 
     return redirect("/rules/new")
 
@@ -124,16 +124,16 @@ def edit(sid):
 @rules.route("/save/<int:sid>", methods=["POST"])
 def save(sid):
     mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
-    score = "{}:{}".format(request.form["score"], request.form["score_%s" % request.form["score"]])
+    score = "{}:{}".format(request.form.get("score", ""), request.form.get("score_%s" % request.form.get("score", "")))
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
-    nrule.msg = request.form["msg"]
-    nrule.detection = request.form["detection"]
+    nrule.msg = request.form.get("msg", "")
+    nrule.detection = request.form.get("detection", "")
     nrule.mz = mz
     nrule.score = score
-    nrule.ruleset = request.form["ruleset"]
-    nrule.rmks = request.form["rmks"]
-    nrule.active = request.form["active"]
-    nrule.negative = request.form["negative"]
+    nrule.ruleset = request.form.get("ruleset", "")
+    nrule.rmks = request.form.get("rmks", "")
+    nrule.active = request.form.get("active", "")
+    nrule.negative = request.form.get("negative", "")
     nrule.timestamp = int(time())
     nrule.validate()
     if len(nrule.error):
