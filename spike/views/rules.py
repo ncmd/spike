@@ -202,7 +202,6 @@ def explain():
         _textual_rule = request.form["rule"]
         _rule = NaxsiRules()
         _rule.parse_rule(_textual_rule)
-        _rule.validate()
 
     return render_template("rules/sandbox.html", explaination=_rule.explaination(), rule=_rule)
 
@@ -221,6 +220,9 @@ def sandbox():
         print(_rule.detection)
         if _rule.detection.startswith('rx:'):
             return redirect('https://regexper.com/#' + _rule.detection[3:])
+    elif 'explain' in request.form:
+        return render_template("rules/sandbox.html", explaination=_rule.explaination(), rule=_rule)
+
 
     if len(_rule.error):
         flash("ERROR: {0}".format(",".join(_rule.error)))

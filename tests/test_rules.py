@@ -49,8 +49,8 @@ class FlaskrTestCase(unittest.TestCase):
     def test_index(self):
         rv = self.app.get('/', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
-        self.assertIn('<title>SPIKE! - WAF Rules Builder</title>', rv.data)
-        self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', rv.data) is not None)
+        self.assertIn('<title>SPIKE! - WAF Rules Builder</title>', str(rv.data))
+        self.assertTrue(re.search(r'<h2>Naxsi - Rules \( \d+ \)</h2>', str(rv.data)) is not None)
 
     def test_view(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
@@ -80,7 +80,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        self.assertIn(('<li> - OK: created %d : %s</li>' % (_rule.sid, _rule.msg)), rv.data)
+        self.assertIn(('<li> - OK: created %d : %s</li>' % (_rule.sid, _rule.msg)), str(rv.data))
         self.assertEqual(_rule.msg, data['msg'])
         self.assertEqual(_rule.detection, data['detection'])
         self.assertEqual(_rule.mz, data['mz'])
@@ -114,7 +114,7 @@ class FlaskrTestCase(unittest.TestCase):
 # %s
 #
 %s""" % (_rule.sid, rdate, rmks, str(_rule))
-        self.assertEqual(expected, rv.data)
+        self.assertEqual(expected, str(rv.data))
 
     def test_deact_rule(self):
         last_insert = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
@@ -145,8 +145,8 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.get('/rules/search/?s="OR 1=1;--')
         self.assertEqual(rv.status_code, 200)
-        self.assertIn('<input type="text" name="s" size="20" value="&#34;OR 1=1;--"', rv.data)
-        self.assertIn('<p><strong>Search: OR 11--</strong></p>', rv.data)  # filtered data
+        self.assertIn('<input type="text" name="s" size="20" value="&#34;OR 1=1;--"', str(rv.data))
+        self.assertIn('<p><strong>Search: OR 11--</strong></p>', str(rv.data))  # filtered data
 
         rv = self.app.get('/rules/search/?s=1337')  # get rule by id
         self.assertEqual(rv.status_code, 200)

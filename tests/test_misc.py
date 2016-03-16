@@ -3,7 +3,7 @@ try:
     from StringIO import StringIO
 except ImportError:  # python3
     from urllib.parse import urlparse
-    from io.StringIO import StringIO
+    from io import StringIO
 
 from spike import create_app
 from spike.model import db
@@ -22,7 +22,7 @@ class FlaskrTestCase(unittest.TestCase):
         pass
 
     def test_robotstxt(self):
-        assert self.app.get('/robots.txt').data == 'User-agent: *\n Disallow: /'
+        assert self.app.get('/robots.txt').data == b'User-agent: *\n Disallow: /'
 
     def test_redirect_root(self):
         rv = self.app.get('/', follow_redirects=False)
@@ -31,8 +31,8 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_download_db(self):
         with open('./spike/rules.db', 'rb') as f:
-            expected = StringIO(f.read())
+            expected = StringIO(str(f.read()))
         expected.seek(0)
         rv = self.app.get('/download')
-        assert rv.data == expected.read()
+        assert str(rv.data) == expected.read()
 

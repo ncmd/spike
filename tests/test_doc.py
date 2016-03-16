@@ -15,17 +15,17 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_index(self):
         rv = self.app.get('/docs', follow_redirects=True)
-        self.assertIn('<h2>Spike - Docs - Overview</h2>', rv.data)
+        self.assertIn('<h2>Spike - Docs - Overview</h2>', str(rv.data))
 
     def test_readme(self):
         rv = self.app.get('/docs/README.md', follow_redirects=True)
-        self.assertIn('Spike is a simple web application to manage', rv.data)
+        self.assertIn('Spike is a simple web application to manage', str(rv.data))
 
     def test_dynamic_doc(self):
         rv = self.app.get('/docs/docs.md', follow_redirects=True)
-        self.assertIn('<h2><a href="/docs">Spike - Docs</a></h2>', rv.data)
+        self.assertIn('<h2><a href="/docs">Spike - Docs</a></h2>', str(rv.data))
 
     def test_lfi(self):
         rv = self.app.get('/docs/../../../../etc/passwd', follow_redirects=True)
-        self.assertIn('<h2>Spike - Docs - Overview</h2>', rv.data)
-        self.assertNotIn('root:x:0:0:root:/root:', rv.data)
+        self.assertIn('<h2>Spike - Docs - Overview</h2>', str(rv.data))
+        self.assertNotIn('root:x:0:0:root:/root:', str(rv.data))

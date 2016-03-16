@@ -38,13 +38,13 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.get('/rulesets/plain', follow_redirects=True)
         for seed in rulesets_seeds:
-            self.assertIn(seed, rv.data)
+            self.assertIn(seed, str(rv.data))
 
         rv = self.app.get('/rulesets/plain/1', follow_redirects=True)
-        self.assertTrue(any(i for i in rulesets_seeds if i in rv.data))
+        self.assertTrue(any(i for i in rulesets_seeds if i in str(rv.data)))
 
         rv = self.app.get('/rulesets/plain/123456789', follow_redirects=True)
-        self.assertEqual(rv.data, '')
+        self.assertEqual(rv.data, b'')
 
         self.assertTrue(True)
 
@@ -90,7 +90,7 @@ class FlaskrTestCase(unittest.TestCase):
         _ruleset = NaxsiRules.query.first().ruleset
         rv = self.app.get('/rulesets/select/%s' % _ruleset)
         self.assertEqual(rv.status_code, 200)
-        self.assertIn(_ruleset, rv.data)
+        self.assertIn(_ruleset, str(rv.data))
 
         random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
         rv = self.app.get('/rulesets/select/%s' % random_name)

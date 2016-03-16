@@ -1,4 +1,5 @@
 from time import strftime, localtime
+import logging
 
 from spike.model import db
 from shlex import shlex
@@ -59,7 +60,7 @@ class NaxsiRules(db.Model):
         expl += 'setting the '
         scores = []
         for score in self.score.split(','):
-            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':')))
+            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':', 3)))
         expl += ', '.join(scores) + 'when it '
         if self.detection.startswith('str:'):
             expl += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
