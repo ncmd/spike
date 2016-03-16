@@ -87,6 +87,13 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(_rule, None)
 
     def test_select(self):
+        current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        current_sid = 1337 if current_sid is None else current_sid.sid + 1
+
+        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
+                                  u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+        db.session.commit()
+
         _ruleset = NaxsiRules.query.first().ruleset
         rv = self.app.get('/rulesets/select/%s' % _ruleset)
         self.assertEqual(rv.status_code, 200)
@@ -95,3 +102,5 @@ class FlaskrTestCase(unittest.TestCase):
         random_name = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16))
         rv = self.app.get('/rulesets/select/%s' % random_name)
         self.assertEqual(rv.status_code, 200)
+
+        db.session.delete(NaxsiRules.query.filter(current_sid == NaxsiRules.sid).first())

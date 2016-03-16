@@ -2,4 +2,12 @@
 branch = True
 omit = spike-server.py
     tests/*
+source = spike
 
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    *__init__*
+    spike-server.py
+    tests/*
