@@ -3,42 +3,44 @@
 
 
 {% block scripts %}
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/bootstrap.min.js') }}"></script>
 {% endblock %}
 
 
 {% block styles %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link href="{{ url_for('static', filename='fonts.css') }}" rel="stylesheet" media="screen"/>
-    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" media="screen"/>
-    <link href="{{ url_for('static', filename='appstyle.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='css/fonts.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen"/>
+    <link href="{{ url_for('static', filename='css/appstyle.css') }}" rel="stylesheet" media="screen"/>
 {% endblock %}
 
 
 {% block navbar %}
     <nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">Spike <img src="{{ url_for('static', filename='spike.png') }}"></a>
+            <a class="navbar-brand" href="/">
+                Spike <img src="{{ url_for('static', filename='spike.png') }}" alt="Spike logo">
+            </a>
         </div>
+
         <div class="collapse navbar-collapse navbar-collapse-top">
-            <div class="navbar-left">
-                <ul class="nav navbar-nav navbar-left">
-                    <li class="cdrops"><a href="{{ url_for('rules.index') }}">View Rules</a></li>
-                    <li class="cdrops"><a href="{{ url_for('rulesets.index') }}">Rulesets</a></li>
-                    <li class="cdrops"><a href="{{ url_for('rules.new') }}">New rule</a></li>
-                    <li class="dropdown cdrop">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('default.download') }}">Download database</a></li>
-                            <li><a href="{{ url_for('docs.index') }}">Documentation</a></li>
-                            <li><a href="https://github.com/nbs-system/spike" target="_blank">About Spike </a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="{{ url_for('rules.index') }}">View Rules</a></li>
+                <li><a href="{{ url_for('rulesets.index') }}">Rulesets</a></li>
+                <li><a href="{{ url_for('rules.new') }}">New rule</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('default.download') }}">Download database</a></li>
+                        <li><a href="{{ url_for('docs.index') }}">Documentation</a></li>
+                        <li><a href="https://github.com/nbs-system/spike" target="_blank">About Spike</a></li>
+                    </ul>
+                </li>
+            </ul>
+
             <div class="navbar-right">
-                <form class="navbar-form navbar-left" action="{{ url_for('rules.search') }}" method="get">
+                <form class="navbar-form" action="{{ url_for('rules.search') }}" method="get">
                     <div class="form-group">
                         <input type="text" name="s" size="20" value="{{ lsearch }}" placeholder="Keyword or rule id">
                         <input type="submit" class="btn btn-primary btn-sm" value="Search">
@@ -48,14 +50,13 @@
         </div>
     </nav>
 
-
 {% endblock %}
 
 
 {% block content %}
-
     <div class="main-content">
         <div class="row"><br><br><br></div>
+
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-10">
@@ -68,8 +69,10 @@
                         </ul>
                     {% endif %}
                 {% endwith %}
+
                 {% block main %}
                 {% endblock %}
+
             </div>
         </div>
 
@@ -77,8 +80,8 @@
             <div class="container" align="center">
                 <hr>
                 Copyright 2011-2013 <a href="https://www.mare-system.de/" target="_blank">mare system</a>,
-                2014-2015 <a href="https://8ack.de/corporate">8ack </a>,
-                2016 <a href="https://nbs-system.com">NBS-System</a>
+                2014-2015 <a href="https://8ack.de/corporate" target="_blank">8ack</a>,
+                2016 <a href="https://nbs-system.com" target="_blank">NBS-System</a>
                 <br/>
                 Version: {{ version }} -- Logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
                 <hr>

@@ -5,17 +5,7 @@
 
     <h2>RuleSet - {{ r.name }}</h2>
 
-    <table class="table table-condensed table-stripped">
-
-        <tr>
-            <td>
-
-                <textarea cols="90" rows="30">{{ rout }}</textarea>
-
-            </td>
-        </tr>
-
-    </table>
+    <textarea cols="90" rows="30" title="{{ r.id }}">{{ rout }}</textarea>
 
 {% endblock main %}
 

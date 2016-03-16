@@ -67,7 +67,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         data = {
             'msg': 'this is a test message',
-            'detection': 'DETECTION',
+            'detection': 'str:DETECTION',
             'mz': 'BODY',
             'custom_mz_val': '',
             'negative': 'checked',

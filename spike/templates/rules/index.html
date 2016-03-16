@@ -5,33 +5,29 @@
 
     <h2>Naxsi - Rules ( {{ rules | length }} )</h2>
     <p><strong>{{ selection }}</strong></p>
-    <table class="table table-condensed table-stripped">
-        <thead>
-            <tr>
-                <th class="col-md-2">Id</th>
-                <th class="col-md-4">Rule</th>
-                <th class="col-md-pull-2">Edit</th>
-            </tr>
-        </thead>
-        {% for rule in rules %}
-            {% if rule.active != 1 %}
-                <tr bgcolor="grey">
-                    {% else %}
-                <tr id="{{ rule.sid }}">
-            {% endif %}
-        <td valign="top"><h4><a href="/rules/edit/{{ rule.sid }}">{{ rule.sid }}</a></h4></td>
-        <td><h4><a href="/rules/edit/{{ rule.sid }}">{{ rule.msg }}</a></h4>
-            Detection: {{ rule.detection }}
 
-        </td>
-        <td>
-            <a href="/rules/edit/{{ rule.sid }}" class="btn btn-primary" title="Edit Rule">Edit</a>
-            <a href="/rules/view/{{ rule.sid }}" class="btn btn-primary" title="View Rule">View</a>
-            <a href="/rules/plain/{{ rule.sid }}" class="btn btn-primary" title="View Rule">Plain</a>
-        </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <hr>
+
+    {% for rule in rules %}
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>{{ rule.msg }}</h5>
+            </div>
+
+            <div class="col-md-2">
+                <h5>{{ rule.detection }}</h5>
+            </div>
+
+            <div class="col-md-8">
+                <div class="btn-toolbar" role="toolbar">
+                    <a href="/rules/edit/{{ rule.sid }}" class="btn btn-info" title="Edit Rule">Edit</a>
+                    <a href="/rules/view/{{ rule.sid }}" class="btn btn-default" title="View Rule">View</a>
+                    <a href="/rules/plain/{{ rule.sid }}" class="btn btn-default" title="View Rule">Plain</a>
+                    <a href="/rules/del/{{ rule.sid }}" class="btn btn-danger" title="View Rule">Delete</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 
 {% endblock main %}
 

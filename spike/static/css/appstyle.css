@@ -8,3 +8,6 @@
   max-width: 300px;
   min-width: 220px;
  }
+
+.top-buffer1 { margin-top:10px; }
+.top-buffer2 { margin-top:20px; }

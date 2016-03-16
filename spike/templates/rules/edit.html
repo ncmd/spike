@@ -2,134 +2,172 @@
 {% block title %}Edit {{ rules_info.sid }} {% endblock %}
 
 {% block main %}
-    {% if rules_info.active == 0 %}
-        <br><div class="deactivated">
-    {% endif %}
 
-    <h3>
-        <a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.sid }} - {{ rules_info.msg }}</a>
-        <a href="/rules/view/{{ rules_info.sid }}" class="btn btn-lg btn-primary">View Rule</a>
-    </h3>
+    <h3><a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.msg }}</a></h3>
+
     <form action="/rules/save/{{ rules_info.sid }}" method="POST">
 
-    <table class="table table-condensed table-stripped">
-        <tr>
-            <td>SID:</td>
-            <td>
-                <input type="hidden" name="sid" value="{{ rules_info.sid }}">
-                <input type="hidden" name="active" value="{{ rules_info.active }}">
-                {{ rules_info.sid }}
-            </td>
-        </tr>
-        <tr>
-            <td>Msg:</td>
-            <td><input type="text" name="msg" size="60" placeholder="Message" value="{{ rules_info.msg }}" required>
-            </td>
-        </tr>
-        <tr>
-            <td>Detect :</td>
-            <td><input type="text" name="detection" size="60" placeholder="str|rx" value="{{ rules_info.detection }}"
-                       required></td>
-        </tr>
-        <tr>
-            <td> MZ:</td>
-            <td>
-                <table>
-                    <tr>
-                        <td>
-                            {% set rmz = rules_info.mz | mzsplit %}
-                            {% set dmz = [] %}
-                            {% for z in mz %}
-                                <input type="checkbox" name="mz" value="{{ z }}"
-                                        {% if z in rmz %}
-                                            {% if dmz.append(z) %} {% endif %}
-                                       checked> <strong> {{ z }}</strong>
-                                        {% else %}
-                                            > {{ z }}
-                                        {% endif %}
-                                <br>
-                            {% endfor %}
-                            {% for r in rmz %}
-                                {% if r not in dmz %}
-                                    {% if r != "custom" %}
-                                        <input type="checkbox" name="mz" value="{{ r }}" checked>
-                                        <strong>{{ r }} </strong><br>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                            <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}>
-                            <input type="text" name="custom_mz_val" value="{{ custom_mz }}" placeholder="Custom MZ"
-                                   size="35"><br>
-                        </td>
-                        <td valign="top"></td>
-                        <td valign="top">
-                            <strong>Score</strong> <br>
-                            {% for s in score %}
-                                {% set sc,sv = rules_info.score | scoresplit %}
-                                {% if s  == sc %}
-                                    <input type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
-                                {% else %}
-                                    <input type="text" name="score_{{ s }}" value="8" size="3">
-                                {% endif %}
-                                <input type="checkbox" name="score" value="{{ s }}"
-                                        {% if s.value  == sc %}
-                                            checked> <strong> {{ s }}</strong>
-                                        {% else %}
-                                            > {{ s }}
-                                        {% endif %}
-                                <br>
-                            {% endfor %}
-                            <hr>
-                            <strong>Negative</strong> <br>
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>SID</h5>
+        </div>
 
-                            <input type="checkbox" id="on" name="negative" value="checked"
-                                    {% if rules_info.negative == 1 %} checked {% endif %}> On
-
-
-                        </td>
-                    </tr>
-
-                </table>
-            </td>
-        </tr>
-
-
-        <tr>
-            <td>Remarks</td>
-            <td>
-                <textarea cols="60" rows="10" name="rmks">{{ rules_info.rmks }}</textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>RuleSet</td>
-            <td>
-                <select name="ruleset">
-                    {% for r in rulesets %}
-                        <option value="{{ r.name }}"
-                                {% if r.name  == rules_info.ruleset %} selected {% endif %}>
-                        {{ r.name }} <br>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>
-                <button type="submit" class="btn btn-success btn-lg">Save Rule</button>
-                <a href="/rulesets/select/{{ rules_info.ruleset }}" class="btn btn-primary btn-lg">View Ruleset</a>
-                {% if rules_info.active == 0 %}
-                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success btn-lg">Activate Rule</a>
-                {% else %}
-                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-warning btn-lg">Deactivate Rule</a>
-                {% endif %}
-                <a href="/rules/del/{{ rules_info.sid }}" class="btn btn-danger btn-lg">Delete Rule</a>
-            </td>
-        </tr>
-    </table>
-</form>
-{% if rules_info.active == 0 %}
+        <div class="col-md-6">
+            <input type="hidden" name="sid" value="{{ rules_info.sid }}">
+            <input type="hidden" name="active" value="{{ rules_info.active }}">
+            {{ rules_info.sid }}
+        </div>
     </div>
-{% endif %}
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Active</h5>
+        </div>
+
+        <div class="col-md-6">
+            {% if rules_info.active == 0 %}
+                no <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                {% else %}
+                yes <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Message</h5>
+        </div>
+
+        <div class="col-md-6">
+            <input type="text" name="msg" placeholder="Message" value="{{ rules_info.msg }}" required size="60">
+        </div>
+    </div>
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Detect</h5>
+        </div>
+
+        <div class="col-md-6">
+            <input type="text" name="detection" placeholder="str|rx" value="{{ rules_info.detection }}" required size="60">
+        </div>
+    </div>
+
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Matchzone</h5>
+        </div>
+
+        <div class="col-md-6">  <!-- FIXME This part is a fucking mess -->
+            {% set dmz = [] %}
+            {% for z in mz %}
+                <input type="checkbox" name="mz" value="{{ z }}"
+                        {% if z in rules_info.mz | mzsplit %}
+                            {% if dmz.append(z) %}
+                            {% endif %}
+                       checked> <strong> {{ z }}</strong>
+                        {% else %}
+                            > {{ z }}
+                        {% endif %}
+                <br>
+            {% endfor %}
+
+            {% for r in rules_info.mz | mzsplit %}
+                {% if r not in dmz %}
+                    {% if r != "custom" %}
+                        <input type="checkbox" name="mz" value="{{ r }}" checked>
+                        <strong>{{ r }} </strong><br>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}>
+            <input type="text" name="custom_mz_val" value="{{ custom_mz }}" placeholder="Custom MZ" size="60">
+        </div>
+    </div>
+
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Score</h5>
+        </div>
+
+        <div class="col-md-6">
+            {% for s in score %}
+                {% set sc,sv = rules_info.score | scoresplit %}
+                {% if s  == sc %}
+                    <input type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
+                {% else %}
+                    <input type="text" name="score_{{ s }}" value="8" size="3">
+                {% endif %}
+                <input type="checkbox" name="score" value="{{ s }}"
+                    {% if s.value  == sc %}
+                        checked> <strong> {{ s }}</strong>
+                    {% else %}
+                        > {{ s }}
+                    {% endif %}
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Negative</h5>
+        </div>
+
+        <div class="col-md-6">
+            <input type="checkbox" id="on" name="negative" value="checked"
+                    {% if rules_info.negative == 1 %} checked {% endif %} title="negative"> On
+        </div>
+    </div>
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Remarks</h5>
+        </div>
+
+        <div class="col-md-6">
+            <textarea cols="60" rows="10" name="rmks" title="remarks">{{ rules_info.rmks }}</textarea>
+        </div>
+    </div>
+
+
+    <div class="row top-buffer1">
+        <div class="col-md-1">
+            <h5>Ruleset</h5>
+        </div>
+
+        <div class="col-md-6">
+            <select name="ruleset" title="ruleset">
+                {% for r in rulesets %}
+                    <option value="{{ r.name }}"
+                        {% if r.name  == rules_info.ruleset %}
+                            selected
+                        {% endif %}
+                    > {{ r.name }}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row top-buffer1">
+        <div class="col-md-7">
+            <div class="btn-toolbar" role="toolbar">
+                <button type="submit" class="btn btn-success">Save Rule</button>
+                <a href="/rulesets/select/{{ rules_info.ruleset }}" class="btn btn-primary">View Ruleset</a>
+
+                {% if rules_info.active == 0 %}
+                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success">Activate Rule</a>
+                {% else %}
+                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-warning">Deactivate Rule</a>
+                {% endif %}
+
+                <a href="/rules/del/{{ rules_info.sid }}" class="btn btn-danger">Delete Rule</a>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock %}
 
