@@ -51,38 +51,38 @@ class NaxsiRules(db.Model):
             negate, self.detection, self.msg, self.mz, self.score, self.sid)
 
     def validate(self):
-        self.p_mz(self.mz)
-        self.p_id(self.sid)
-        self.p_detection(self.detection)
+        self.__validate_matchzone(self.mz)
+        self.__validate_id(self.sid)
+        self.__validate_detection(self.detection)
 
         if not self.msg:
             self.warnings.append("Rule has no 'msg:'.")
         if not self.score:
             self.error.append("Rule has no score.")
 
-    def fail(self, msg):
+    def __fail(self, msg):
         self.error.append(msg)
         return False
 
     # Bellow are parsers for specific parts of a rule
-    def p_dummy(self, s, assign=False):
+    def __validate_dummy(self, s, assign=False):
         return True
 
-    def p_detection(self, p_str, assign=False):
+    def __validate_detection(self, p_str, assign=False):
         if not p_str.startswith("str:") and not p_str.startswith("rx:"):
-            self.fail("detection {} is neither rx: or str:".format(p_str))
+            self.__fail("detection {} is neither rx: or str:".format(p_str))
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
         if assign is True:
             self.detection = p_str
         return True
 
-    def p_genericstr(self, p_str, assign=False):
+    def __validate_genericstr(self, p_str, assign=False):
         if p_str and not p_str.islower():
             self.warnings.append("Pattern ({0}) is not lower-case.".format(p_str))
         return True
 
-    def p_mz(self, p_str, assign=False):
+    def __validate_matchzone(self, p_str, assign=False):
         has_zone = False
         mz_state = set()
         locs = p_str.split('|')
@@ -90,15 +90,15 @@ class NaxsiRules(db.Model):
             keyword, arg = loc, None
             if loc.startswith("$"):
                 if loc.find(":") == -1:
-                    return self.fail("Missing 2nd part after ':' in {0}".format(loc))
+                    return self.__fail("Missing 2nd part after ':' in {0}".format(loc))
                 keyword, arg = loc.split(":")
             # check it is a valid keyword
             if keyword not in self.sub_mz:
-                return self.fail("'{0}' no a known sub-part of mz : {1}".format(keyword, self.sub_mz))
+                return self.__fail("'{0}' no a known sub-part of mz : {1}".format(keyword, self.sub_mz))
             mz_state.add(keyword)
             # verify the rule doesn't attempt to target REGEX and STATIC _VAR/URL at the same time
             if len(self.rx_mz & mz_state) and len(self.static_mz & mz_state):
-                return self.fail("You can't mix static $* with regex $*_X ({})".format(str(mz_state)))
+                return self.__fail("You can't mix static $* with regex $*_X ({})".format(str(mz_state)))
             # just a gentle reminder
             if arg and arg.islower() is False:
                 self.warnings.append("{0} in {1} is not lowercase. naxsi is case-insensitive".format(arg, loc))
@@ -106,12 +106,12 @@ class NaxsiRules(db.Model):
             if keyword not in ["$URL", "$URL_X"] and keyword in (self.rx_mz | self.full_zones | self.static_mz):
                 has_zone = True
         if has_zone is False:
-            return self.fail("The rule/whitelist doesn't target any zone.")
+            return self.__fail("The rule/whitelist doesn't target any zone.")
         if assign is True:
             self.mz = p_str
         return True
 
-    def p_id(self, p_str, assign=False):
+    def __validate_id(self, p_str, assign=False):
         try:
             num = int(p_str)
             if num < 10000:
@@ -126,11 +126,9 @@ class NaxsiRules(db.Model):
     @staticmethod
     def splitter(s):
         lexer = shlex(s)
-        lexer.quotes = '"\''
         lexer.whitespace_split = True
         items = list(iter(lexer.get_token, ''))
-        return ([i for i in items if i[0] in "\"'"] +
-                [i for i in items if i[0] not in "\"'"])
+        return items
 
     def parse_rule(self, full_str):
         """
@@ -138,44 +136,39 @@ class NaxsiRules(db.Model):
         :param full_str: raw rule
         :return: [True|False, dict]
         """
-        func_map = {"id:": self.p_id, "str:": self.p_genericstr,
-                    "rx:": self.p_genericstr, "msg:": self.p_dummy, "mz:": self.p_mz,
-                    "negative": self.p_dummy, "s:": self.p_dummy}
+        func_map = {"id:": self.__validate_id, "str:": self.__validate_genericstr,
+                    "rx:": self.__validate_genericstr, "msg:": self.__validate_dummy, "mz:": self.__validate_matchzone,
+                    "negative": self.__validate_dummy, "s:": self.__validate_dummy}
         ret = False
         split = self.splitter(full_str)  # parse string
-        sect = set(self.mr_kw) & set(split)
+        intersection = set(split).intersection(set(self.mr_kw))
 
-        if len(sect) != 1:
-            return self.fail("no (or multiple) mainrule/basicrule keyword.")
+        if len(intersection) != 1:
+            return self.__fail("no (or multiple) mainrule/basicrule keyword.")
 
-        split.remove(sect.pop())
+        split.remove(intersection[0])  # remove the mainrule/basicrule keyword
 
         if ";" in split:
             split.remove(";")
 
-        while True:  # iterate while there is data, as handlers can defer
-
-            if not split:  # we are done
-                break
-
+        while split:  # iterate while there is data, as handlers can defer
             for keyword in split:
                 orig_kw = keyword
                 keyword = keyword.strip()
 
-                # clean-up quotes or semicolon
-                if keyword.endswith(";"):
+                if keyword.endswith(";"):  # remove semi-colons
                     keyword = keyword[:-1]
-                if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):
+                if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):  # remove (double-)quotes
                     keyword = keyword[1:-1]
                 for frag_kw in func_map:
                     ret = False
                     if keyword.startswith(frag_kw):
                         # parser funcs returns True/False
                         ret = func_map[frag_kw](keyword[len(frag_kw):])
-                        if ret is False:
-                            return self.fail("parsing of element '{0}' failed.".format(keyword))
                         if ret is True:
                             split.remove(orig_kw)
+                        else:
+                            return self.__fail("parsing of element '{0}' failed.".format(keyword))
                         break
                 # we have an item that wasn't successfully parsed
                 if orig_kw in split and ret is not None:
