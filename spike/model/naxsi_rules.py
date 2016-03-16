@@ -117,7 +117,7 @@ class NaxsiRules(db.Model):
             if num < 10000:
                 self.warnings.append("rule IDs below 10k are reserved ({0})".format(num))
         except ValueError:
-            self.error.append("id:{0} is not numeric".format(s))
+            self.error.append("id:{0} is not numeric".format(p_str))
             return False
         if assign is True:
             self.sid = num
@@ -141,7 +141,7 @@ class NaxsiRules(db.Model):
         func_map = {"id:": self.p_id, "str:": self.p_genericstr,
                     "rx:": self.p_genericstr, "msg:": self.p_dummy, "mz:": self.p_mz,
                     "negative": self.p_dummy, "s:": self.p_dummy}
-
+        ret = False
         split = self.splitter(full_str)  # parse string
         sect = set(self.mr_kw) & set(split)
 
