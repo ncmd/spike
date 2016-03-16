@@ -17,9 +17,8 @@ def __render_md(md_file):
     :param str md_file: Path to a markdown file
     :return str: html rendering of the `md_file` markdown file
     """
-    ret = StringIO()
-    markdown.markdownFromFile(input=md_file, output=ret, encoding='utf-8')
-    return ret.getvalue()
+    with open(md_file) as f:
+        return markdown.markdown(f.read())
 
 
 @docs.route("/")
