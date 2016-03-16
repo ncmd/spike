@@ -20,7 +20,6 @@ class NaxsiRules(db.Model):
     negative = db.Column(db.Integer, nullable=False, server_default='0')
     timestamp = db.Column(db.Integer, nullable=False)
 
-
     mr_kw = ["MainRule", "BasicRule", "main_rule", "basic_rule"]
     static_mz = {"$ARGS_VAR", "$BODY_VAR", "$URL", "$HEADERS_VAR"}
     full_zones = {"ARGS", "BODY", "URL", "HEADERS", "FILE_EXT", "RAW_BODY"}
@@ -50,6 +49,33 @@ class NaxsiRules(db.Model):
         negate = 'negative' if self.negative == 1 else ''
         return 'MainRule {} "{}" "msg:{}" "mz:{}" "s:{}" id:{} ;'.format(
             negate, self.detection, self.msg, self.mz, self.score, self.sid)
+
+    def explaination(self):
+        """ Return a string explainign a rule """
+        assoc = {'ARGS': 'request arguments', 'BODY': 'body', 'URL': 'url'}
+        expl = 'The rule number <strong>%d</strong> is ' % self.sid
+        if self.negative:
+            expl += '<strong>not</strong> '
+        expl += 'setting the '
+        scores = []
+        for score in self.score.split(','):
+            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':')))
+        expl += ', '.join(scores) + 'when it '
+        if self.detection.startswith('str:'):
+            expl += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
+        else:
+            expl += 'matches the regexp <strong>{}</strong> '.format(self.detection[3:])
+        expl += 'in '
+        zones = []
+        for mz in self.mz.split('|'):
+            if mz.startswith('$'):
+                if mz.lower().startswith('headers_var:cookie'):
+                    zones.append('the cookies')
+                else:
+                    zones.append('the {0}, in the [1} field'.format(*mz.split(':')))
+            else:
+                zones.append('the <strong>{0}</strong>'.format(assoc[mz]))
+        return expl + ', '.join(zones) + '.'
 
     def validate(self):
         self.__validate_matchzone(self.mz)

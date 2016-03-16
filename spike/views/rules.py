@@ -187,14 +187,41 @@ def deact(sid):
     return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)
 
 
+@rules.route("/explain/", methods=["GET"])
+def explain():
+    rule = request.args.get('rule', '')
+
+    if not rule:
+        return redirect("/rules/")
+    elif rule.isdigit():  # explain a rule by id
+        _rule = NaxsiRules.query.filter(NaxsiRules.sid == rule).first()
+        if _rule is None:
+            flash('Not rule with id %d' % rule)
+            return redirect("/rules/")
+    else:
+        _textual_rule = request.form["rule"]
+        _rule = NaxsiRules()
+        _rule.parse_rule(_textual_rule)
+        _rule.validate()
+
+    return render_template("rules/sandbox.html", explaination=_rule.explaination(), rule=_rule)
+
+
 @rules.route("/sandbox/", methods=["GET", "POST"])
 def sandbox():
-    if request.method == 'GET':
+    if request.method == 'GET' or not request.form.get("rule", '') :
         return render_template("rules/sandbox.html")
+
     _textual_rule = request.form["rule"]
     _rule = NaxsiRules()
     _rule.parse_rule(_textual_rule)
     _rule.validate()
+
+    if 'visualise' in request.form:
+        print(_rule.detection)
+        if _rule.detection.startswith('rx:'):
+            return redirect('https://regexper.com/#' + _rule.detection[3:])
+
     if len(_rule.error):
         flash("ERROR: {0}".format(",".join(_rule.error)))
     if len(_rule.warnings):

@@ -22,7 +22,8 @@
                 <div class="btn-toolbar" role="toolbar">
                     <a href="/rules/edit/{{ rule.sid }}" class="btn btn-info" title="Edit Rule">Edit</a>
                     <a href="/rules/view/{{ rule.sid }}" class="btn btn-default" title="View Rule">View</a>
-                    <a href="/rules/plain/{{ rule.sid }}" class="btn btn-default" title="View Rule">Plain</a>
+                    <a href="/rules/explain/?rule={{ rule.sid }}" class="btn btn-default" title="View Rule">Explain</a>
+                    <a href="/rules/plain/{{ rule.sid }}" class="btn btn-default" title="Plain Rule">Plain</a>
                     <a href="/rules/del/{{ rule.sid }}" class="btn btn-danger" title="View Rule">Delete</a>
                 </div>
             </div>
