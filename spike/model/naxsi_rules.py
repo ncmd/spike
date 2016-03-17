@@ -190,8 +190,8 @@ class NaxsiRules(db.Model):
         return True
 
     @staticmethod
-    def splitter(s):
-        lexer = shlex(s)
+    def splitter(full_str):
+        lexer = shlex(full_str)
         lexer.whitespace_split = True
         return list(iter(lexer.get_token, ''))
 

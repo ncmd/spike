@@ -6,7 +6,6 @@ from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
-from .rules import __get_textual_representation_rule
 
 rulesets = Blueprint('rulesets', __name__)
 
@@ -85,7 +84,8 @@ def __get_rules_for_ruleset(ruleset):
     nxruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == ruleset.name).first()
     db.session.add(nxruleset)
     db.session.commit()
-    text_rules = ''.join(map(__get_textual_representation_rule, _rules))
+
+    text_rules = ''.join([r.fullstr() for r in _rules])
 
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", ruleset.name)

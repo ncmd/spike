@@ -97,7 +97,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(_sid, NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
 
-
     def test_del_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
@@ -179,11 +178,15 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_parse_rule(self):
         rule_parser = NaxsiRules()
-        rv = rule_parser.parse_rule("""MainRule "rx:select|union|update|delete|insert|table|from|ascii|hex|unhex|drop" "msg:sql keywords" "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:4" id:1000;""")
+        rv = rule_parser.parse_rule('MainRule "rx:select|union|update|delete|insert|table|from|ascii|hex|unhex|drop"'
+                                    '"msg:sql keywords" "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:4" id:1000;')
         self.assertEqual(rv, True)
 
-        self.assertEqual(rule_parser.warnings, ['Cookie in $HEADERS_VAR:Cookie is not lowercase. naxsi is case-insensitive', 'rule IDs below 10k are reserved (1000)'])
-        rv = rule_parser.parse_rule("""BasicRule "rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$" id:4200001 "s:$SQL:8";""")
+        self.assertEqual(rule_parser.warnings,
+                         ['Cookie in $HEADERS_VAR:Cookie is not lowercase. naxsi is case-insensitive',
+                          'rule IDs below 10k are reserved (1000)'])
+        rv = rule_parser.parse_rule('BasicRule "rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$"'
+                                    'id:4200001 "s:$SQL:8";')
         self.assertEqual(rv, False)
         self.assertIn('$BODY_VAR_X', str(rule_parser.error))
         self.assertIn('$URL', str(rule_parser.error))

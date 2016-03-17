@@ -30,7 +30,7 @@ def plain(sid):
         flash("no rules found, please create one", "error")
         return redirect("/rules/new")
 
-    return Response(__get_textual_representation_rule(_rule), mimetype='text/plain')
+    return Response(_rule.fullstr(), mimetype='text/plain')
 
 
 @rules.route("/view/<int:sid>", methods=["GET"])
@@ -40,7 +40,7 @@ def view(sid):
         flash("no rules found, please create one", "error")
         return redirect("/rules/")
 
-    return render_template("rules/view.html", rule=_rule, rtext=__get_textual_representation_rule(_rule, full=0))
+    return render_template("rules/view.html", rule=_rule, rtext=_rule)
 
 
 @rules.route("/search/", methods=["GET"])
@@ -83,10 +83,17 @@ def new():
     # create new rule
     logging.debug('Posted new request: %s', request.form)
     mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
-    score = "{}:{}".format(request.form.get("score", ""), request.form.get("score_%s" % request.form.get("score", ""), ""))
-    nrule = NaxsiRules(request.form.get("msg", ""), request.form.get("detection", ""), mz, score, sid, request.form.get("ruleset", ""),
-                       request.form.get("rmks", ""), "1", request.form.get("negative", ""), int(time()))
+
+    score = request.form.get("score", "")
+    score += ':'
+    score += request.form.get("score_%s" % request.form.get("score", ""), "")
+
+    nrule = NaxsiRules(request.form.get("msg", ""), request.form.get("detection", ""), mz, score, sid,
+                       request.form.get("ruleset", ""), request.form.get("rmks", ""), "1",
+                       request.form.get("negative", ""), int(time()))
+
     nrule.validate()
+
     if len(nrule.error):
         flash("ERROR: {0}".format(",".join(nrule.error)))
         return redirect("/rules/new")
@@ -207,7 +214,7 @@ def explain():
 
 @rules.route("/sandbox/", methods=["GET", "POST"])
 def sandbox():
-    if request.method == 'GET' or not request.form.get("rule", '') :
+    if request.method == 'GET' or not request.form.get("rule", ''):
         return render_template("rules/sandbox.html")
 
     _textual_rule = request.form["rule"]
@@ -227,10 +234,3 @@ def sandbox():
     if len(_rule.warnings):
         flash("WARNINGS: {0}".format(",".join(_rule.warnings)))
     return render_template("rules/sandbox.html")
-
-
-def __get_textual_representation_rule(rule, full=1):
-    if full == 1:
-        return rule.fullstr()
-    else:
-        return str(rule)
