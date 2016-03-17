@@ -111,11 +111,23 @@ class NaxsiRules(db.Model):
         p_str = label + p_str
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
-        if p_str.startswith("str:") or p_str.startswith("rx:"):
-            if assign is True:
-                self.detection = p_str
+
+        if p_str.startswith("str:"):  # no further validation on strings
+            pass
+        elif p_str.startswith("rx:"):
+            try:  # try to validate the regex with PCRE's python bindings
+                import pcre
+                try:  # if we can't compile the regex, it's likely invalid
+                    pcre.compile(p_str[3:])
+                except pcre.PCREError:
+                    return self.__fail("{} is not a valid regex:".format(p_str))
+            except ImportError:  # python-pcre is an optional dependency
+                pass
         else:
             return self.__fail("detection {} is neither rx: or str:".format(p_str))
+
+        if assign is True:
+            self.detection = p_str
         return True
 
     def __validate_genericstr(self, p_str, label="", assign=False):
@@ -150,7 +162,7 @@ class NaxsiRules(db.Model):
             if len(self.rx_mz & mz_state) and len(self.static_mz & mz_state):
                 return self.__fail("You can't mix static $* with regex $*_X ({})".format(', '.join(mz_state)))
 
-            if arg and not arg.islower(): # just a gentle reminder
+            if arg and not arg.islower():  # just a gentle reminder
                 self.warnings.append("{0} in {1} is not lowercase. naxsi is case-insensitive".format(arg, loc))
 
             # the rule targets an actual zone

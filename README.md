@@ -37,16 +37,17 @@ You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live 
 
 To run, spike needs:
 
-- python
-- python-sqlite
-- sqlalchemy
-- wtforms
-- markdown
-- flask
-- flask-wtf
-- flask-bootstrap
-- flask-sqlalchemy
+- `python`
+- `python-sqlite`
+- `sqlalchemy`
+- `markdown`
+- `flask`
+- `flask-bootstrap`
+- `flask-sqlalchemy`
 
+You can also install the following optional dependencies:
+
+- `python-pcre` for regexp validation
 
 ### Setup
 
