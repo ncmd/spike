@@ -90,6 +90,13 @@ class FlaskrTestCase(unittest.TestCase):
         db.session.delete(_rule)
         db.session.commit()
 
+        # Try to insert an invalid rule
+        _sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid
+        data['detection'] = 'this string does not start with "str:" or "rx:", sorry'
+        rv = self.app.post('/rules/new', data=data)
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(_sid, NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
+
     def test_del_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
@@ -101,6 +108,19 @@ class FlaskrTestCase(unittest.TestCase):
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         self.assertEqual(_rule.sid, _rule.sid)
+
+    def test_explain_rule(self):
+        rv = self.app.get('/rules/explain/')
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(urlparse(rv.location).path, '/rules/')
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid + 1), follow_redirects=True)
+        self.assertIn('Not rule with id {0}'.format(_rule.sid + 1), str(rv.data))
+
+        rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid))
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(_rule.explaination(), str(rv.data))
 
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()

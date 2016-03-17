@@ -190,13 +190,12 @@ def deact(sid):
 @rules.route("/explain/", methods=["GET"])
 def explain():
     rule = request.args.get('rule', '')
-
     if not rule:
         return redirect("/rules/")
     elif rule.isdigit():  # explain a rule by id
         _rule = NaxsiRules.query.filter(NaxsiRules.sid == rule).first()
         if _rule is None:
-            flash('Not rule with id %d' % rule)
+            flash('Not rule with id %s' % rule)
             return redirect("/rules/")
     else:
         _textual_rule = request.form["rule"]
