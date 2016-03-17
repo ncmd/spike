@@ -231,31 +231,28 @@ class NaxsiRules(db.Model):
         if ";" in split:
             split.remove(";")
 
-        while split:  # iterate while there is data, as handlers can defer
-            for keyword in split:
-                orig_kw = keyword
-                keyword = keyword.strip()
+        for keyword in split:
+            keyword = keyword.strip()
 
-                if keyword.endswith(";"):  # remove semi-colons
-                    keyword = keyword[:-1]
-                if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):  # remove (double-)quotes
-                    keyword = keyword[1:-1]
+            if keyword.endswith(";"):  # remove semi-colons
+                keyword = keyword[:-1]
+            if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):  # remove (double-)quotes
+                keyword = keyword[1:-1]
 
-                parsed = False
-                for frag_kw in func_map:
-                    if keyword.startswith(frag_kw):  # use the right parser
-                        function = func_map[frag_kw]
-                        if frag_kw in ('rx:', 'str:'):  # don't remove the leading "str:" or "rx:"
-                            payload = keyword
-                        else:
-                            payload = keyword[len(frag_kw):]
+            parsed = False
+            for frag_kw in func_map:
+                if keyword.startswith(frag_kw):  # use the right parser
+                    if frag_kw in ('rx:', 'str:'):  # don't remove the leading "str:" or "rx:"
+                        payload = keyword
+                    else:
+                        payload = keyword[len(frag_kw):]
 
-                        if function(payload, assign=True) is True:
-                            parsed = True
-                            split.remove(orig_kw)
-                            break
-                        return self.__fail("parsing of element '{0}' failed.".format(keyword))
+                    function = func_map[frag_kw]  # we're using an array of functions, C style!
+                    if function(payload, assign=True) is True:
+                        parsed = True
+                        break
+                    return self.__fail("parsing of element '{0}' failed.".format(keyword))
 
-                if parsed is False:  # we have an item that wasn't successfully parsed
-                    return self.__fail("'{}' is an invalid element and thus can not be parsed.".format(keyword))
+            if parsed is False:  # we have an item that wasn't successfully parsed
+                return self.__fail("'{}' is an invalid element and thus can not be parsed.".format(keyword))
         return True
