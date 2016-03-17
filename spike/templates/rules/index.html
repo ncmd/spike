@@ -10,15 +10,15 @@
 
     {% for rule in rules %}
         <div class="row top-buffer1">
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <h5>{{ rule.msg }}</h5>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <h5>{{ rule.detection }}</h5>
             </div>
 
-            <div class="col-md-8">
+            <div class="col-md-7">
                 <div class="btn-toolbar" role="toolbar">
                     <a href="/rules/edit/{{ rule.sid }}" class="btn btn-info" title="Edit Rule">Edit</a>
                     <a href="/rules/view/{{ rule.sid }}" class="btn btn-default" title="View Rule">View</a>

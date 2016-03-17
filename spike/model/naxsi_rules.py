@@ -71,6 +71,7 @@ class NaxsiRules(db.Model):
         for mz in self.mz.split('|'):
             if mz.startswith('$'):
                 zone,arg = mz.split(":")
+                zone_name = "?"
                 for tmpzone in assoc:
                     if tmpzone in zone:
                         zone_name = assoc[tmpzone]
@@ -104,13 +105,11 @@ class NaxsiRules(db.Model):
         p_str = label + p_str
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
-        if assign is False:
-            return True
         if p_str.startswith("str:") or p_str.startswith("rx:"):
-            self.detection = p_str
+            if assign is True:
+                self.detection = p_str
         else:
             return self.__fail("detection {} is neither rx: or str:".format(p_str))
-
         return True
 
     def __validate_genericstr(self, p_str, label="", assign=False):

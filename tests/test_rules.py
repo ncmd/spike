@@ -97,6 +97,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(_sid, NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
 
+
     def test_del_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
@@ -120,7 +121,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid))
         self.assertEqual(rv.status_code, 200)
-        self.assertIn(_rule.explaination(), str(rv.data))
+        self.assertIn(_rule.explanation(), str(rv.data))
 
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
