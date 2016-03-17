@@ -51,9 +51,9 @@ class NaxsiRules(db.Model):
         return 'MainRule {} "{}" "msg:{}" "mz:{}" "s:{}" id:{} ;'.format(
             negate, self.detection, self.msg, self.mz, self.score, self.sid)
 
-    def explaination(self):
+    def explanation(self):
         """ Return a string explainign a rule """
-        assoc = {'ARGS': 'request arguments', 'BODY': 'body', 'URL': 'url'}
+        assoc = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header'}
         expl = 'The rule number <strong>%d</strong> is ' % self.sid
         if self.negative:
             expl += '<strong>not</strong> '
@@ -66,17 +66,23 @@ class NaxsiRules(db.Model):
             expl += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
         else:
             expl += 'matches the regexp <strong>{}</strong> '.format(self.detection[3:])
-        expl += 'in '
+
         zones = []
         for mz in self.mz.split('|'):
             if mz.startswith('$'):
-                if mz.lower().startswith('headers_var:cookie'):
-                    zones.append('the cookies')
+                zone,arg = mz.split(":")
+                for tmpzone in assoc:
+                    if tmpzone in zone:
+                        zone_name = assoc[tmpzone]
+                if "$URL" in zone:
+                    expl += "on the URL {} '{}' ".format("matching regex" if zone == "$URL_X" else "",
+                                                          arg)
                 else:
-                    zones.append('the {0}, in the [1} field'.format(*mz.split(':')))
+                    expl += "in the var with name {} '{}' of {} ".format("matching regex" if zone.endswith("_X") else "",
+                                                                  arg, zone_name)
             else:
                 zones.append('the <strong>{0}</strong>'.format(assoc[mz]))
-        return expl + ', '.join(zones) + '.'
+        return expl
 
     def validate(self):
         self.__validate_matchzone(self.mz)
@@ -93,24 +99,34 @@ class NaxsiRules(db.Model):
         return False
 
     # Bellow are parsers for specific parts of a rule
-    def __validate_dummy(self, s, assign=False):
-        return True
 
-    def __validate_detection(self, p_str, assign=False):
-        if not p_str.startswith("str:") and not p_str.startswith("rx:"):
-            self.__fail("detection {} is neither rx: or str:".format(p_str))
+    def __validate_detection(self, p_str, label="", assign=False):
+        p_str = label + p_str
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
-        if assign is True:
+        if assign is False:
+            return True
+        if p_str.startswith("str:") or p_str.startswith("rx:"):
             self.detection = p_str
+        else:
+            return self.__fail("detection {} is neither rx: or str:".format(p_str))
+
         return True
 
-    def __validate_genericstr(self, p_str, assign=False):
-        if p_str and not p_str.islower():
-            self.warnings.append("Pattern ({0}) is not lower-case.".format(p_str))
+    def __validate_genericstr(self, p_str, label="", assign=False):
+        if assign is False:
+            return True
+        if label == "s:":
+            self.score = p_str
+        elif label == "msg:":
+            self.msg = p_str
+        elif label == "negative":
+            self.negative = 1
+        elif label != "":
+            return self.__fail("Unknown fragment {}".format(label+p_str))
         return True
 
-    def __validate_matchzone(self, p_str, assign=False):
+    def __validate_matchzone(self, p_str, label="", assign=False):
         has_zone = False
         mz_state = set()
         locs = p_str.split('|')
@@ -139,7 +155,7 @@ class NaxsiRules(db.Model):
             self.mz = p_str
         return True
 
-    def __validate_id(self, p_str, assign=False):
+    def __validate_id(self, p_str, label="", assign=False):
         try:
             num = int(p_str)
             if num < 10000:
@@ -167,9 +183,9 @@ class NaxsiRules(db.Model):
         self.warnings = []
         self.error = []
 
-        func_map = {"id:": self.__validate_id, "str:": self.__validate_genericstr,
-                    "rx:": self.__validate_genericstr, "msg:": self.__validate_dummy, "mz:": self.__validate_matchzone,
-                    "negative": self.__validate_dummy, "s:": self.__validate_dummy}
+        func_map = {"id:": self.__validate_id, "str:": self.__validate_detection,
+                    "rx:": self.__validate_detection, "msg:": self.__validate_genericstr, "mz:": self.__validate_matchzone,
+                    "negative": self.__validate_genericstr, "s:": self.__validate_genericstr}
         ret = False
         split = self.splitter(full_str)  # parse string
         intersection = set(split).intersection(set(self.mr_kw))
@@ -197,7 +213,7 @@ class NaxsiRules(db.Model):
                     ret = False
                     if keyword.startswith(frag_kw):
                         # parser funcs returns True/False
-                        ret = func_map[frag_kw](keyword[len(frag_kw):], assign=True)
+                        ret = func_map[frag_kw](keyword[len(frag_kw):], label=frag_kw, assign=True)
                         if ret is True:
                             split.remove(orig_kw)
                         else:
