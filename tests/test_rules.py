@@ -149,19 +149,6 @@ class FlaskrTestCase(unittest.TestCase):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         self.assertEqual(_rule.sid, _rule.sid)
 
-    def test_explain_rule(self):
-        rv = self.app.get('/rules/explain/')
-        self.assertEqual(rv.status_code, 302)
-        self.assertEqual(urlparse(rv.location).path, '/rules/')
-
-        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid + 1), follow_redirects=True)
-        self.assertIn('Not rule with id {0}'.format(_rule.sid + 1), str(rv.data))
-
-        rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid))
-        self.assertEqual(rv.status_code, 200)
-        self.assertIn(_rule.explain(), str(rv.data))
-
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/rules/plain/%d' % _rule.sid)
@@ -215,22 +202,6 @@ class FlaskrTestCase(unittest.TestCase):
         non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
         rv = self.app.get('/rules/edit/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
-
-    def test_sandbox_rule(self):
-        rv = self.app.get('/rules/sandbox/')
-        self.assertEqual(rv.status_code, 200)
-
-        data = {'rule': 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',
-                'visualise': '1'}
-        rv = self.app.post('/rules/sandbox/', data=data)
-        self.assertEqual(rv.status_code, 302)
-        self.assertIn('https://regexper.com/#^POUET$', str(rv.data))
-
-        del data['visualise']
-        data['explain'] = 1
-        rv = self.app.post('/rules/sandbox/', data=data)
-        _rule = NaxsiRules('sqli', 'rx:^POUET$', 'BODY|URL|ARGS|$HEADERS_VAR:Cookie', '$SQL:8', '1005', "", "sqli")
-        self.assertIn(str(_rule.explain()), str(rv.data).replace('\\', ''))
 
     def test_parse_rule(self):
         rule_parser = NaxsiRules()

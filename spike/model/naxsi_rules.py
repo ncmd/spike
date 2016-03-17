@@ -56,7 +56,8 @@ class NaxsiRules(db.Model):
 
          :return str: A textual explanation of the rule
          """
-        translation = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header'}
+        translation = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header',
+                       'HEADER:Cookie': 'cookies'}
         explanation = 'The rule number <strong>{0}</strong> is '.format(self.sid)
         if self.negative:
             explanation += '<strong>not</strong> '
@@ -64,12 +65,12 @@ class NaxsiRules(db.Model):
 
         scores = []
         for score in self.score.split(','):
-            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':', 1)))
+            scores.append('<strong>{0}</strong> score to <strong>{1}</strong> '.format(*score.split(':', 1)))
         explanation += ', '.join(scores) + 'when it '
         if self.detection.startswith('str:'):
             explanation += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
         else:
-            explanation += 'matches the regexp <strong>{}</strong> '.format(self.detection[3:])
+            explanation += 'matches the regexp <strong>{}</strong> in '.format(self.detection[3:])
 
         zones = []
         for mz in self.mz.split('|'):
@@ -83,13 +84,16 @@ class NaxsiRules(db.Model):
 
                 if "$URL" in current_zone:
                     regexp = "matching regex" if current_zone == "$URL_X" else ""
-                    explanation += "on the URL {} '{}' ".format(regexp, arg)
+                    zones.append("on the URL {} '{}' ".format(regexp, arg))
                 else:
                     regexp = "matching regex" if current_zone.endswith("_X") else ""
-                    explanation += "in the var with name {} '{}' of {} ".format(regexp, arg, zone_name)
+                    if zone_name == 'header' and arg.lower() == 'cookie':
+                        zones.append('in the <strong>cookies</strong>')
+                    else:
+                        zones.append("in the var with name {} '{}' of {} ".format(regexp, arg, zone_name))
             else:
                 zones.append('the <strong>{0}</strong>'.format(translation[mz]))
-        return explanation
+        return explanation + ' ' + ', '.join(zones) + '.'
 
     def validate(self):
         self.warnings = list()

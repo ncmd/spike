@@ -1,0 +1,68 @@
+{% extends "misc/application.html" %}
+
+
+{% block main %}
+
+
+    <h2>Rule explainer</h2>
+    <form action="{{ url_for('sandbox.rule') }}" method="POST">
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <textarea name="rule" cols="90" rows="5" placeholder="Your shiny rule here">{{ rule }}</textarea>
+            </div>
+        </div>
+
+        {% if rule_explaination %}
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <blockquote>
+                    {{ rule_explaination | safe }}
+                </blockquote>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <div class="btn-toolbar" role="toolbar">
+                    <button type="submit" class="btn btn-success" name="analyze_rule">Analyze</button>
+                    <button type="submit" class="btn btn-info" name="explain_rule">Explain</button>
+                    <button type="submit" class="btn btn-info" name="visualise_rule">Visuzalise the regexp</button>
+                    <a href="https://github.com/nbs-system/naxsi/blob/master/naxsi_config/naxsi_core.rules" target='_blank' class="btn btn-default">Examples</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <hr>
+
+    <h2>NXLog explainer</h2>
+    <form action="{{ url_for('sandbox.explain_nxlog') }}" method="POST">
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <textarea name="nxlog" cols="90" rows="5" placeholder="Your shiny nxlog here">{{ nxlog }}</textarea>
+            </div>
+        </div>
+
+        {% if nxlog_explaination %}
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <blockquote>
+                    {{ nxlog_explaination | safe }}
+                </blockquote>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <div class="btn-toolbar" role="toolbar">
+                    <button type="submit" class="btn btn-info" name="log_explain">Explain</button>
+                    <a href="https://github.com/nbs-system/naxsi/wiki/naxsilogs" target='_blank' class="btn btn-default">Examples</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
