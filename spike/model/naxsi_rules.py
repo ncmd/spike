@@ -1,5 +1,4 @@
 from time import strftime, localtime
-import logging
 
 from spike.model import db
 from shlex import shlex
@@ -27,7 +26,8 @@ class NaxsiRules(db.Model):
     rx_mz = {"$ARGS_VAR_X", "$BODY_VAR_X", "$URL_X", "$HEADERS_VAR_X"}
     sub_mz = list(static_mz) + list(full_zones) + list(rx_mz)
 
-    def __init__(self, msg="", detection="", mz="", score="", sid=42000, ruleset="", rmks="", active=0, negative=0, timestamp=0):
+    def __init__(self, msg="", detection="", mz="", score="", sid=42000, ruleset="", rmks="", active=0, negative=0,
+                 timestamp=0):
         self.msg = msg
         self.detection = detection
         self.mz = mz
@@ -51,39 +51,45 @@ class NaxsiRules(db.Model):
         return 'MainRule {} "{}" "msg:{}" "mz:{}" "s:{}" id:{} ;'.format(
             negate, self.detection, self.msg, self.mz, self.score, self.sid)
 
-    def explanation(self):
-        """ Return a string explainign a rule """
-        assoc = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header'}
-        expl = 'The rule number <strong>%d</strong> is ' % self.sid
+    def explain(self):
+        """ Return a string explaining the rule
+
+         :return str: A textual explanation of the rule
+         """
+        translation = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header'}
+        explanation = 'The rule number <strong>%d</strong> is ' % self.sid
         if self.negative:
-            expl += '<strong>not</strong> '
-        expl += 'setting the '
+            explanation += '<strong>not</strong> '
+        explanation += 'setting the '
+
         scores = []
         for score in self.score.split(','):
-            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':', 3)))
-        expl += ', '.join(scores) + 'when it '
+            scores.append('<strong>{0}</strong> to <strong>{1}</strong> '.format(*score.split(':', 1)))
+        explanation += ', '.join(scores) + 'when it '
         if self.detection.startswith('str:'):
-            expl += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
+            explanation += 'finds the string <strong>{}</strong> '.format(self.detection[4:])
         else:
-            expl += 'matches the regexp <strong>{}</strong> '.format(self.detection[3:])
+            explanation += 'matches the regexp <strong>{}</strong> '.format(self.detection[3:])
 
         zones = []
         for mz in self.mz.split('|'):
             if mz.startswith('$'):
-                zone,arg = mz.split(":")
+                current_zone, arg = mz.split(":", 1)
                 zone_name = "?"
-                for tmpzone in assoc:
-                    if tmpzone in zone:
-                        zone_name = assoc[tmpzone]
-                if "$URL" in zone:
-                    expl += "on the URL {} '{}' ".format("matching regex" if zone == "$URL_X" else "",
-                                                          arg)
+
+                for translated_name in translation:  # translate zone names
+                    if translated_name in current_zone:
+                        zone_name = translation[translated_name]
+
+                if "$URL" in current_zone:
+                    regexp = "matching regex" if current_zone == "$URL_X" else ""
+                    explanation += "on the URL {} '{}' ".format(regexp, arg)
                 else:
-                    expl += "in the var with name {} '{}' of {} ".format("matching regex" if zone.endswith("_X") else "",
-                                                                  arg, zone_name)
+                    regexp = "matching regex" if current_zone.endswith("_X") else ""
+                    explanation += "in the var with name {} '{}' of {} ".format(regexp, arg, zone_name)
             else:
-                zones.append('the <strong>{0}</strong>'.format(assoc[mz]))
-        return expl
+                zones.append('the <strong>{0}</strong>'.format(translation[mz]))
+        return explanation
 
     def validate(self):
         self.__validate_matchzone(self.mz)
@@ -128,30 +134,35 @@ class NaxsiRules(db.Model):
     def __validate_matchzone(self, p_str, label="", assign=False):
         has_zone = False
         mz_state = set()
-        locs = p_str.split('|')
-        for loc in locs:
+        for loc in p_str.split('|'):
             keyword, arg = loc, None
             if loc.startswith("$"):
                 if loc.find(":") == -1:
                     return self.__fail("Missing 2nd part after ':' in {0}".format(loc))
                 keyword, arg = loc.split(":")
-            # check it is a valid keyword
-            if keyword not in self.sub_mz:
+
+            if keyword not in self.sub_mz:  # check if `keyword` is a valid keyword
                 return self.__fail("'{0}' no a known sub-part of mz : {1}".format(keyword, self.sub_mz))
+
             mz_state.add(keyword)
-            # verify the rule doesn't attempt to target REGEX and STATIC _VAR/URL at the same time
+
+            # verify that the rule doesn't attempt to target REGEX and STATIC _VAR/URL at the same time
             if len(self.rx_mz & mz_state) and len(self.static_mz & mz_state):
                 return self.__fail("You can't mix static $* with regex $*_X ({})".format(', '.join(mz_state)))
-            # just a gentle reminder
-            if arg and arg.islower() is False:
+
+            if arg and not arg.islower(): # just a gentle reminder
                 self.warnings.append("{0} in {1} is not lowercase. naxsi is case-insensitive".format(arg, loc))
+
             # the rule targets an actual zone
             if keyword not in ["$URL", "$URL_X"] and keyword in (self.rx_mz | self.full_zones | self.static_mz):
                 has_zone = True
+
         if has_zone is False:
             return self.__fail("The rule/whitelist doesn't target any zone.")
+
         if assign is True:
             self.mz = p_str
+
         return True
 
     def __validate_id(self, p_str, label="", assign=False):
@@ -170,8 +181,7 @@ class NaxsiRules(db.Model):
     def splitter(s):
         lexer = shlex(s)
         lexer.whitespace_split = True
-        items = list(iter(lexer.get_token, ''))
-        return items
+        return list(iter(lexer.get_token, ''))
 
     def parse_rule(self, full_str):
         """
@@ -183,8 +193,9 @@ class NaxsiRules(db.Model):
         self.error = []
 
         func_map = {"id:": self.__validate_id, "str:": self.__validate_detection,
-                    "rx:": self.__validate_detection, "msg:": self.__validate_genericstr, "mz:": self.__validate_matchzone,
-                    "negative": self.__validate_genericstr, "s:": self.__validate_genericstr}
+                    "rx:": self.__validate_detection, "msg:": self.__validate_genericstr,
+                    "mz:": self.__validate_matchzone, "negative": self.__validate_genericstr,
+                    "s:": self.__validate_genericstr}
         ret = False
         split = self.splitter(full_str)  # parse string
         intersection = set(split).intersection(set(self.mr_kw))
@@ -208,6 +219,7 @@ class NaxsiRules(db.Model):
                     keyword = keyword[:-1]
                 if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):  # remove (double-)quotes
                     keyword = keyword[1:-1]
+
                 for frag_kw in func_map:
                     ret = False
                     if keyword.startswith(frag_kw):
@@ -218,7 +230,7 @@ class NaxsiRules(db.Model):
                         else:
                             return self.__fail("parsing of element '{0}' failed.".format(keyword))
                         break
-                # we have an item that wasn't successfully parsed
-                if orig_kw in split and ret is not None:
+
+                if orig_kw in split and ret is not None:  # we have an item that wasn't successfully parsed
                     return False
         return True

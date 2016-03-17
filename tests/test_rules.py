@@ -121,7 +121,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.get('/rules/explain/?rule={0}'.format(_rule.sid))
         self.assertEqual(rv.status_code, 200)
-        self.assertIn(_rule.explanation(), str(rv.data))
+        self.assertIn(_rule.explain(), str(rv.data))
 
     def test_plain_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
