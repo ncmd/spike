@@ -94,7 +94,14 @@ class NaxsiRules(db.Model):
     def validate(self):
         self.__validate_matchzone(self.mz)
         self.__validate_id(self.sid)
-        self.__validate_detection(self.detection)
+        self.__validate_score(self.score)
+
+        if self.detection.startswith('rx:'):
+            self.__validate_detection_rx(self.detection)
+        elif self.detection.startswith('str:'):
+            self.__validate_detection_str(self.detection)
+        else:
+            self.error.append("Your 'detection' string must start with str: or rx:")
 
         if not self.msg:
             self.warnings.append("Rule has no 'msg:'.")
@@ -107,43 +114,42 @@ class NaxsiRules(db.Model):
 
     # Bellow are parsers for specific parts of a rule
 
-    def __validate_detection(self, p_str, label="", assign=False):
-        p_str = label + p_str
+    def __validate_detection_str(self, p_str, assign=False):
+        if assign is True:
+            self.detection += p_str
+        return True
+
+    def __validate_detection_rx(self, p_str, assign=False):
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
 
-        if p_str.startswith("str:"):  # no further validation on strings
+        try:  # try to validate the regex with PCRE's python bindings
+            import pcre
+            try:  # if we can't compile the regex, it's likely invalid
+                pcre.compile(p_str[3:])
+            except pcre.PCREError:
+                return self.__fail("{} is not a valid regex:".format(p_str))
+        except ImportError:  # python-pcre is an optional dependency
             pass
-        elif p_str.startswith("rx:"):
-            try:  # try to validate the regex with PCRE's python bindings
-                import pcre
-                try:  # if we can't compile the regex, it's likely invalid
-                    pcre.compile(p_str[3:])
-                except pcre.PCREError:
-                    return self.__fail("{} is not a valid regex:".format(p_str))
-            except ImportError:  # python-pcre is an optional dependency
-                pass
-        else:
-            return self.__fail("detection {} is neither rx: or str:".format(p_str))
 
         if assign is True:
-            self.detection = p_str
+            self.detection += p_str
         return True
 
-    def __validate_genericstr(self, p_str, label="", assign=False):
-        if assign is False:
-            return True
-        if label == "s:":
+    def __validate_score(self, p_str, assign=False):
+        for score in p_str.split(','):
+            if ':' not in score:
+                self.__fail("You score '{}' has no value or name.".format(score))
+            name, value = score.split(':')
+            if not value.isdigit():
+                self.__fail("Your value '{}' for your score '{}' is not numeric.".format(value, score))
+            elif not name.startswith('$'):
+                self.__fail("Your name '{}' for your score '{}' does not start with a '$'.".format(name, score))
+        if assign:
             self.score = p_str
-        elif label == "msg:":
-            self.msg = p_str
-        elif label == "negative":
-            self.negative = 1
-        elif label != "":
-            return self.__fail("Unknown fragment {}".format(label+p_str))
         return True
 
-    def __validate_matchzone(self, p_str, label="", assign=False):
+    def __validate_matchzone(self, p_str, assign=False):
         has_zone = False
         mz_state = set()
         for loc in p_str.split('|'):
@@ -177,7 +183,7 @@ class NaxsiRules(db.Model):
 
         return True
 
-    def __validate_id(self, p_str, label="", assign=False):
+    def __validate_id(self, p_str, assign=False):
         try:
             num = int(p_str)
             if num < 10000:
@@ -204,11 +210,11 @@ class NaxsiRules(db.Model):
         self.warnings = []
         self.error = []
 
-        func_map = {"id:": self.__validate_id, "str:": self.__validate_detection,
-                    "rx:": self.__validate_detection, "msg:": self.__validate_genericstr,
-                    "mz:": self.__validate_matchzone, "negative": self.__validate_genericstr,
-                    "s:": self.__validate_genericstr}
-        ret = False
+        func_map = {"id:": self.__validate_id, "str:": self.__validate_detection_str,
+                    "rx:": self.__validate_detection_rx, "msg:": lambda p_str, assign=False: True,
+                    "mz:": self.__validate_matchzone, "negative": lambda p_str, assign=False: True,
+                    "s:": self.__validate_score}
+
         split = self.splitter(full_str)  # parse string
         intersection = set(split).intersection(set(self.mr_kw))
 
@@ -232,17 +238,18 @@ class NaxsiRules(db.Model):
                 if keyword.startswith(('"', "'")) and (keyword[0] == keyword[-1]):  # remove (double-)quotes
                     keyword = keyword[1:-1]
 
+                parsed = False
                 for frag_kw in func_map:
-                    ret = False
-                    if keyword.startswith(frag_kw):
-                        # parser funcs returns True/False
-                        ret = func_map[frag_kw](keyword[len(frag_kw):], label=frag_kw, assign=True)
-                        if ret is True:
-                            split.remove(orig_kw)
-                        else:
-                            return self.__fail("parsing of element '{0}' failed.".format(keyword))
-                        break
+                    if keyword.startswith(frag_kw):  # use the right parser
+                        function = func_map[frag_kw]
+                        payload = keyword[len(frag_kw):]
 
-                if orig_kw in split and ret is not None:  # we have an item that wasn't successfully parsed
-                    return False
+                        if function(payload, assign=True) is True:
+                            parsed = True
+                            split.remove(orig_kw)
+                            break
+                        return self.__fail("parsing of element '{0}' failed.".format(keyword))
+
+                if parsed is False:  # we have an item that wasn't successfully parsed
+                    return self.__fail("'{}' is an invalid element and thus can not be parsed.".format(keyword))
         return True
