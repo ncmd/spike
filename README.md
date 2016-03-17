@@ -14,7 +14,8 @@ This software was initially created to help with keeping the [Doxi]( https://bit
 rulesets up-to-date. It was created with love by the people of [mare system]( https://www.mare-system.de/ ) in 2011,
 maintained by [8ack]( https://8ack.de/corporate ), and now, it's being adopted by the naxsi project.
 
-It's proudly powered by [flask]( http://flask.pocoo.org/ ) and [sqlalchemy]( http://www.sqlalchemy.org/ ).
+It runs on modern version of Python, and is proudly powered by
+ [flask]( http://flask.pocoo.org/ ) and [sqlalchemy]( http://www.sqlalchemy.org/ ).
 
 You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live (legacy) version.
 
@@ -36,7 +37,7 @@ You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live 
 
 To run, spike needs:
 
-- python2.7
+- python
 - python-sqlite
 - sqlalchemy
 - wtforms
@@ -50,7 +51,7 @@ To run, spike needs:
 ### Setup
 
 ```bash
-git clone https://github.com/spike
+git clone https://github.com/nbs-system/spike
 pip install -r requirements.txt
 python ./spike-server.py init
 python ./spike-server.py run
