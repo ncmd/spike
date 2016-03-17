@@ -57,7 +57,7 @@ class NaxsiRules(db.Model):
          :return str: A textual explanation of the rule
          """
         translation = {'ARGS': 'argument', 'BODY': 'body', 'URL': 'url', 'HEADER': 'header'}
-        explanation = 'The rule number <strong>%d</strong> is ' % self.sid
+        explanation = 'The rule number <strong>{0}</strong> is '.format(self.sid)
         if self.negative:
             explanation += '<strong>not</strong> '
         explanation += 'setting the '
@@ -92,6 +92,9 @@ class NaxsiRules(db.Model):
         return explanation
 
     def validate(self):
+        self.warnings = list()
+        self.error = list()
+
         self.__validate_matchzone(self.mz)
         self.__validate_id(self.sid)
         self.__validate_score(self.score)
@@ -116,7 +119,7 @@ class NaxsiRules(db.Model):
 
     def __validate_detection_str(self, p_str, assign=False):
         if assign is True:
-            self.detection += p_str
+            self.detection = p_str
         return True
 
     def __validate_detection_rx(self, p_str, assign=False):
@@ -133,7 +136,7 @@ class NaxsiRules(db.Model):
             pass
 
         if assign is True:
-            self.detection += p_str
+            self.detection = p_str
         return True
 
     def __validate_score(self, p_str, assign=False):
@@ -207,8 +210,8 @@ class NaxsiRules(db.Model):
         :param full_str: raw rule
         :return: [True|False, dict]
         """
-        self.warnings = []
-        self.error = []
+        self.warnings = list()
+        self.error = list()
 
         func_map = {"id:": self.__validate_id, "str:": self.__validate_detection_str,
                     "rx:": self.__validate_detection_rx, "msg:": lambda p_str, assign=False: True,
@@ -242,7 +245,10 @@ class NaxsiRules(db.Model):
                 for frag_kw in func_map:
                     if keyword.startswith(frag_kw):  # use the right parser
                         function = func_map[frag_kw]
-                        payload = keyword[len(frag_kw):]
+                        if frag_kw in ('rx:', 'str:'):  # don't remove the leading "str:" or "rx:"
+                            payload = keyword
+                        else:
+                            payload = keyword[len(frag_kw):]
 
                         if function(payload, assign=True) is True:
                             parsed = True

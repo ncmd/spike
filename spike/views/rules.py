@@ -94,10 +94,10 @@ def new():
 
     nrule.validate()
 
-    if len(nrule.error):
+    if nrule.error:
         flash("ERROR: {0}".format(",".join(nrule.error)))
         return redirect("/rules/new")
-    if len(nrule.warnings):
+    elif nrule.warnings:
         flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
     db.session.add(nrule)
 
@@ -143,13 +143,15 @@ def save(sid):
     nrule.negative = request.form.get("negative", "")
     nrule.timestamp = int(time())
     nrule.validate()
-    if len(nrule.error):
+
+    if nrule.error:
         flash("ERROR: {0}".format(",".join(nrule.error)))
         logging.debug("ERROR: {0}".format(",".join(nrule.error)))
         return redirect("/rules/edit/%s" % sid)
-    if len(nrule.warnings):
+    elif nrule.warnings:
         flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
         logging.debug("WARNINGS: {0}".format(",".join(nrule.warnings)))
+
     db.session.add(nrule)
     try:
         db.session.commit()
@@ -222,15 +224,13 @@ def sandbox():
     _rule.parse_rule(_textual_rule)
 
     if 'visualise' in request.form:
-        print(_rule.detection)
         if _rule.detection.startswith('rx:'):
             return redirect('https://regexper.com/#' + _rule.detection[3:])
     elif 'explain' in request.form:
         return render_template("rules/sandbox.html", explaination=_rule.explain(), rule=_rule)
 
-
-    if len(_rule.error):
+    if _rule.error:
         flash("ERROR: {0}".format(",".join(_rule.error)))
-    if len(_rule.warnings):
-        flash("WARNINGS: {0}".format(",".join(_rule.warnings)))
+    if _rule.warnings:
+        flash("WARNINGS: {0}".format(",".join(_rule.warnings)), 'warning')
     return render_template("rules/sandbox.html")

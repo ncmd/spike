@@ -97,6 +97,46 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(_sid, NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid)
 
+    def test_save_rule(self):
+        rv = self.app.get('/rules/save')
+        self.assertEqual(rv.status_code, 404)
+
+        data = {
+            'msg': 'POUET',
+            'detection': 'str:test',
+            'mz': 'BODY',
+            'custom_mz_val': '',
+            'negative': 'checked',
+            'score_$SQL': 8,
+            'score': '$SQL',
+            'rmks': 'f hqewifueiwf hueiwhf uiewh fiewh fhw',
+            'ruleset': 'WEB_APPS'
+        }
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        rv = self.app.post('/rules/save/{0}'.format(_rule.sid), data=data, follow_redirects=True)
+
+        self.assertIn(data['msg'], str(rv.data))
+        self.assertIn(data['detection'], str(rv.data))
+        self.assertIn(data['mz'], str(rv.data))
+        self.assertIn(data['score'], str(rv.data))
+        self.assertIn(data['rmks'], str(rv.data))
+        self.assertIn(data['ruleset'], str(rv.data))
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        data['detection'] = 'rx:^lol$'
+        rv = self.app.post('/rules/save/{0}'.format(_rule.sid), data=data, follow_redirects=True)
+        self.assertIn(data['detection'], str(rv.data))
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        data['detection'] = 'not str: nor rx:'
+        rv = self.app.post('/rules/save/{0}'.format(_rule.sid), data=data)
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(urlparse(rv.location).path, '/rules/edit/{}'.format(_rule.sid))
+
+        _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
+        db.session.delete(_rule)
+        db.session.commit()
+
     def test_del_rule(self):
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
@@ -175,6 +215,22 @@ class FlaskrTestCase(unittest.TestCase):
         non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
         rv = self.app.get('/rules/edit/%d' % non_existent_sid)
         self.assertEqual(rv.status_code, 302)
+
+    def test_sandbox_rule(self):
+        rv = self.app.get('/rules/sandbox/')
+        self.assertEqual(rv.status_code, 200)
+
+        data = {'rule': 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',
+                'visualise': '1'}
+        rv = self.app.post('/rules/sandbox/', data=data)
+        self.assertEqual(rv.status_code, 302)
+        self.assertIn('https://regexper.com/#^POUET$', str(rv.data))
+
+        del data['visualise']
+        data['explain'] = 1
+        rv = self.app.post('/rules/sandbox/', data=data)
+        _rule = NaxsiRules('sqli', 'rx:^POUET$', 'BODY|URL|ARGS|$HEADERS_VAR:Cookie', '$SQL:8', '1005', "", "sqli")
+        self.assertIn(str(_rule.explain()), str(rv.data).replace('\\', ''))
 
     def test_parse_rule(self):
         rule_parser = NaxsiRules()
