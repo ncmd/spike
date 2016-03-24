@@ -1,50 +1,14 @@
-from time import strftime, localtime
-import re
-
-from spike import create_app
-from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
+
+from . import TestsThatNeedsRules
 
 try:
     from urlparse import urlparse
 except ImportError:  # python3
     from urllib.parse import urlparse
 
-import unittest
 
-class FlaskrTestCase(unittest.TestCase):
-    def setUp(self):
-        app = create_app()
-        db.init_app(app)
-        app.config['TESTING'] = True
-        self.app = app.test_client()
-        self.created_rules = list()
-        self.__create_rule()
-
-    def tearDown(self):
-        self.__delete_rule()
-
-    def __create_rule(self):
-        """
-
-        :return int: The id of the new rule
-        """
-        current_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
-        current_sid = 1337 if current_sid is None else current_sid.sid + 1
-
-        db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
-                                  u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
-        self.created_rules.append(current_sid)
-        return int(current_sid)
-
-    def __delete_rule(self, sid=None):
-        if sid:
-            db.session.delete(NaxsiRules.query.filter(sid == NaxsiRules.sid).first())
-        for sid in self.created_rules:
-            _rule = NaxsiRules.query.filter(sid == NaxsiRules.sid).first()
-            if _rule:
-                db.session.delete(_rule)
-
+class FlaskrTestCase(TestsThatNeedsRules):
     def test_sandbox_rule(self):
         rv = self.app.get('/sandbox/rule')
         self.assertEqual(rv.status_code, 200)
