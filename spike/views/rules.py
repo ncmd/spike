@@ -145,12 +145,12 @@ def save(sid):
     nrule.validate()
 
     if nrule.error:
+        logging.debug("ERROR: %s", ",".join(nrule.error))
         flash("ERROR: {0}".format(",".join(nrule.error)))
-        logging.debug("ERROR: {0}".format(",".join(nrule.error)))
         return redirect("/rules/edit/%s" % sid)
     elif nrule.warnings:
+        logging.debug("WARNINGS: %s", ",".join(nrule.warnings))
         flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
-        logging.debug("WARNINGS: {0}".format(",".join(nrule.warnings)))
 
     db.session.add(nrule)
     try:

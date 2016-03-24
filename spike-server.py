@@ -11,6 +11,8 @@ from spike import create_app, version
 from spike.model import db, rulesets_seeds
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 
+from sqlalchemy.exc import SQLAlchemyError
+
 
 def run(debug=False):
     app = create_app(__get_config_file())
@@ -48,9 +50,8 @@ def spike_init():
         db.session.add(NaxsiRuleSets(r, rmks, timestamp))
     try:
         db.session.commit()
-    except:
-        logging.error('It seems that the database was alrady initialized. Did you meant to run {} run instead?'.format(
-            sys.argv[0]))
+    except SQLAlchemyError:
+        logging.error('It seems that the database was alrady initialized. Did you meant to run %s run instead?', sys.argv[0])
     logging.info('Spike initialization completed')
 
 
