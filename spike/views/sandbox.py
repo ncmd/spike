@@ -1,7 +1,7 @@
 try:
-    from urlparse import urlparse, parse_qs
+    from urlparse import parse_qs
 except ImportError:  # python3
-    from urllib.parse import urlparse, parse_qs
+    from urllib.parse import parse_qs
 
 from flask import Blueprint, render_template, request, redirect, flash
 
@@ -39,18 +39,22 @@ def rule():
 
 @sandbox.route("/explain_rule/", methods=["GET", "POST"])
 def explain_rule():
-    rule = request.args.get('rule', '')
-    if not rule:
-        return redirect("/rules/")
-    elif rule.isdigit():  # explain a rule by id
-        _rule = NaxsiRules.query.filter(NaxsiRules.sid == rule).first()
+    rule_get = request.args.get('rule', '')
+    rule_post = request.form.get("rule", '')
+    if rule_get.isdigit():  # explain a rule by id
+        _rule = NaxsiRules.query.filter(NaxsiRules.sid == rule_get).first()
         if _rule is None:
-            flash('Not rule with id %s' % rule)
+            flash('Not rule with id %s' % rule_get)
             return redirect("/sandbox/")
+    elif rule_get:
+        flash('Please provide a numeric id')
+        return redirect("/sandbox/")
+    elif not rule_post:
+        flash('Please provide a rule')
+        return redirect("/sandbox/")
     else:
-        _textual_rule = request.form["rule"]
         _rule = NaxsiRules()
-        _rule.parse_rule(_textual_rule)
+        _rule.parse_rule(rule_post)
 
     return render_template("misc/sandbox.html", rule_explaination=_rule.explain(), rule=_rule)
 

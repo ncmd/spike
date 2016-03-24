@@ -219,7 +219,7 @@ class NaxsiRules(db.Model):
 
         func_map = {"id:": self.__validate_id, "str:": self.__validate_detection_str,
                     "rx:": self.__validate_detection_rx, "msg:": lambda p_str, assign=False: True,
-                    "mz:": self.__validate_matchzone, "negative": lambda p_str, assign=False: True,
+                    "mz:": self.__validate_matchzone, "negative": lambda p_str, assign=False: p_str == 'checked',
                     "s:": self.__validate_score}
 
         split = self.splitter(full_str)  # parse string

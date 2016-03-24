@@ -41,7 +41,7 @@ class FlaskrTestCase(unittest.TestCase):
     def test_explain_rule(self):
         rv = self.app.get('/sandbox/explain_rule/')
         self.assertEqual(rv.status_code, 302)
-        self.assertEqual(urlparse(rv.location).path, '/rules/')
+        self.assertEqual(urlparse(rv.location).path, '/sandbox/')
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
         rv = self.app.get('/sandbox/explain_rule/?rule={0}'.format(_rule.sid + 1), follow_redirects=True)
@@ -50,6 +50,14 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/sandbox/explain_rule/?rule={0}'.format(_rule.sid))
         self.assertEqual(rv.status_code, 200)
         self.assertIn(_rule.explain(), str(rv.data))
+
+        rv = self.app.get('/sandbox/explain_rule/?rule=lol')
+        self.assertEqual(rv.status_code, 302)
+        self.assertEqual(urlparse(rv.location).path, '/sandbox/')
+
+        rv = self.app.post('/sandbox/explain_rule/', data={'rule': str(_rule)})
+        self.assertEqual(rv.status_code, 200)
+        #self.assertIn(_rule.explain(), str(rv.data))  # FIXME this is broken
 
     def test_explain_nxlog(self):
         rv = self.app.get('/sandbox/explain_nxlog/')
