@@ -15,12 +15,12 @@ def index():
     return render_template("misc/sandbox.html")
 
 
-@sandbox.route("/rule", methods=["GET", "POST"])
+@sandbox.route("/rule", methods=["POST"])
 def rule():
-    if request.method == 'GET' or not request.form.get("rule", ''):
+    _textual_rule = request.form.get("rule", '')
+    if not _textual_rule:
         return render_template("misc/sandbox.html")
 
-    _textual_rule = request.form["rule"]
     _rule = NaxsiRules()
     _rule.parse_rule(_textual_rule)
 

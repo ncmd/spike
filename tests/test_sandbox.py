@@ -1,6 +1,7 @@
 from spike.model.naxsi_rules import NaxsiRules
 
-from . import TestsThatNeedsRules
+from tests import TestsThatNeedsRules
+
 
 try:
     from urlparse import urlparse
@@ -11,7 +12,7 @@ except ImportError:  # python3
 class FlaskrTestCase(TestsThatNeedsRules):
     def test_sandbox_rule(self):
         rv = self.app.get('/sandbox/rule')
-        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 405)
 
     def test_sandbox_visualize(self):
         data = {'rule': 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',

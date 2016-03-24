@@ -3,7 +3,9 @@ import re
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
-from . import TestsThatNeedsRules
+
+from tests import TestsThatNeedsRules
+
 
 try:
     from urlparse import urlparse
