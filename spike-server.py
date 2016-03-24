@@ -46,8 +46,11 @@ def spike_init():
         logging.info("Adding ruleset: %s", r)
         rmks = "Ruleset for %s / auto-created %s" % (r, strftime("%F - %H:%M", localtime(time())))
         db.session.add(NaxsiRuleSets(r, rmks, timestamp))
-
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        logging.error('It seems that the database was alrady initialized. Did you meant to run {} run instead?'.format(
+            sys.argv[0]))
     logging.info('Spike initialization completed')
 
 

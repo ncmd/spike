@@ -31,6 +31,7 @@ class TestsThatNeedsRules(unittest.TestCase):
 
         db.session.add(NaxsiRules(u'POUET', 'str:test', u'BODY', u'$SQL:8', current_sid, u'WEB_APPS',
                                   u'f hqewifueiwf hueiwhf uiewh fiewh fhw', '1', True, 1457101045))
+        db.session.commit()
         self.created_rules.append(current_sid)
         return int(current_sid)
 

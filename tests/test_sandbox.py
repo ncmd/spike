@@ -14,6 +14,9 @@ class FlaskrTestCase(TestsThatNeedsRules):
         rv = self.app.get('/sandbox/rule')
         self.assertEqual(rv.status_code, 405)
 
+        rv = self.app.post('/sandbox/rule')
+        self.assertEqual(rv.status_code, 200)
+
     def test_sandbox_visualize(self):
         data = {'rule': 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',
                 'visualise_rule': '1'}
