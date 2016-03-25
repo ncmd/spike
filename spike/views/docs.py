@@ -2,11 +2,6 @@ import os
 import glob
 import markdown
 
-try:  # python3 ftw !
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
 from flask import Blueprint, render_template, redirect
 
 docs = Blueprint('docs', __name__)
