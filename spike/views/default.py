@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, Response, current_app, send_from_directory, request
+from flask import Blueprint, redirect, Response, current_app, send_from_directory, request, url_for
 from werkzeug.contrib.atom import AtomFeed
 from datetime import datetime
 
@@ -24,13 +24,10 @@ def robots():
 
 @default.route('/rules.atom')
 def atom():
-    feed = AtomFeed('Recent rules', feed_url=request.url, url=request.url_root)
+    feed = AtomFeed(title='Recent rules', feed_url=request.url, url=request.url_root, author='Spike',
+                    icon=url_for('static', filename='favicon.ico'))
     _rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).limit(15).all()
     if _rules:
         for rule in _rules:
-            feed.add(title=rule.msg,
-                     entires=unicode(rule.fullstr()),
-                     content_type='text',
-                     updated=datetime.fromtimestamp(rule.timestamp),
-                     id=rule.sid)
+            feed.add(rule.msg, str(rule), updated=datetime.fromtimestamp(rule.timestamp), id=rule.sid)
     return feed.get_response()
