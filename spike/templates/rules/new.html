@@ -25,7 +25,7 @@
             </div>
 
             <div class="col-md-6">
-                <td><input type="text" name="msg" size="60" placeholder="Message" required></td>
+                <input type="text" name="msg" size="60" placeholder="Message" required>
             </div>
         </div>
 
@@ -36,7 +36,7 @@
             </div>
 
             <div class="col-md-6">
-                <td><input type="text" name="detection" size="60" placeholder="str|rx" required></td>
+                <input type="text" name="detection" size="60" placeholder="str|rx" required>
             </div>
         </div>
 
@@ -48,10 +48,10 @@
 
             <div class="col-md-6">
                 {% for z in mz %}
-                    <input type="checkbox" name="mz" value="{{ z }}"> {{ z }} <br>
+                    <input title="matchzone" type="checkbox" name="mz" value="{{ z }}"> {{ z }} <br>
                 {% endfor %}
-                <input type="checkbox" name="custom_mz" value="on">
-                <input type="text" name="custom_mz_val" placeholder="Custom MZ">
+                <input title="custom_mz" type="checkbox" name="custom_mz" value="on">
+                <input title="custom_mz_val" type="text" name="custom_mz_val" placeholder="Custom MZ">
             </div>
         </div>
 
@@ -62,7 +62,7 @@
             </div>
 
             <div class="col-md-6">
-                <input type="checkbox" name="negative" value="checked">
+                <input title="negative" type="checkbox" name="negative" value="checked">
             </div>
         </div>
 
@@ -74,8 +74,8 @@
 
             <div class="col-md-6">
                {% for s in score %}
-                    <input type="text" name="score_{{ s }}" value="8" size="3">
-                    <input type="checkbox" name="score" value="{{ s }}"> {{ s }}
+                    <input title="score_{{ s }}" type="text" name="score_{{ s }}" value="8" size="3">
+                    <input title="{{ s }}" type="checkbox" name="score" value="{{ s }}"> {{ s }}
                     <br>
                 {% endfor %}
             </div>
@@ -88,7 +88,7 @@
             </div>
 
             <div class="col-md-6">
-                <td><textarea cols="60" rows="10" name="rmks" title="remarks"></textarea></td>
+                <textarea cols="60" rows="10" name="rmks" title="remarks"></textarea>
             </div>
         </div>
 
@@ -99,7 +99,7 @@
             </div>
 
             <div class="col-md-1">
-                    <select name="ruleset">
+                    <select title="ruleset" name="ruleset">
                         {% for r in rulesets %}
                             <option value="{{ r.name }}"> {{ r.name }}
                         {% endfor %}
@@ -107,7 +107,7 @@
             </div>
 
             <div class="col-md-1">
-                <a href="/rulesets/" class="btn btn-info btn-xs">new ruleset</a>
+                <a href="{{ url_for('rulesets.index') }}" class="btn btn-info btn-xs">new ruleset</a>
             </div>
         </div>
 

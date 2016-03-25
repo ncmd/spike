@@ -6,12 +6,10 @@ from spike.model.naxsi_rules import NaxsiRules
 
 from tests import TestsThatNeedsRules
 
-
 try:
     from urlparse import urlparse
 except ImportError:  # python3
     from urllib.parse import urlparse
-
 
 
 class FlaskrTestCase(TestsThatNeedsRules):
@@ -191,7 +189,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertIn("parsing of element 'mz:$URL:/foobar|$BODY_VAR_X:^tutu$' failed.", rule_parser.error)
 
         rv = rule_parser.parse_rule('"rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$"'
-                            'id:4200001 "s:$SQL:8";')
+                                    'id:4200001 "s:$SQL:8";')
         self.assertEqual(rv, False)
         self.assertIn('No mainrule/basicrule keyword.', rule_parser.error)
 

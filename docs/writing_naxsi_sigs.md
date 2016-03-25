@@ -1,15 +1,9 @@
+# Writing Naxsi rules
 
-# Writing Naxsi Sigs - Manual 
-
-NAXSI is a WebApplicationFirewall (WAF) - Module for Nginx and 
-works very well in its current state. This Howto tries to explain 
-how to understand and write Naxsi-Signatures and give explain
-some Use-Cases on How to use Naxsi. Please always check the 
-latest Naxsi-documentation. 
-
-
-If you are new to Naxsi please read the Na  xsi-Wiki first
-to understand how and why this WAF works.
+NAXSI is a *web application firewall* (WAF) for [Nginx]( https://nginx.org ).
+This howto tries to explain how to understand and write rules for it,
+and details some use-cases. You should also take a look at the latest
+documentation available [here]( https://github.com/nbs-system/naxsi/wiki ).
 
 Beside this, we maintain and develop a set of tools (Doxi-Tools) for
 WAF-administration, ruleset-updates and an extended  and updated Ruleset

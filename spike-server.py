@@ -51,7 +51,8 @@ def spike_init():
     try:
         db.session.commit()
     except SQLAlchemyError:
-        logging.error('It seems that the database was alrady initialized. Did you meant to run %s run instead?', sys.argv[0])
+        logging.error('It seems that the database was already initialized. Did you meant to run `%s run` instead?',
+                      sys.argv[0])
     logging.info('Spike initialization completed')
 
 

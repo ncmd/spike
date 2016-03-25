@@ -62,7 +62,7 @@
         <div class="col-md-6">  <!-- FIXME This part is a fucking mess -->
             {% set dmz = [] %}
             {% for z in mz %}
-                <input type="checkbox" name="mz" value="{{ z }}"
+                <input title="mz" type="checkbox" name="mz" value="{{ z }}"
                         {% if z in rules_info.mz | mzsplit %}
                             {% if dmz.append(z) %}
                             {% endif %}
@@ -76,13 +76,14 @@
             {% for r in rules_info.mz | mzsplit %}
                 {% if r not in dmz %}
                     {% if r != "custom" %}
-                        <input type="checkbox" name="mz" value="{{ r }}" checked>
+                        <input title="mz" type="checkbox" name="mz" value="{{ r }}" checked>
                         <strong>{{ r }} </strong><br>
                     {% endif %}
                 {% endif %}
             {% endfor %}
-            <input type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}>
-            <input type="text" name="custom_mz_val" value="{{ custom_mz }}" placeholder="Custom MZ" size="60">
+            <input title="custom_mz" type="checkbox" name="custom_mz" value="on" {% if custom_mz %}checked{% endif %}>
+            <input title="custom_mz_val" type="text" name="custom_mz_val" value="{{ custom_mz }}"
+                   placeholder="Custom MZ" size="60">
         </div>
     </div>
 
@@ -96,11 +97,11 @@
             {% for s in score %}
                 {% set sc,sv = rules_info.score | scoresplit %}
                 {% if s  == sc %}
-                    <input type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
+                    <input title="score_{{ s }}" type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
                 {% else %}
-                    <input type="text" name="score_{{ s }}" value="8" size="3">
+                    <input title="score_{{ s }}" type="text" name="score_{{ s }}" value="8" size="3">
                 {% endif %}
-                <input type="checkbox" name="score" value="{{ s }}"
+                <input title="{{ s }}" type="checkbox" name="score" value="{{ s }}"
                     {% if s.value  == sc %}
                         checked> <strong> {{ s }}</strong>
                     {% else %}
@@ -151,7 +152,7 @@
         </div>
 
         <div class="col-md-1">
-            <a href="/rulesets/" class="btn btn-info btn-xs">new ruleset</a>
+            <a href="{{ url_for('rulesets.index') }}" class="btn btn-info btn-xs">new ruleset</a>
         </div>
     </div>
 

@@ -49,7 +49,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
         rv = self.app.post('/sandbox/explain_rule/', data={'rule': str(_rule)})
         self.assertEqual(rv.status_code, 200)
-        #self.assertIn(_rule.explain(), str(rv.data))  # FIXME this is broken
+        # self.assertIn(_rule.explain(), str(rv.data))  # FIXME this is broken
 
     def test_explain_nxlog(self):
         rv = self.app.get('/sandbox/explain_nxlog/')

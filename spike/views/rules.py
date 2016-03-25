@@ -29,7 +29,6 @@ def plain(sid):
     if not _rule:
         flash("no rules found, please create one", "error")
         return redirect("/rules/new")
-
     return Response(_rule.fullstr(), mimetype='text/plain')
 
 
