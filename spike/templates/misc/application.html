@@ -58,18 +58,19 @@
 
 {% block content %}
     <div class="main-content">
-        <div class="row"><br><br><br></div>
+        <div class="row"><br><br><br></div>  <!-- This is ugly as fuck, fix it with css and love -->
 
         <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-10">
-                {% with errors = get_flashed_messages() %}
-                    {% if errors %}
-                        <ul class="alert alert-danger">
-                            {%- for msg in errors %}
-                                <li>{{ msg.category }} - {{ msg|safe }}</li>
-                            {% endfor -%}
-                        </ul>
+            <div class="col-md-10 col-md-offset-1">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'message' %}
+                                <div class="alert alert-info" role="alert">{{ message }}</div>
+                            {% else %}
+                                <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
                 {% endwith %}
 
@@ -86,7 +87,7 @@
                 2014-2015 <a href="https://8ack.de/corporate" target="_blank">8ack</a>,
                 2016 <a href="https://nbs-system.com" target="_blank">NBS-System</a>
                 <br/>
-                Version: {{ version }} -- Logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
+                Version: {{ version }} - Logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
                 <hr>
             </div>
         </div>

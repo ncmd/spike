@@ -34,7 +34,7 @@ def rule():
         flash("ERROR: {0}".format(",".join(_rule.error)))
     if _rule.warnings:
         flash("WARNINGS: {0}".format(",".join(_rule.warnings)), 'warning')
-    return render_template("misc/sandbox.html")
+    return render_template("misc/sandbox.html", rule=_rule)
 
 
 @sandbox.route("/explain_rule/", methods=["GET", "POST"])
