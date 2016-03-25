@@ -5,7 +5,7 @@ import logging
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 
-from spike.views import default, rules, docs, rulesets, sandbox
+from spike.views import default, rules, rulesets, sandbox
 from spike.model import db
 
 version = "0.5 "
@@ -33,7 +33,6 @@ def create_app(config_filename=''):
     app.register_blueprint(default.default)
     app.register_blueprint(rules.rules, url_prefix='/rules')
     app.register_blueprint(rulesets.rulesets, url_prefix='/rulesets')
-    app.register_blueprint(docs.docs, url_prefix='/docs')
     app.register_blueprint(sandbox.sandbox, url_prefix='/sandbox')
 
     # register filters

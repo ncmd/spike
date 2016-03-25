@@ -36,8 +36,11 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('sandbox.index') }}">Sandbox</a></li>
                         <li><a href="{{ url_for('default.download') }}">Download database</a></li>
-                        <li><a href="{{ url_for('docs.index') }}">Documentation</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="https://github.com/nbs-system/naxsi/wiki/rulessyntax">Writing naxsi rules</a></li>
                         <li><a href="https://github.com/nbs-system/spike" target="_blank">About Spike</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="https://github.com/nbs-system/Naxsi">About Naxsi</a></li>
                     </ul>
                 </li>
             </ul>
@@ -87,7 +90,8 @@
                 2014-2015 <a href="https://8ack.de/corporate" target="_blank">8ack</a>,
                 2016 <a href="https://nbs-system.com" target="_blank">NBS-System</a>
                 <br/>
-                Version: {{ version }} - Logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
+                Version: <a href="https://github.com/nbs-system/spike>">{{ version }}</a>
+                - Logo: <a href="http://www.iconsdb.com/moth-green-icons/barking-dog-icon.html">IconDB</a>
                 <hr>
             </div>
         </div>
