@@ -26,8 +26,8 @@ class NaxsiRules(db.Model):
     rx_mz = {"$ARGS_VAR_X", "$BODY_VAR_X", "$URL_X", "$HEADERS_VAR_X"}
     sub_mz = list(static_mz) + list(full_zones) + list(rx_mz)
 
-    def __init__(self, msg="", detection="", mz="", score="", sid='42000', ruleset="", rmks="", active=0, negative=0,
-                 timestamp=0):
+    def __init__(self, msg="", detection="str:a", mz="ARGS", score="$None:0", sid='42000', ruleset="", rmks="",
+                 active=0, negative=False, timestamp=0):
         self.msg = msg
         self.detection = detection
         self.mz = mz
@@ -36,7 +36,7 @@ class NaxsiRules(db.Model):
         self.ruleset = ruleset
         self.rmks = rmks
         self.active = active
-        self.negative = 1 if negative == 'checked' else 0
+        self.negative = negative
         self.timestamp = timestamp
         self.warnings = []
         self.error = []
@@ -47,9 +47,8 @@ class NaxsiRules(db.Model):
         return "#\n# sid: {0} | date: {1}\n#\n# {2}\n#\n{3}".format(self.sid, rdate, rmks, self.__str__())
 
     def __str__(self):
-        negate = 'negative' if self.negative == 1 else ''
         return 'MainRule {} "{}" "msg:{}" "mz:{}" "s:{}" id:{} ;'.format(
-            negate, self.detection, self.msg, self.mz, self.score, self.sid)
+            'negative' if self.negative else '', self.detection, self.msg, self.mz, self.score, self.sid)
 
     def explain(self):
         """ Return a string explaining the rule

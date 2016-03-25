@@ -89,7 +89,7 @@ def new():
 
     nrule = NaxsiRules(request.form.get("msg", ""), request.form.get("detection", ""), mz, score, sid,
                        request.form.get("ruleset", ""), request.form.get("rmks", ""), "1",
-                       request.form.get("negative", ""), int(time()))
+                       request.form.get("negative", "") == 'checked', int(time()))
 
     nrule.validate()
 
@@ -139,7 +139,7 @@ def save(sid):
     nrule.ruleset = request.form.get("ruleset", "")
     nrule.rmks = request.form.get("rmks", "")
     nrule.active = request.form.get("active", "")
-    nrule.negative = request.form.get("negative", "")
+    nrule.negative = request.form.get("negative", "") == 'checked'
     nrule.timestamp = int(time())
     nrule.validate()
 
