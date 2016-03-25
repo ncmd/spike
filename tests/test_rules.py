@@ -174,13 +174,14 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
     def test_parse_rule(self):
         rule_parser = NaxsiRules()
+
         rv = rule_parser.parse_rule('MainRule "rx:select|union|update|delete|insert|table|from|ascii|hex|unhex|drop"'
                                     '"msg:sql keywords" "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:4" id:1000;')
         self.assertEqual(rv, True)
-
         self.assertEqual(rule_parser.warnings,
                          ['Cookie in $HEADERS_VAR:Cookie is not lowercase. naxsi is case-insensitive',
                           'rule IDs below 10k are reserved (1000)'])
+
         rv = rule_parser.parse_rule('BasicRule "rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$"'
                                     'id:4200001 "s:$SQL:8";')
         self.assertEqual(rv, False)
@@ -188,3 +189,29 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertIn('$URL', str(rule_parser.error))
         self.assertIn("You can't mix static $* with regex $*_X", str(rule_parser.error))
         self.assertIn("parsing of element 'mz:$URL:/foobar|$BODY_VAR_X:^tutu$' failed.", rule_parser.error)
+
+        rv = rule_parser.parse_rule('"rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$"'
+                            'id:4200001 "s:$SQL:8";')
+        self.assertEqual(rv, False)
+        self.assertIn('No mainrule/basicrule keyword.', rule_parser.error)
+
+        rv = rule_parser.parse_rule('MainRule BasicRule "rx:select"'
+                                    '"msg:sql keywords" "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:4" id:1000;')
+        self.assertEqual(rv, False)
+        self.assertIn('Multiple mainrule/basicrule keywords.', rule_parser.error)
+
+        rv = rule_parser.parse_rule('MainRule "rx:select"'
+                                    '"msg:sql keywords" "mz:BODY" "s:$SQL:4" id:1000 "wrong:LOL";')
+        self.assertEqual(rv, False)
+        self.assertIn("'wrong:LOL' is an invalid element and thus can not be parsed.", rule_parser.error)
+
+        rv = rule_parser.parse_rule('MainRule "rx:select"'
+                                    '"msg:sql keywords" "mz:BODY" "s:$SQL:4" "id:non_numeric";')
+        self.assertEqual(rv, False)
+        self.assertEqual(['id:non_numeric is not numeric', "parsing of element 'id:non_numeric' failed."],
+                         rule_parser.error)
+
+        rv = rule_parser.parse_rule('MainRule "rx:select" "mz:wrong" "msg:sql keywords" "s:$SQL:4" "id:10000";')
+        self.assertEqual(rv, False)
+        self.assertIn("'wrong' is not a known sub-part of mz : ", str(rule_parser.error))
+        self.assertIn("parsing of element 'mz:wrong' failed.", rule_parser.error)

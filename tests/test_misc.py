@@ -15,14 +15,10 @@ class FlaskrTestCase(unittest.TestCase):
         app = create_app()
         db.init_app(app)
         app.config['TESTING'] = True
-
         self.app = app.test_client()
 
-    def tearDown(self):
-        pass
-
     def test_robotstxt(self):
-        assert self.app.get('/robots.txt').data == b'User-agent: *\n Disallow: /'
+        self.assertEqual(self.app.get('/robots.txt').data, b'User-agent: *\n Disallow: /')
 
     def test_redirect_root(self):
         rv = self.app.get('/', follow_redirects=False)
@@ -34,5 +30,9 @@ class FlaskrTestCase(unittest.TestCase):
             expected = StringIO(str(f.read()))
         expected.seek(0)
         rv = self.app.get('/download')
-        assert str(rv.data) == expected.read()
+        self.assertEqual(str(rv.data), expected.read())
 
+    def test_atom(self):
+        rv = self.app.get('/rules.atom')
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('<feed xmlns="http://www.w3.org/2005/Atom">', str(rv.data))

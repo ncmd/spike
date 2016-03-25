@@ -114,6 +114,8 @@ class NaxsiRules(db.Model):
             self.warnings.append("Rule has no 'msg:'.")
         if not self.score:
             self.error.append("Rule has no score.")
+        if not self.mz:
+            self.error.append("Rule has no match zone.")
 
     def __fail(self, msg):
         self.error.append(msg)
@@ -167,7 +169,7 @@ class NaxsiRules(db.Model):
                 keyword, arg = loc.split(":")
 
             if keyword not in self.sub_mz:  # check if `keyword` is a valid keyword
-                return self.__fail("'{0}' no a known sub-part of mz : {1}".format(keyword, self.sub_mz))
+                return self.__fail("'{0}' is not a known sub-part of mz : {1}".format(keyword, self.sub_mz))
 
             mz_state.add(keyword)
 
