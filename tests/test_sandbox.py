@@ -47,9 +47,12 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(urlparse(rv.location).path, '/sandbox/')
 
-        rv = self.app.post('/sandbox/explain_rule/', data={'rule': str(_rule)})
+        data = 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;'
+        rv = self.app.post('/sandbox/explain_rule/', data={'rule': data})
         self.assertEqual(rv.status_code, 200)
-        # self.assertIn(_rule.explain(), str(rv.data))  # FIXME this is broken
+        _rule = NaxsiRules()
+        _rule.parse_rule(data)
+        self.assertIn(_rule.explain(), str(rv.data))
 
     def test_explain_nxlog(self):
         rv = self.app.get('/sandbox/explain_nxlog/')

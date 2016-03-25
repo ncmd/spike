@@ -46,7 +46,7 @@ def explain_rule():
         if _rule is None:
             flash('Not rule with id %s' % rule_get)
             return redirect("/sandbox/")
-    elif rule_get:
+    elif rule_get is not '':
         flash('Please provide a numeric id')
         return redirect("/sandbox/")
     elif not rule_post:
