@@ -63,7 +63,7 @@
             {% set dmz = [] %}
             {% for z in mz %}
                 <input title="mz" type="checkbox" name="mz" value="{{ z }}"
-                        {% if z in rules_info.mz | mzsplit %}
+                        {% if z in rules_info.mz.split("|") %}
                             {% if dmz.append(z) %}
                             {% endif %}
                        checked> <strong> {{ z }}</strong>
@@ -73,7 +73,7 @@
                 <br>
             {% endfor %}
 
-            {% for r in rules_info.mz | mzsplit %}
+            {% for r in rules_info.mz.split("|") %}
                 {% if r not in dmz %}
                     {% if r != "custom" %}
                         <input title="mz" type="checkbox" name="mz" value="{{ r }}" checked>
@@ -95,7 +95,7 @@
 
         <div class="col-md-6">
             {% for s in score %}
-                {% set sc,sv = rules_info.score | scoresplit %}
+                {% set sc,sv = rules_info.score.split(':', 1) %}
                 {% if s  == sc %}
                     <input title="score_{{ s }}" type="text" name="score_{{ s }}" value="{{ sv }}" size="3">
                 {% else %}

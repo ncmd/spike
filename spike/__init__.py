@@ -36,21 +36,6 @@ def create_app(config_filename=''):
     app.register_blueprint(sandbox.sandbox, url_prefix='/sandbox')
 
     # register filters
-    app.jinja_env.filters['scoresplit'] = f_scoresplit
-    app.jinja_env.filters['mzsplit'] = f_mzsplit
     app.jinja_env.globals['version'] = version
 
     return app
-
-
-def f_scoresplit(value):
-    """
-    :param str value: A string of the form "name:score"
-    :return list: Return a list of the form [name, score], with score being an int
-    """
-    return value.split(":")[0:2]
-
-
-def f_mzsplit(value):
-    return value.split("|")
-
