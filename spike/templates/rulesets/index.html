@@ -17,10 +17,10 @@
 
             <div class="col-md-8">
                 <div class="btn-toolbar" role="toolbar">
-                    <a href="/rulesets/view/{{ rs.id }}" title="View File" class="btn btn-default">View </a>
-                    <a href="/rulesets/plain/{{ rs.id }}" title="View File Plain" class="btn btn-default">Plain </a>
-                    <a href="/rulesets/select/{{ rs.name }}" title="View File Plain" class="btn btn-info">Select </a>
-                    <a href="/rulesets/del/{{ rs.id }}" title="Delete File" class="btn btn-danger">Delete </a>
+                    <a href="{{ url_for('rulesets.view', rid=rs.id) }}" title="View File" class="btn btn-default">View </a>
+                    <a href="{{ url_for('rulesets.plain', rid=rs.id) }}" title="View File Plain" class="btn btn-default">Plain </a>
+                    <a href="{{ url_for('rulesets.select', selector=rs.name) }}" title="View File Plain" class="btn btn-info">Select </a>
+                    <a href="{{ url_for('rulesets.remove', rname=rs.id) }}" title="Delete File" class="btn btn-danger">Delete </a>
                 </div>
             </div>
         </div>

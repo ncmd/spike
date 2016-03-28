@@ -5,8 +5,8 @@
 {% block main %}
 
     <h3>
-        <a href="/rules/edit/{{ rule.sid }}">{{ rule.sid }} - {{ rule.msg }}</a>
-        <a href="/rules/edit/{{ rule.sid }}"class="btn btn-lg btn-primary">Edit Rule</a>
+        <a href="{{ url_for('rules.edit', sid=rule.sid) }}">{{ rule.sid }} - {{ rule.msg }}</a>
+        <a href="{{ url_for('rules.edit', sid=rule.sid) }}"class="btn btn-lg btn-primary">Edit Rule</a>
     </h3>
 
     <pre>

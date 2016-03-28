@@ -3,9 +3,9 @@
 
 {% block main %}
 
-    <h3><a href="/rules/view/{{ rules_info.sid }}">{{ rules_info.msg }}</a></h3>
+    <h3><a href="{{ url_for('rules.view', sid=rules_info.sid) }}">{{ rules_info.msg }}</a></h3>
 
-    <form action="/rules/save/{{ rules_info.sid }}" method="POST">
+    <form action="{{ url_for('rules.save', sid=rules_info.sid) }}" method="POST">
 
     <div class="row top-buffer1">
         <div class="col-md-1">
@@ -160,15 +160,15 @@
         <div class="col-md-7">
             <div class="btn-toolbar" role="toolbar">
                 <button type="submit" class="btn btn-success">Save Rule</button>
-                <a href="/rulesets/select/{{ rules_info.ruleset }}" class="btn btn-primary">View Ruleset</a>
+                <a href="{{ url_for('rulesets.select', selector=rules_info.ruleset) }}" class="btn btn-primary">View Ruleset</a>
 
                 {% if rules_info.active == 0 %}
-                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-success">Activate Rule</a>
+                    <a href="{{ url_for('rules.deact', sid=rules_info.sid) }}" class="btn btn-success">Activate Rule</a>
                 {% else %}
-                    <a href="/rules/deact/{{ rules_info.sid }}" class="btn btn-warning">Deactivate Rule</a>
+                    <a href="{{ url_for('rules.deact', sid=rules_info.sid) }}" class="btn btn-warning">Deactivate Rule</a>
                 {% endif %}
 
-                <a href="/rules/del/{{ rules_info.sid }}" class="btn btn-danger">Delete Rule</a>
+                <a href="{{ url_for('rules.del_sid', sid=rules_info.sid) }}" class="btn btn-danger">Delete Rule</a>
             </div>
         </div>
     </div>

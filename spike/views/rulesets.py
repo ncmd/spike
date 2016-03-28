@@ -66,7 +66,7 @@ def remove(rname):
 
 
 @rulesets.route("/select/<string:selector>", methods=["GET"])
-def select_id(selector):
+def select(selector):
     _rules = NaxsiRules.query.filter(NaxsiRules.ruleset == selector).order_by(NaxsiRules.sid.desc()).all()
     _selection = "Search sid: %s " % selector
     return render_template("rules/index.html", rules=_rules, selection=_selection)
