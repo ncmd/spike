@@ -113,8 +113,10 @@ class NaxsiRules(db.Model):
             self.warnings.append("Rule has no 'msg:'.")
         if not self.score:
             self.error.append("Rule has no score.")
-        if not self.mz:
+        elif not self.mz:
             self.error.append("Rule has no match zone.")
+        elif not self.sid:
+            self.error.append("Rule has no sid.")
 
     def __fail(self, msg):
         self.error.append(msg)
