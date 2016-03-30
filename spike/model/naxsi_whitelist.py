@@ -50,15 +50,12 @@ class NaxsiWhitelist(db.Model):
         lexer = shlex(str_wl)
         lexer.whitespace_split = True
         split = list(iter(lexer.get_token, ''))
-        print('VALUE: {}'.format(split))
 
         for piece in split:
             if piece == ';':
                 continue
             elif piece.startswith(('"', "'")) and (piece[0] == piece[-1]):  # remove (double-)quotes
                 piece = piece[1:-1]
-
-            print('piece: {}'.format(piece))
 
             if piece == 'BasicRule':
                 has_basicrule = True
@@ -69,7 +66,6 @@ class NaxsiWhitelist(db.Model):
             elif piece == 'negative':
                 self.negative = True
             else:
-                print('Unknown fragment: {}'.format(piece))
                 self.error.append('Unknown fragment: {}'.format(piece))
                 return False
 

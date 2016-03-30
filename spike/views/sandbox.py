@@ -79,6 +79,10 @@ def explain_whitelist():
         _wlist = NaxsiWhitelist()
         _wlist.parse(whitelist_post)
 
+    if _wlist.error:
+        flash("ERROR: {0}".format(",".join(_wlist.error)))
+    if _wlist.warnings:
+        flash("WARNINGS: {0}".format(",".join(_wlist.warnings)), 'warning')
     return render_template("misc/sandbox.html", whitelist_explaination=_wlist.explain(), whitelist=_wlist)
 
 
