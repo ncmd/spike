@@ -3,18 +3,18 @@
 {% block main %}
 
     <h2>Whitelist generator</h2>
-    <form action="{{ url_for('sandbox.explain_nxlog') }}" method="POST">
+    <form action="{{ url_for('whitelists.generate') }}" method="POST">
         <div class="row top-buffer1">
             <div class="col-md-1">
-                <textarea name="nxlog" cols="90" rows="5" placeholder="Paste your nxlogs here">{{ nxlog }}</textarea>
+                <textarea name="nxlogs" cols="120" rows="12" placeholder="Paste your nxlogs here">{{ nxlogs }}</textarea>
             </div>
         </div>
 
-        {% if nxlog_explaination %}
+        {% if whitelist %}
         <div class="row top-buffer">
             <div class="col-md-6">
                 <blockquote>
-                    {{ nxlog_explaination | safe }}
+                    {{ whitelist | safe }}
                 </blockquote>
             </div>
         </div>
@@ -23,7 +23,7 @@
         <div class="row top-buffer">
             <div class="col-md-6">
                 <div class="btn-toolbar" role="toolbar">
-                    <button type="submit" class="btn btn-info" name="log_explain">Generate</button>
+                    <button type="submit" class="btn btn-info" name="submit">Generate</button>
                 </div>
             </div>
         </div>
