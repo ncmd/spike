@@ -1,0 +1,11 @@
+{% extends "misc/application.html" %}
+{% block title %}Spike - Ruleset - View {{ r.name }}{% endblock %}
+
+{% block main %}
+
+    <h2>RuleSet - {{ r.name }}</h2>
+
+    <textarea cols="90" rows="30" title="{{ r.id }}">{{ rout }}</textarea>
+
+{% endblock main %}
+

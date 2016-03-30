@@ -1,0 +1,42 @@
+{% extends "misc/application.html" %}
+{% block title %}Spike - WhitelistSet{% endblock %}
+
+{% block main %}
+
+    <h2>
+        Naxsi - WhitelistSets <a href="{{ url_for('whitelistsets.plain') }}" class="btn btn-default">View all as plain</a>
+    </h2>
+
+    <hr>
+
+    {% for whitelistset in whitelistsets %}
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>{{ whitelistset.name }}</h5>
+            </div>
+
+            <div class="col-md-8">
+                <div class="btn-toolbar" role="toolbar">
+                    <a href="{{ url_for('whitelistsets.view', wid=whitelistset.id) }}" title="View File" class="btn btn-default">View </a>
+                    <a href="{{ url_for('whitelistsets.plain', wid=whitelistset.id) }}" title="View File Plain" class="btn btn-default">Plain </a>
+                    <a href="{{ url_for('whitelistsets.select', selector=whitelistset.name) }}" title="View File Plain" class="btn btn-info">Select </a>
+                    <a href="{{ url_for('whitelistsets.remove', wid=whitelistset.id) }}" title="Delete File" class="btn btn-danger">Delete </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <hr>
+
+    <div class="row top-buffer2">
+        <form action="{{ url_for('whitelistsets.new') }}" method="POST">
+            <div class="col-md-2">
+                <input type="text" name="wname" placeholder="Whitelist name" required>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-success">New</button>
+            </div>
+        </form>
+    </div>
+{% endblock main %}
+

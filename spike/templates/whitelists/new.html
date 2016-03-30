@@ -1,0 +1,72 @@
+{% extends "misc/application.html" %}
+{% block title %}New whitelist{% endblock %}
+
+
+{% block main %}
+
+    <h2>New whitelist</h2>
+
+    <form action="{{ url_for('whitelists.new') }}" method="POST">
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>Whitelisted ID</h5>
+            </div>
+
+            <div class="col-md-6">
+                <input type="text" name="id" size="60" placeholder="wl:42,41,43" required>
+            </div>
+        </div>
+
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>Matchzone</h5>
+            </div>
+
+            <div class="col-md-6">
+                {% for matchzone in matchzones %}
+                    <input title="matchzone" type="checkbox" name="mz" value="{{ matchzone }}"> {{ matchzone }} <br>
+                {% endfor %}
+                <input title="custom_mz" type="checkbox" name="custom_mz" value="on">
+                <input title="custom_mz_val" type="text" name="custom_mz_val" placeholder="Custom MZ">
+            </div>
+        </div>
+
+
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>Negative</h5>
+            </div>
+
+            <div class="col-md-6">
+                <input title="negative" type="checkbox" name="negative" value="checked">
+            </div>
+        </div>
+
+
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <h5>Whitelistset</h5>
+            </div>
+
+            <div class="col-md-1">
+                    <select title="whitelistset" name="whitelistset">
+                        {% for whitelistset in whitelistsets %}
+                            <option value="{{ whitelistset.name }}"> {{ whitelistset.name }}
+                        {% endfor %}
+                    </select>
+            </div>
+
+            <div class="col-md-1">
+                <a href="{{ url_for('whitelists.index') }}" class="btn btn-info btn-xs">new whitelistset</a>
+            </div>
+        </div>
+
+    
+        <div class="row top-buffer1">
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-success btn-lg">Save whitelist</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+

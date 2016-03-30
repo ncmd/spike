@@ -1,0 +1,34 @@
+{% extends "misc/application.html" %}
+{% block title %}SPIKE! - WAF Rules Builder{% endblock %}
+
+{% block main %}
+
+    <h2>Naxsi - Whitelists ( {{ whitelists | length }} )</h2>
+    <p><strong>{{ selection }}</strong></p>
+
+    <hr>
+
+    {% for whitelist in whitelists %}
+        <div class="row top-buffer1">
+            <div class="col-md-2">
+                <h5><b>{{ whitelist.wid }}</b></h5>
+            </div>
+
+            <div class="col-md-1">
+                <h5>{{ whitelist.mz }}</h5>
+            </div>
+
+            <div class="col-md-3">
+                <div class="btn-toolbar" role="toolbar">
+                    <a href="{{ url_for('whitelists.edit', wid=whitelist.wid) }}" class="btn btn-info" title="Edit whitelist">Edit</a>
+                    <a href="{{ url_for('whitelists.view', wid=whitelist.wid) }}" class="btn btn-default" title="View whitelist">View</a>
+                    <a href="{{ url_for('whitelists.explain', rule=whitelist.wid) }}" class="btn btn-default" title="Explain whitelist">Explain</a>
+                    <a href="{{ url_for('whitelists.plain', wid=whitelist.wid ) }}" class="btn btn-default" title="Plain whitelist">Plain</a>
+                    <a href="{{ url_for('whitelists.del_sid', wid=whitelist.wid) }}" class="btn btn-danger" title="Del whitelist">Delete</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock main %}
+

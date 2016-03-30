@@ -62,5 +62,35 @@
         </div>
     </form>
 
+    <hr>
+
+    <h2>Whitelist explainer</h2>
+    <form action="{{ url_for('sandbox.explain_whitelist') }}" method="POST">
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <textarea name="whitelist" cols="90" rows="5" placeholder="Your shiny whitelist here">{{ whitelist }}</textarea>
+            </div>
+        </div>
+
+        {% if whitelist_explaination %}
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <blockquote>
+                    {{ whitelist_explaination | safe }}
+                </blockquote>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <div class="btn-toolbar" role="toolbar">
+                    <button type="submit" class="btn btn-info" name="whitelist_explain">Explain</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
 {% endblock %}
 

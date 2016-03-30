@@ -6,6 +6,7 @@ except ImportError:  # python3
 from flask import Blueprint, render_template, request, redirect, flash
 
 from spike.model.naxsi_rules import NaxsiRules
+from spike.model.naxsi_whitelist import NaxsiWhitelist
 
 sandbox = Blueprint('sandbox', __name__)
 
@@ -57,6 +58,28 @@ def explain_rule():
         _rule.parse_rule(rule_post)
 
     return render_template("misc/sandbox.html", rule_explaination=_rule.explain(), rule=_rule)
+
+
+@sandbox.route("/explain_whitelist/", methods=["GET", "POST"])
+def explain_whitelist():
+    whitelist_get = request.args.get('whitelist', '')
+    whitelist_post = request.form.get('whitelist', '')
+    if whitelist_get.isdigit():  # explain a whitelist by id
+        _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == whitelist_get).first()
+        if _wlist is None:
+            flash('Not rule with id %s' % whitelist_get.id)
+            return redirect("/sandbox/")
+    elif whitelist_get is not '':
+        flash('Please provide a numeric id')
+        return redirect("/sandbox/")
+    elif not whitelist_post:
+        flash('Please provide a whitelist')
+        return redirect("/sandbox/")
+    else:
+        _wlist = NaxsiWhitelist()
+        _wlist.parse(whitelist_post)
+
+    return render_template("misc/sandbox.html", whitelist_explaination=_wlist.explain(), whitelist=_wlist)
 
 
 @sandbox.route('/explain_nxlog/', methods=["POST"])

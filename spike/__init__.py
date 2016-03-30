@@ -5,7 +5,7 @@ import logging
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 
-from spike.views import default, rules, rulesets, sandbox
+from spike.views import default, rules, rulesets, sandbox, whitelists, whitelistsets
 from spike.model import db
 
 version = "0.5 "
@@ -34,6 +34,8 @@ def create_app(config_filename=''):
     app.register_blueprint(rules.rules, url_prefix='/rules')
     app.register_blueprint(rulesets.rulesets, url_prefix='/rulesets')
     app.register_blueprint(sandbox.sandbox, url_prefix='/sandbox')
+    app.register_blueprint(whitelists.whitelists, url_prefix='/whitelists')
+    app.register_blueprint(whitelistsets.whitelistsets, url_prefix='/whitelistsets')
 
     # register filters
     app.jinja_env.globals['version'] = version

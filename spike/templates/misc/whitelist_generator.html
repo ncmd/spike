@@ -1,0 +1,33 @@
+{% extends "misc/application.html" %}
+
+{% block main %}
+
+    <h2>Whitelist generator</h2>
+    <form action="{{ url_for('sandbox.explain_nxlog') }}" method="POST">
+        <div class="row top-buffer1">
+            <div class="col-md-1">
+                <textarea name="nxlog" cols="90" rows="5" placeholder="Paste your nxlogs here">{{ nxlog }}</textarea>
+            </div>
+        </div>
+
+        {% if nxlog_explaination %}
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <blockquote>
+                    {{ nxlog_explaination | safe }}
+                </blockquote>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row top-buffer">
+            <div class="col-md-6">
+                <div class="btn-toolbar" role="toolbar">
+                    <button type="submit" class="btn btn-info" name="log_explain">Generate</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+{% endblock %}

@@ -13,7 +13,7 @@ rulesets = Blueprint('rulesets', __name__)
 @rulesets.route("/")
 def index():
     _rulesets = NaxsiRuleSets.query.order_by(NaxsiRuleSets.name).all()
-    return render_template("/rulesets/index.html", rulesets=_rulesets)
+    return render_template("rulesets/index.html", rulesets=_rulesets)
 
 
 @rulesets.route("/plain/")
@@ -33,7 +33,7 @@ def plain(rid=0):
 @rulesets.route("/view/<int:rid>")
 def view(rid):
     ruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rid).first()
-    return render_template("/rulesets/view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
+    return render_template("rulesets/view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
 
 
 @rulesets.route("/new", methods=["POST"])

@@ -206,7 +206,7 @@ class NaxsiRules(db.Model):
         return True
 
     @staticmethod
-    def splitter(full_str):
+    def __splitter(full_str):
         lexer = shlex(full_str)
         lexer.whitespace_split = True
         return list(iter(lexer.get_token, ''))
@@ -225,7 +225,7 @@ class NaxsiRules(db.Model):
                     "mz:": self.__validate_matchzone, "negative": lambda p_str, assign=False: p_str == 'checked',
                     "s:": self.__validate_score}
 
-        split = self.splitter(full_str)  # parse string
+        split = self.__splitter(full_str)  # parse string
         intersection = set(split).intersection(set(self.mr_kw))
 
         if not intersection:

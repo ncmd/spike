@@ -159,7 +159,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
         rv = self.app.get('/rules/search/?s="OR 1=1;--')
         self.assertEqual(rv.status_code, 200)
-        self.assertIn('<input type="text" name="s" size="20" value="&#34;OR 1=1;--"', str(rv.data))
+        self.assertIn('value="&#34;OR 1=1;--"', str(rv.data))
         self.assertIn('<p><strong>Search: OR 11--</strong></p>', str(rv.data))  # filtered data
 
         rv = self.app.get('/rules/search/?s=1337')  # get rule by id

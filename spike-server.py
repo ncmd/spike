@@ -8,8 +8,9 @@ import sys
 from time import time, strftime, localtime
 
 from spike import create_app, version
-from spike.model import db, rulesets_seeds
+from spike.model import db, rulesets_seeds, whitelists_seeds
 from spike.model.naxsi_rulesets import NaxsiRuleSets
+from spike.model.naxsi_whitelistsets import NaxsiWhitelistSets
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -48,6 +49,10 @@ def spike_init():
         logging.info("Adding ruleset: %s", r)
         rmks = "Ruleset for %s / auto-created %s" % (r, strftime("%F - %H:%M", localtime(time())))
         db.session.add(NaxsiRuleSets(r, rmks, timestamp))
+    for w in whitelists_seeds:
+        logging.info("Adding whitelistset: %s", w)
+        rmks = "Ruleset for %s / auto-created %s" % (w, strftime("%F - %H:%M", localtime(time())))
+        db.session.add(NaxsiWhitelistSets(w, rmks, timestamp))
     try:
         db.session.commit()
     except SQLAlchemyError:
