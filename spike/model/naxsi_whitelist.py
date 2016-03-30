@@ -57,9 +57,7 @@ class NaxsiWhitelist(db.Model):
             elif piece.startswith(('"', "'")) and (piece[0] == piece[-1]):  # remove (double-)quotes
                 piece = piece[1:-1]
 
-            if piece == 'BasicRule':
-                has_basicrule = True
-            elif piece.startswith('wl:'):
+            if piece.startswith('wl:'):
                 self.__validate_id(piece[3:])
             elif piece.startswith('mz:'):
                 self.__validate_mz(piece[3:])
@@ -98,8 +96,3 @@ class NaxsiWhitelist(db.Model):
             return ret + '.'
 
         return ret + ' if matching in {}.'.format(self.mz)
-
-
-    @staticmethod
-    def generate_from_nxlog(nxlogs):
-        return ''
