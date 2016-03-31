@@ -23,12 +23,11 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
 
         rv = self.app.post('/whitelists/new', data={'id':'wl:42',
-                                                    'mz':'BODY', 'custom_mz_val':'',
-                                                    'negative': 'true', 'whitelistset': 'WORDPRESS'})
+                                                    'mz':'BODY', 'custom_mz_val':'',  'whitelistset': 'WORDPRESS'})
         self.assertEqual(rv.status_code, 200)
         _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first()
         self.assertEqual(_wlist.mz, 'BODY')
-        self.assertEqual(_wlist.negative, 1)
+        self.assertEqual(_wlist.negative, 0)
         self.assertEqual(_wlist.wid, 'wl:42')
 
     def test_generate(self):
