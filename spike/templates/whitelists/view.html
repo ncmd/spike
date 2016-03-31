@@ -1,0 +1,20 @@
+{% extends "misc/application.html" %}
+{% block title %}View {{ whitelist.id }} {% endblock %}
+
+
+{% block main %}
+
+    <h3>
+        <a href="{{ url_for('whitelists.edit', wid=whitelist.id) }}">{{ whitelist.id }}</a>
+        <a href="{{ url_for('whitelists.edit', wid=whitelist.id) }}" class="btn btn-lg btn-primary">Edit whitelist</a>
+    </h3>
+
+    <pre>
+  
+{{ whitelist }}
+
+    </pre>
+
+
+{% endblock %}
+

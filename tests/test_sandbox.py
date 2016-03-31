@@ -77,12 +77,53 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertIn('performed a request to', str(rv.data))
 
     def test_explain_whitelist(self):
-        rv = self.app.get('/sandbox/explain_whitelist/',
+        rv =self.app.get('/sandbox/explain_whitelist/?whitelist=pouet')
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/sandbox/explain_whitelist/')
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
                           data={'whitelist': 'BasicRule wl:0 "mz:$ARGS_VAR:foo|$URL:/bar";'})
         self.assertEqual(rv.status_code, 200)
         self.assertIn('Whitelist all rules if matching in $ARGS_VAR:foo|$URL:/bar.', str(rv.data))
 
-        rv = self.app.get('/sandbox/explain_whitelist/',
+        rv = self.app.post('/sandbox/explain_whitelist/',
                           data={'whitelist': 'BasicRule wl:1000 "lol:pouet";'})
         self.assertEqual(rv.status_code, 200)
         self.assertIn('Unknown fragment:', str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule wl:AAA "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('Illegal character in the whitelist id.', str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule negative wl:AAA "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('Illegal character in the whitelist id.', str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'wl:2 "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("No &#39;BasicRule&#39; keyword", str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule wl:2 "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("Whitelist the rule 2 if matching in $ARGS_VAR:foo|$URL:/bar.", str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule wl:2,3 "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("Whitelist the rule 2, the rule 3 if matching in $ARGS_VAR:foo|$URL:/bar.", str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule wl:2,-3 "mz:$ARGS_VAR:foo|$URL:/bar";'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("Whitelist the rule 2, except the rule 3 if matching in $ARGS_VAR:foo|$URL:/bar.", str(rv.data))
+
+        rv = self.app.post('/sandbox/explain_whitelist/',
+                          data={'whitelist': 'BasicRule wl:2 ;'})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("Whitelist the rule 2.", str(rv.data))

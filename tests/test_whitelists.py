@@ -2,6 +2,7 @@ import unittest
 
 from spike import create_app
 from spike.model import db
+from spike.model.naxsi_whitelist import NaxsiWhitelist
 
 try:
     from urlparse import urlparse
@@ -17,15 +18,19 @@ class FlaskrTestCase(unittest.TestCase):
         self.app = app.test_client()
         self.created_rules = list()
 
-    def tearDown(self):
-        pass
-
-    def test_index(self):
-        rv = self.app.get('/whitelists/')
-
     def test_new(self):
         rv = self.app.get('/whitelists/new')
         self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.post('/whitelists/new', data={'id':'wl:42',
+                                                    'mz':'BODY', 'custom_mz_val':'',
+                                                    'negative': 'true', 'whitelistset': 'WORDPRESS'})
+        self.assertEqual(rv.status_code, 200)
+        _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first()
+        self.assertEqual(_wlist.mz, 'BODY')
+        self.assertEqual(_wlist.negative, 1)
+        self.assertEqual(_wlist.wid, 'wl:42')
+
 
     def test_generate(self):
         rv = self.app.get('/whitelists/generate')
@@ -50,3 +55,4 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('/whitelists/generate', data={'nxlogs': logs})
         self.assertEqual(rv.status_code, 200)
         self.assertIn('BasicRule wl:42000227 "mz:user-agent:HEADERS"', str(rv.data))
+

@@ -47,7 +47,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        self.assertIn(('OK: created %d : %s' % (_rule.sid, _rule.msg)), str(rv.data))
+        self.assertIn(('OK: created %d ' % _rule.sid), str(rv.data))
         self.assertEqual(_rule.msg, data['msg'])
         self.assertEqual(_rule.detection, data['detection'])
         self.assertEqual(_rule.mz, data['mz'])

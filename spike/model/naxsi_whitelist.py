@@ -6,6 +6,7 @@ from shlex import shlex
 from spike.model.naxsi_rules import NaxsiRules
 from flask import url_for
 
+
 class NaxsiWhitelist(db.Model):
     __bind_key__ = 'rules'
     __tablename__ = 'naxsi_whitelist'
@@ -70,9 +71,12 @@ class NaxsiWhitelist(db.Model):
                 return False
 
         if 'BasicRule' not in split:
-            self.error.append('No "BasicRule" keyword in {}'.format(str_wl))
+            self.error.append("No 'BasicRule' keyword in {}".format(str_wl))
             return False
 
+        return True
+
+    def validate(self):
         return True
 
     def explain(self):
@@ -89,9 +93,9 @@ class NaxsiWhitelist(db.Model):
             zones = list()
             for rid in self.wid.split(','):
                 if rid.startswith('-'):
-                    zones.append('except the rule {}'.format(__linkify_rule(self.wid)))
+                    zones.append('except the rule {}'.format(__linkify_rule(rid[1:])))
                 else:
-                    zones.append('the rule {}'.format(__linkify_rule(self.wid)))
+                    zones.append('the rule {}'.format(__linkify_rule(rid)))
             ret = 'Whitelist '+ ', '.join(zones)
 
         if not self.mz:

@@ -21,8 +21,8 @@
             <div class="col-md-3">
                 <div class="btn-toolbar" role="toolbar">
                     <a href="{{ url_for('whitelists.edit', wid=whitelist.wid) }}" class="btn btn-info" title="Edit whitelist">Edit</a>
-                    <a href="{{ url_for('whitelists.view', wid=whitelist.wid) }}" class="btn btn-default" title="View whitelist">View</a>
-                    <a href="{{ url_for('whitelists.explain', rule=whitelist.wid) }}" class="btn btn-default" title="Explain whitelist">Explain</a>
+                    <a href="{{ url_for('whitelists.view', wid=whitelist.id) }}" class="btn btn-default" title="View whitelist">View</a>
+                    <a href="{{ url_for('sandbox.explain_whitelist', rule=whitelist.wid) }}" class="btn btn-default" title="Explain whitelist">Explain</a>
                     <a href="{{ url_for('whitelists.plain', wid=whitelist.wid ) }}" class="btn btn-default" title="Plain whitelist">Plain</a>
                     <a href="{{ url_for('whitelists.del_sid', wid=whitelist.wid) }}" class="btn btn-danger" title="Del whitelist">Delete</a>
                 </div>

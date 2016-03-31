@@ -3,7 +3,7 @@ import re
 import string
 
 from time import time
-from flask import Blueprint, render_template, request, redirect, flash, Response
+from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
 from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
@@ -19,7 +19,7 @@ def index():
     _rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
     if not _rules:
         flash("no rules found, please create one", "success")
-        return redirect("/rules/new")
+        return redirect(url_for("rules.new"))
     return render_template("rules/index.html", rules=_rules)
 
 
@@ -28,7 +28,7 @@ def plain(sid):
     _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not _rule:
         flash("no rules found, please create one", "error")
-        return redirect("/rules/new")
+        return redirect(url_for("rules.new"))
     return Response(_rule.fullstr(), mimetype='text/plain')
 
 
@@ -37,7 +37,7 @@ def view(sid):
     _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if _rule is None:
         flash("no rules found, please create one", "error")
-        return redirect("/rules/")
+        return redirect(url_for("rules.index"))
 
     return render_template("rules/view.html", rule=_rule, rtext=_rule)
 
@@ -47,7 +47,7 @@ def search():
     terms = request.args.get('s', '')
 
     if len(terms) < 2:
-        return redirect('/rules')
+        return redirect(url_for("rules.index"))
 
     # No fancy injections
     whitelist = set(string.ascii_letters + string.digits + ':-_ ')
@@ -95,7 +95,7 @@ def new():
 
     if nrule.error:
         flash("ERROR: {0}".format(",".join(nrule.error)))
-        return redirect("/rules/new")
+        return redirect(url_for("rules.new"))
     elif nrule.warnings:
         flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
     db.session.add(nrule)
@@ -107,14 +107,14 @@ def new():
     except SQLAlchemyError:
         flash("ERROR while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
 
-    return redirect("/rules/new")
+    return redirect(url_for("rules.new"))
 
 
 @rules.route("/edit/<int:sid>", methods=["GET", "POST"])
 def edit(sid):
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not rinfo:
-        return redirect("/rules/")
+        return redirect(url_for("rules.index"))
 
     _rulesets = NaxsiRuleSets.query.all()
     rruleset = NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rinfo.ruleset).first()
@@ -163,7 +163,7 @@ def save(sid):
 def del_sid(sid=''):
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not nrule:
-        return redirect("/rules/")
+        return redirect(url_for("rules.index"))
 
     db.session.delete(nrule)
     try:
@@ -172,14 +172,14 @@ def del_sid(sid=''):
     except SQLAlchemyError:
         flash("ERROR while trying to update %s : %s" % (sid, nrule.msg), "error")
 
-    return redirect("/rules/")
+    return redirect(url_for("rules.index"))
 
 
 @rules.route("/deact/<int:sid>", methods=["GET"])
 def deact(sid):
     nrule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if nrule is None:
-        return redirect("/rules/")
+        return redirect(url_for("rules.index"))
 
     fm = 'deactivate' if nrule.active else 'reactivate'
     nrule.active = not nrule.active

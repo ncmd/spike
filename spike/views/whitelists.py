@@ -37,11 +37,11 @@ def plain(wid):
 
 @whitelists.route("/view/<string:wid>", methods=["GET"])
 def view(wid):
-    _wlist = NaxsiWhitelist.query.filter(NaxsiRules.sid == wid).first()
+    _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == wid).first()
     if _wlist is None:
         flash("no rules found, please create one", "error")
         return redirect(url_for('whitelists.index'))
-    return render_template("rules/view.html", rule=_wlist, rtext=_wlist)
+    return render_template("whitelists/view.html", whitelist=_wlist)
 
 
 @whitelists.route("/edit/<string:wid>", methods=["GET"])
@@ -49,14 +49,21 @@ def edit(wid):
     return redirect(url_for('whitelists.new'))
 
 
-@whitelists.route("/explain/", methods=["GET", "POST"])
-def explain():
-    return redirect(url_for('whitelists.new'))
-
-
 @whitelists.route("/del/<string:wid>", methods=["GET"])
 def del_sid(wid):
-    return redirect(url_for('whitelists.new'))
+    _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.sid == wid).first()
+    if not _wlist:
+        return redirect(url_for('whitelists.index'))
+
+    db.session.delete(_wlist)
+
+    try:
+        db.session.commit()
+        flash("OK: deleted %s : %s" % (wid, _wlist.msg), "success")
+    except SQLAlchemyError:
+        flash("ERROR while trying to update %s" % wid, "error")
+
+    return redirect(url_for('whitelists.index'))
 
 
 @whitelists.route("/generate", methods=["GET", "POST"])
@@ -117,14 +124,14 @@ def new():
     wlist = NaxsiWhitelist(wid=request.form.get("id", ""), timestamp=int(time()),
                             whitelistset=request.form.get("whitelistset", ""), mz=mz, active=1,
                             negative=request.form.get("negative", "") == 'checked')
-
     wlist.validate()
 
     if wlist.error:
         flash("ERROR: {0}".format(",".join(wlist.error)))
-        return redirect("/rules/new")
+        return redirect(url_for('whitelists.new'))
     elif wlist.warnings:
         flash("WARNINGS: {0}".format(",".join(wlist.warnings)))
+
     db.session.add(wlist)
 
     try:
@@ -133,4 +140,4 @@ def new():
     except SQLAlchemyError as e:
         flash("Error : %s" % e, "error")
 
-    return redirect(url_for('whitelists.index'))
+    return render_template('whitelists/index.html')
