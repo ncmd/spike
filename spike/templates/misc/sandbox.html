@@ -3,7 +3,7 @@
 {% block main %}
 
     <h2>Rule explainer</h2>
-    <form action="{{ url_for('sandbox.rule') }}" method="POST">
+    <form action="{{ url_for('sandbox.explain_rule') }}" method="POST">
         <div class="row top-buffer1">
             <div class="col-md-1">
                 <textarea name="rule" cols="90" rows="5" placeholder="Your shiny rule here">{{ rule }}</textarea>
@@ -23,7 +23,6 @@
         <div class="row top-buffer">
             <div class="col-md-6">
                 <div class="btn-toolbar" role="toolbar">
-                    <button type="submit" class="btn btn-success" name="analyze_rule">Analyze</button>
                     <button type="submit" class="btn btn-info" name="explain_rule">Explain</button>
                     <button type="submit" class="btn btn-info" name="visualise_rule">Visualise the regexp</button>
                     <a href="https://github.com/nbs-system/naxsi/blob/master/naxsi_config/naxsi_core.rules" target='_blank' class="btn btn-default">Examples</a>

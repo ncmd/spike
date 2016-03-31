@@ -10,23 +10,16 @@ except ImportError:  # python3
 
 
 class FlaskrTestCase(TestsThatNeedsRules):
-    def test_sandbox_rule(self):
-        rv = self.app.get('/sandbox/rule')
-        self.assertEqual(rv.status_code, 405)
-
-        rv = self.app.post('/sandbox/rule')
-        self.assertEqual(rv.status_code, 200)
-
     def test_sandbox_visualize(self):
         data = {'rule': 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',
                 'visualise_rule': '1'}
-        rv = self.app.post('/sandbox/rule', data=data)
+        rv = self.app.post('/sandbox/explain_rule/', data=data)
         self.assertEqual(rv.status_code, 302)
         self.assertIn('https://regexper.com/#^POUET$', str(rv.data))
 
         del data['visualise_rule']
         data['explain_rule'] = 1
-        rv = self.app.post('/sandbox/rule', data=data)
+        rv = self.app.post('/sandbox/explain_rule/', data=data)
         _rule = NaxsiRules('sqli', 'rx:^POUET$', 'BODY|URL|ARGS|$HEADERS_VAR:Cookie', '$SQL:8', '1005', "", "sqli")
         self.assertIn(str(_rule.explain()), str(rv.data).replace('\\', ''))
 
@@ -47,7 +40,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertEqual(rv.status_code, 302)
         self.assertEqual(urlparse(rv.location).path, '/sandbox/')
 
-        data = 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;'
+        data = 'MainRule "rx:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005 ;'
         rv = self.app.post('/sandbox/explain_rule/', data={'rule': data})
         self.assertEqual(rv.status_code, 200)
         _rule = NaxsiRules()

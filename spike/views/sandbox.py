@@ -16,28 +16,6 @@ def index():
     return render_template("misc/sandbox.html")
 
 
-@sandbox.route("/rule", methods=["POST"])
-def rule():
-    _textual_rule = request.form.get("rule", '')
-    if not _textual_rule:
-        return render_template("misc/sandbox.html")
-
-    _rule = NaxsiRules()
-    _rule.parse_rule(_textual_rule)
-
-    if 'visualise_rule' in request.form:
-        if _rule.detection.startswith('rx:'):
-            return redirect('https://regexper.com/#' + _rule.detection[3:])
-    elif 'explain_rule' in request.form:
-        return render_template("misc/sandbox.html", rule_explaination=_rule.explain(), rule=_rule)
-
-    if _rule.error:
-        flash("ERROR: {0}".format(",".join(_rule.error)))
-    if _rule.warnings:
-        flash("WARNINGS: {0}".format(",".join(_rule.warnings)), 'warning')
-    return render_template("misc/sandbox.html", rule=_rule)
-
-
 @sandbox.route("/explain_rule/", methods=["GET", "POST"])
 def explain_rule():
     rule_get = request.args.get('rule', '')
@@ -56,6 +34,19 @@ def explain_rule():
     else:
         _rule = NaxsiRules()
         _rule.parse_rule(rule_post)
+
+    if 'visualise_rule' in request.form:
+        if _rule.detection.startswith('rx:'):
+            return redirect('https://regexper.com/#' + _rule.detection[3:])
+        else:
+            flash('The rule is not a regexp, so you can not visualize it.', category='error')
+
+    if hasattr(_rule, 'error'):
+        for error in _rule.error:
+            flash(error, category='error')
+    if hasattr(_rule, 'warning'):
+        for warnings in _rule.warnings:
+            flash(warnings, category='warning')
 
     return render_template("misc/sandbox.html", rule_explaination=_rule.explain(), rule=_rule)
 
@@ -79,11 +70,13 @@ def explain_whitelist():
         _wlist = NaxsiWhitelist()
         _wlist.parse(whitelist_post)
 
-    if _wlist.error:
-        flash(",".join(_wlist.error), category='error')
-        return render_template("misc/sandbox.html", whitelist=_wlist)
-    if _wlist.warnings:
-        flash(",".join(_wlist.warnings), category='warning')
+    if hasattr(_wlist, 'error'):
+        for error in _wlist.error:
+            flash(error, category='error')
+    if hasattr(_wlist, 'warning'):
+        for warnings in _wlist.warnings:
+            flash(warnings, category='warning')
+
     return render_template("misc/sandbox.html", whitelist_explaination=_wlist.explain(), whitelist=_wlist)
 
 
