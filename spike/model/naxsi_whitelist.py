@@ -12,7 +12,7 @@ class NaxsiWhitelist(db.Model):
     __tablename__ = 'naxsi_whitelist'
 
     id = db.Column(db.Integer, primary_key=True)
-    wid = db.Column(db.String, nullable=False, unique=True)
+    wid = db.Column(db.String, nullable=False)
     mz = db.Column(db.String(1024), nullable=False)
     negative = db.Column(db.Integer, nullable=False, server_default='0')
     active = db.Column(db.Integer, nullable=False, server_default='1')

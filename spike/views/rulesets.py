@@ -1,6 +1,6 @@
 from time import time, localtime, strftime
 
-from flask import current_app, Blueprint, render_template, request, redirect, flash, Response
+from flask import current_app, Blueprint, render_template, request, redirect, flash, Response, url_for
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
@@ -42,13 +42,13 @@ def new():  # TODO filter parameter
 
     if NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rname).first():
         flash("ERROR, ruleset exists: %s " % rname, "error")
-        return redirect("/rulesets/")
+        return redirect(url_for("rulesets.index"))
 
     db.session.add(NaxsiRuleSets(rname, "naxsi-ruleset: %s" % rname, int(time())))
     db.session.commit()
 
     flash("OK created: %s " % rname, "success")
-    return redirect("/rulesets/")
+    return redirect(url_for("rulesets.index"))
 
 
 @rulesets.route("/del/<int:rname>", methods=["POST"])
@@ -56,13 +56,13 @@ def remove(rname):
     _rset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rname).first()
     if _rset is None:
         flash("ERROR, ruleset doesn't exists: %s " % rname, "error")
-        return redirect("/rulesets/")
+        return redirect(url_for("rulesets.index"))
 
     db.session.delete(_rset)
     db.session.commit()
 
     flash("OK deleted: %s " % rname, "success")
-    return redirect("/rulesets/")
+    return redirect(url_for("rulesets.index"))
 
 
 @rulesets.route("/select/<string:selector>", methods=["GET"])

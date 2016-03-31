@@ -31,7 +31,6 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(_wlist.negative, 1)
         self.assertEqual(_wlist.wid, 'wl:42')
 
-
     def test_generate(self):
         rv = self.app.get('/whitelists/generate')
         self.assertEqual(rv.status_code, 200)

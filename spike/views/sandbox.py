@@ -3,7 +3,7 @@ try:
 except ImportError:  # python3
     from urllib.parse import parse_qs
 
-from flask import Blueprint, render_template, request, redirect, flash
+from flask import Blueprint, render_template, request, redirect, flash, url_for
 
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_whitelist import NaxsiWhitelist
@@ -46,13 +46,13 @@ def explain_rule():
         _rule = NaxsiRules.query.filter(NaxsiRules.sid == rule_get).first()
         if _rule is None:
             flash('Not rule with id %s' % rule_get)
-            return redirect("/sandbox/")
+            return redirect(url_for("sandbox.index"))
     elif rule_get is not '':
         flash('Please provide a numeric id')
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
     elif not rule_post:
         flash('Please provide a rule')
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
     else:
         _rule = NaxsiRules()
         _rule.parse_rule(rule_post)
@@ -68,13 +68,13 @@ def explain_whitelist():
         _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == whitelist_get).first()
         if _wlist is None:
             flash('Not rule with id %s' % whitelist_get.id)
-            return redirect("/sandbox/")
+            return redirect(url_for("sandbox.index"))
     elif whitelist_get is not '':
         flash('Please provide a numeric id')
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
     elif not whitelist_post:
         flash('Please provide a whitelist')
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
     else:
         _wlist = NaxsiWhitelist()
         _wlist.parse(whitelist_post)
@@ -91,17 +91,17 @@ def explain_whitelist():
 def explain_nxlog():
     nxlog = request.form.get("nxlog", '')
     if not nxlog:
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
 
     start = nxlog.find("ip=")
     if start < 0:
         flash('{} is an invalid extlog, string "ip=" not found.'.format(nxlog))
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
 
     end = nxlog.find(", ")
     if end < 0:
         flash('{} is an invalid extlog, string "," not found.'.format(nxlog))
-        return redirect("/sandbox/")
+        return redirect(url_for("sandbox.index"))
 
     # Flatten the dict, since parse_qs is a bit annoying
     nxdic = parse_qs(nxlog[start:end])
