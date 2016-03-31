@@ -32,7 +32,7 @@ class NaxsiWhitelist(db.Model):
         return 'BasicRule {}wl:{} "mz:{}";'.format('negative ' if self.negative else ' ', self.wid, self.mz)
 
     def __validate_id(self, wid):
-        if not re.match(r':(\-?\d+,)\-?\d+', wid):
+        if not re.match(r'(\-?\d+,)*\-?\d+', wid):
             self.error.append('Illegal character in the whitelist id.')
             return False
         self.wid = wid
@@ -57,7 +57,9 @@ class NaxsiWhitelist(db.Model):
             elif piece.startswith(('"', "'")) and (piece[0] == piece[-1]):  # remove (double-)quotes
                 piece = piece[1:-1]
 
-            if piece.startswith('wl:'):
+            if piece == 'BasicRule':
+                continue
+            elif piece.startswith('wl:'):
                 self.__validate_id(piece[3:])
             elif piece.startswith('mz:'):
                 self.__validate_mz(piece[3:])

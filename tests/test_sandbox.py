@@ -78,7 +78,7 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
     def test_explain_whitelist(self):
         rv = self.app.get('/sandbox/explain_whitelist/',
-                          data={'whitelist': 'BasicRule wl:1000 "mz:$ARGS_VAR:foo|$URL:/bar";'})
+                          data={'whitelist': 'BasicRule wl:0 "mz:$ARGS_VAR:foo|$URL:/bar";'})
         self.assertEqual(rv.status_code, 200)
         self.assertIn('Whitelist all rules if matching in $ARGS_VAR:foo|$URL:/bar.', str(rv.data))
 
