@@ -17,11 +17,11 @@ class FlaskrTestCase(TestsThatNeedsRules):
         self.assertEqual(rv.status_code, 302)
         self.assertIn('https://regexper.com/#^POUET$', str(rv.data))
 
-        del data['visualise_rule']
-        data['explain_rule'] = 1
+        data = {'rule': 'MainRule "str:^POUET$" "msg: sqli"  "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005;',
+                'visualise_rule': '1'}
         rv = self.app.post('/sandbox/explain_rule/', data=data)
-        _rule = NaxsiRules('sqli', 'rx:^POUET$', 'BODY|URL|ARGS|$HEADERS_VAR:Cookie', '$SQL:8', '1005', "", "sqli")
-        self.assertIn(str(_rule.explain()), str(rv.data).replace('\\', ''))
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('The rule is not a regexp, so you can not visualize it.', str(rv.data))
 
     def test_explain_rule(self):
         rv = self.app.get('/sandbox/explain_rule/')
@@ -46,6 +46,11 @@ class FlaskrTestCase(TestsThatNeedsRules):
         _rule = NaxsiRules()
         _rule.parse_rule(data)
         self.assertIn(_rule.explain(), str(rv.data))
+
+        data = 'MainRule "lol:^POUET$" "msg: sqli" "mz:BODY|URL|ARGS|$HEADERS_VAR:Cookie" "s:$SQL:8" id:1005 ;'
+        rv = self.app.post('/sandbox/explain_rule/', data={'rule': data})
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn('&#39;lol:^POUET$&#39; is an invalid element and thus can not be parsed.', str(rv.data))
 
     def test_explain_nxlog(self):
         rv = self.app.get('/sandbox/explain_nxlog/')
@@ -75,6 +80,9 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
         rv = self.app.get('/sandbox/explain_whitelist/')
         self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/sandbox/explain_whitelist/?whitelist=13371337', follow_redirects=True)
+        self.assertIn('Not rule with id 13371337', str(rv.data))
 
         rv = self.app.post('/sandbox/explain_whitelist/',
                           data={'whitelist': 'BasicRule wl:0 "mz:$ARGS_VAR:foo|$URL:/bar";'})

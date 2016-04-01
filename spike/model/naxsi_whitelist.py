@@ -32,8 +32,8 @@ class NaxsiWhitelist(db.Model):
     def __str__(self):
         return 'BasicRule {}wl:{} "mz:{}";'.format('negative ' if self.negative else ' ', self.wid, self.mz)
 
-    def __validate_id(self, wid):
-        if not re.match(r'(\-?\d+,)*\-?\d+', wid):
+    def __validate_wid(self, wid):
+        if not re.match(r'wl:(\-?\d+,)*\-?\d+', wid):
             self.error.append('Illegal character in the whitelist id.')
             return False
         self.wid = wid
@@ -61,7 +61,7 @@ class NaxsiWhitelist(db.Model):
             if piece == 'BasicRule':
                 continue
             elif piece.startswith('wl:'):
-                self.__validate_id(piece[3:])
+                self.__validate_wid(piece)
             elif piece.startswith('mz:'):
                 self.__validate_mz(piece[3:])
             elif piece == 'negative':
@@ -70,13 +70,21 @@ class NaxsiWhitelist(db.Model):
                 self.error.append('Unknown fragment: {}'.format(piece))
                 return False
 
+            if not piece.islower():
+                self.warnings.append('Your whitelist is not completely in lowercase.')
+
         if 'BasicRule' not in split:
-            self.error.append("No 'BasicRule' keyword in {}".format(str_wl))
+            self.error.append("No 'BasicRule' keyword in {}.".format(str_wl))
             return False
 
         return True
 
     def validate(self):
+        self.warnings = list()
+        self.error = list()
+
+        self.__validate_wid(self.wid)
+        self.__validate_mz(self.mz)
         return True
 
     def explain(self):
@@ -85,13 +93,13 @@ class NaxsiWhitelist(db.Model):
                 return rid
             return '<a href="{}">{}</a>'.format(url_for('rules.view', sid=rid), self.wid)
 
-        if self.wid == '0':
+        if self.wid == 'wl:0':
             ret = 'Whitelist all rules'
-        elif self.wid.isdigit():
-            ret = 'Whitelist the rule {}'.format(__linkify_rule(self.wid))
+        elif self.wid[3:].isdigit():
+            ret = 'Whitelist the rule {}'.format(__linkify_rule(self.wid[3:]))
         else:
             zones = list()
-            for rid in self.wid.split(','):
+            for rid in self.wid[3:].split(','):
                 if rid.startswith('-'):
                     zones.append('except the rule {}'.format(__linkify_rule(rid[1:])))
                 else:

@@ -115,14 +115,20 @@ def new():
         return render_template('whitelists/new.html', matchzones=naxsi_mz, whitelistsets=_whitelistesets)
 
     logging.debug('Posted new request: %s', request.form)
+
     mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
+    wid = request.form.get('wid', '')
+    whitelistset = request.form.get("whitelistset", '')
 
-    score = request.form.get("score", "")
-    score += ':'
-    score += request.form.get("score_%s" % request.form.get("score", ""), "")
+    if not wid:
+        flash('Please enter a wid', category='error')
+        return render_template('whitelists/new.html')
+    elif not whitelistset:
+        flash('Please enter a whitelistset', category='error')
+        return render_template('whitelists/new.html')
 
-    wlist = NaxsiWhitelist(wid=request.form.get("id", ""), timestamp=int(time()),
-                            whitelistset=request.form.get("whitelistset", ""), mz=mz, active=1,
+    wlist = NaxsiWhitelist(wid=wid, timestamp=int(time()),
+                            whitelistset=whitelistset, mz=mz, active=1,
                             negative=request.form.get("negative", "") == 'checked')
     wlist.validate()
 

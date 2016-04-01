@@ -58,7 +58,7 @@ def explain_whitelist():
     if whitelist_get.isdigit():  # explain a whitelist by id
         _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == whitelist_get).first()
         if _wlist is None:
-            flash('Not rule with id %s' % whitelist_get.id)
+            flash('Not rule with id %s' % whitelist_get)
             return redirect(url_for("sandbox.index"))
     elif whitelist_get is not '':
         flash('Please provide a numeric id')

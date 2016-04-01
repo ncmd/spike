@@ -38,7 +38,6 @@ def view(sid):
     if _rule is None:
         flash("no rules found, please create one", "error")
         return redirect(url_for("rules.index"))
-
     return render_template("rules/view.html", rule=_rule, rtext=_rule)
 
 
@@ -94,10 +93,12 @@ def new():
     nrule.validate()
 
     if nrule.error:
-        flash("ERROR: {0}".format(",".join(nrule.error)))
+        for error in nrule.error:
+            flash(error, category='error')
         return redirect(url_for("rules.new"))
     elif nrule.warnings:
-        flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
+        for warning in nrule.warnings:
+            flash(warning, category='warnings')
     db.session.add(nrule)
 
     try:
@@ -107,7 +108,7 @@ def new():
     except SQLAlchemyError:
         flash("ERROR while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
 
-    return redirect(url_for("rules.new"))
+    return render_template("rules/new.html")
 
 
 @rules.route("/edit/<int:sid>", methods=["GET", "POST"])
