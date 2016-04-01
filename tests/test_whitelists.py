@@ -16,7 +16,6 @@ class FlaskrTestCase(unittest.TestCase):
         db.init_app(app)
         app.config['TESTING'] = True
         self.app = app.test_client()
-        self.created_rules = list()
 
     def test_new(self):
         rv = self.app.get('/whitelists/new')

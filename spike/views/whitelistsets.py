@@ -46,6 +46,7 @@ def view(wid):
     ruleset = NaxsiWhitelistSets.query.filter(NaxsiWhitelistSets.id == wid).first()
     return render_template("rulesets/view.html", r=ruleset, rout=__get_whitelist_for_whitelistset(ruleset))
 
+
 @whitelistsets.route("/select/<string:selector>", methods=["GET"])
 def select(selector):
     _wlset = NaxsiWhitelist.query.filter(NaxsiWhitelist.whitelistset == selector).order_by(NaxsiWhitelist.wid.desc()).all()
@@ -80,8 +81,9 @@ def __get_whitelist_for_whitelistset(whitelistset):
     db.session.add(nxruleset)
     db.session.commit()
 
-    text_rules = ''.join([r.fullstr() for r in _rules])
+    text_rules = ''.join(map(str, _rules))
 
+    print(current_app.config)
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", whitelistset.name)
     header = header.replace("RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
