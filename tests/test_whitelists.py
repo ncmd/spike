@@ -17,6 +17,10 @@ class FlaskrTestCase(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
+    def test_index(self):
+        rv = self.app.get('/whitelists/')
+        self.assertEqual(rv.status_code, 200)
+
     def test_new(self):
         rv = self.app.get('/whitelists/new')
         self.assertEqual(rv.status_code, 200)
@@ -28,6 +32,15 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(_wlist.mz, 'BODY')
         self.assertEqual(_wlist.negative, 0)
         self.assertEqual(_wlist.wid, 'wl:42')
+
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'whitelistset': 'WORDPRESS'})
+        self.assertIn('Please enter a wid', str(rv.data))
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid':'wl:42'})
+        self.assertIn('Please enter a whitelistset', str(rv.data))
+
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:abcdef',
+                                                    'whitelistset': 'WORDPRESS'}, follow_redirects=True)
+        self.assertIn('Illegal character in the whitelist id.', str(rv.data))
 
     def test_generate(self):
         rv = self.app.get('/whitelists/generate')

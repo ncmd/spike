@@ -133,10 +133,10 @@ def new():
     wlist.validate()
 
     if wlist.error:
-        flash("ERROR: {0}".format(",".join(wlist.error)))
+        flash(",".join(wlist.error), 'error')
         return redirect(url_for('whitelists.new'))
     elif wlist.warnings:
-        flash("WARNINGS: {0}".format(",".join(wlist.warnings)))
+        flash(",".join(wlist.warnings), 'warning')
 
     db.session.add(wlist)
 
