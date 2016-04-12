@@ -128,8 +128,8 @@ def new():
         return render_template('whitelists/new.html')
 
     wlist = NaxsiWhitelist(wid=wid, timestamp=int(time()),
-                            whitelistset=whitelistset, mz=mz, active=1,
-                            negative=request.form.get("negative", "") == 'checked')
+                           whitelistset=whitelistset, mz=mz, active=1,
+                           negative=request.form.get("negative", "") == 'checked')
     wlist.validate()
 
     if wlist.error:

@@ -221,7 +221,7 @@ class NaxsiRules(db.Model):
 
         lexer = shlex(full_str)
         lexer.whitespace_split = True
-        split =  list(iter(lexer.get_token, ''))
+        split = list(iter(lexer.get_token, ''))
 
         intersection = set(split).intersection(set(self.mr_kw))
         if not intersection:

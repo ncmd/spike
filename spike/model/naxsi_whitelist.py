@@ -88,10 +88,10 @@ class NaxsiWhitelist(db.Model):
         return True
 
     def explain(self):
-        def __linkify_rule(rid):
+        def __linkify_rule(_rid):
             if NaxsiRules.query.filter(NaxsiRules.sid == self.wid).first() is None:
-                return rid
-            return '<a href="{}">{}</a>'.format(url_for('rules.view', sid=rid), self.wid)
+                return _rid
+            return '<a href="{}">{}</a>'.format(url_for('rules.view', sid=_rid), self.wid)
 
         if self.wid == 'wl:0':
             ret = 'Whitelist all rules'
@@ -104,7 +104,7 @@ class NaxsiWhitelist(db.Model):
                     zones.append('except the rule {}'.format(__linkify_rule(rid[1:])))
                 else:
                     zones.append('the rule {}'.format(__linkify_rule(rid)))
-            ret = 'Whitelist '+ ', '.join(zones)
+            ret = 'Whitelist ' + ', '.join(zones)
 
         if not self.mz:
             return ret + '.'
