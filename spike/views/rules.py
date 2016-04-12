@@ -106,7 +106,7 @@ def new():
         flash("OK: created %s : %s" % (sid, request.form.get("msg", "")), "success")
         return redirect("/rules/edit/%s" % sid)
     except SQLAlchemyError:
-        flash("ERROR while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
+        flash("Error while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
 
     return render_template("rules/new.html")
 
@@ -145,18 +145,16 @@ def save(sid):
     nrule.validate()
 
     if nrule.error:
-        logging.debug("ERROR: %s", ",".join(nrule.error))
-        flash("ERROR: {0}".format(",".join(nrule.error)))
+        flash(",".join(nrule.error), 'error')
         return redirect("/rules/edit/%s" % sid)
     elif nrule.warnings:
-        logging.debug("WARNINGS: %s", ",".join(nrule.warnings))
-        flash("WARNINGS: {0}".format(",".join(nrule.warnings)))
+        flash(",".join(nrule.warnings), 'warning')
 
     db.session.add(nrule)
     try:
         db.session.commit()
     except SQLAlchemyError:
-        flash("ERROR while trying to update %s : %s" % (sid, nrule.error), "error")
+        flash("Error while trying to update %s : %s" % (sid, nrule.error), "error")
     return redirect("/rules/edit/%s" % sid)
 
 
@@ -171,7 +169,7 @@ def del_sid(sid=''):
         db.session.commit()
         flash("OK: deleted %s : %s" % (sid, nrule.msg), "success")
     except SQLAlchemyError:
-        flash("ERROR while trying to update %s : %s" % (sid, nrule.msg), "error")
+        flash("Error while trying to update %s : %s" % (sid, nrule.msg), "error")
 
     return redirect(url_for("rules.index"))
 
@@ -190,7 +188,7 @@ def deact(sid):
         db.session.commit()
         flash("OK: %s %sd : %s" % (fm, sid, nrule.msg), "success")
     except SQLAlchemyError:
-        flash("ERROR while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
+        flash("Error while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
 
     _rulesets = NaxsiRuleSets.query.all()
     return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)

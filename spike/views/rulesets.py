@@ -41,7 +41,7 @@ def new():  # TODO filter parameter
     rname = request.form["rname"].strip().upper()
 
     if NaxsiRuleSets.query.filter(NaxsiRuleSets.name == rname).first():
-        flash("ERROR, ruleset exists: %s " % rname, "error")
+        flash("Ruleset %s is already existing" % rname, "error")
         return redirect(url_for("rulesets.index"))
 
     db.session.add(NaxsiRuleSets(rname, "naxsi-ruleset: %s" % rname, int(time())))
@@ -55,7 +55,7 @@ def new():  # TODO filter parameter
 def remove(rname):
     _rset = NaxsiRuleSets.query.filter(NaxsiRuleSets.id == rname).first()
     if _rset is None:
-        flash("ERROR, ruleset doesn't exists: %s " % rname, "error")
+        flash("The ruleset %s doesn't exists." % rname, "error")
         return redirect(url_for("rulesets.index"))
 
     db.session.delete(_rset)

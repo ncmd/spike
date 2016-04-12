@@ -61,7 +61,7 @@ def del_sid(wid):
         db.session.commit()
         flash("OK: deleted %s : %s" % (wid, _wlist.msg), "success")
     except SQLAlchemyError:
-        flash("ERROR while trying to update %s" % wid, "error")
+        flash("Error while trying to update %s" % wid, "error")
 
     return redirect(url_for('whitelists.index'))
 
