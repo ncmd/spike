@@ -21,9 +21,6 @@ class FlaskrTestCase(unittest.TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-    def tearDown(self):
-        pass
-
     def test_index(self):
         rv = self.app.get('/rulesets', follow_redirects=False)
         self.assertEqual(rv.status_code, 301)

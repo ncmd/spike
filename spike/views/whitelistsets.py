@@ -31,7 +31,7 @@ def new():
     wname = request.form["wname"].strip().upper()
 
     if NaxsiWhitelistSets.query.filter(NaxsiWhitelistSets.name == wname).first():
-        flash("ERROR, ruleset exists: %s " % wname, "error")
+        flash("The whitelist set %s already exists." % wname, "error")
         return redirect(url_for("whitelistsets.index"))
 
     db.session.add(NaxsiWhitelistSets(wname, "naxsi-whitelistset: %s" % wname, int(time())))
@@ -58,13 +58,13 @@ def select(selector):
 def remove(wid):
     _wlset = NaxsiWhitelistSets.query.filter(NaxsiWhitelistSets.id == wid).first()
     if _wlset is None:
-        flash("ERROR, ruleset doesn't exists: %s " % wid, "error")
+        flash("The whitelist set %s doesn't exist." % wid, "error")
         return redirect(url_for("whitelistsets.index"))
 
     db.session.delete(_wlset)
     db.session.commit()
 
-    flash("OK deleted: %s " % wid, "success")
+    flash("Successfully deleted %s " % _wlset.name, "success")
     return redirect(url_for("whitelistsets.index"))
 
 
@@ -83,7 +83,6 @@ def __get_whitelist_for_whitelistset(whitelistset):
 
     text_rules = ''.join(map(str, _rules))
 
-    print(current_app.config)
     header = current_app.config["RULESET_HEADER"]
     header = header.replace("RULESET_DESC", whitelistset.name)
     header = header.replace("RULESET_DATE", strftime("%F - %H:%M", localtime(time())))
