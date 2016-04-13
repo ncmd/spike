@@ -30,7 +30,7 @@ class NaxsiWhitelist(db.Model):
         self.error = []
 
     def __str__(self):
-        return 'BasicRule {}wl:{} "mz:{}";'.format('negative ' if self.negative else ' ', self.wid, self.mz)
+        return 'BasicRule {} wl:{} "mz:{}";'.format('negative' if self.negative else '', self.wid, self.mz)
 
     def __validate_wid(self, wid):
         if not re.match(r'wl:(\-?\d+,)*\-?\d+', wid):

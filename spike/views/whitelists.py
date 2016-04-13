@@ -11,7 +11,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from spike.model import db
 from spike.model.naxsi_whitelist import NaxsiWhitelist
 from spike.model.naxsi_whitelistsets import NaxsiWhitelistSets
-from spike.model.naxsi_rules import NaxsiRules
 from spike.model import naxsi_mz
 
 whitelists = Blueprint('whitelists', __name__)
@@ -28,18 +27,18 @@ def index():
 
 @whitelists.route("/plain/<string:wid>", methods=["GET"])
 def plain(wid):
-    _wlist = NaxsiWhitelist.query.filter(NaxsiRules.sid == wid).first()
+    _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == wid).first()
     if not _wlist:
-        flash("no rules found, please create one", "error")
+        flash("No rules found, please create one", "error")
         return redirect(url_for('whitelists.index'))
-    return Response(_wlist.fullstr(), mimetype='text/plain')
+    return Response(str(_wlist), mimetype='text/plain')
 
 
-@whitelists.route("/view/<string:wid>", methods=["GET"])
+@whitelists.route("/view/<int:wid>", methods=["GET"])
 def view(wid):
     _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == wid).first()
     if _wlist is None:
-        flash("no rules found, please create one", "error")
+        flash("The whitelist %d was not found." % wid, "error")
         return redirect(url_for('whitelists.index'))
     return render_template("whitelists/view.html", whitelist=_wlist)
 
@@ -51,7 +50,7 @@ def edit(wid):
 
 @whitelists.route("/del/<string:wid>", methods=["GET"])
 def del_sid(wid):
-    _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.sid == wid).first()
+    _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == wid).first()
     if not _wlist:
         return redirect(url_for('whitelists.index'))
 
@@ -59,7 +58,7 @@ def del_sid(wid):
 
     try:
         db.session.commit()
-        flash("OK: deleted %s : %s" % (wid, _wlist.msg), "success")
+        flash("Successfully deleted %s" % wid, "success")
     except SQLAlchemyError:
         flash("Error while trying to update %s" % wid, "error")
 

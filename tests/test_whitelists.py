@@ -1,4 +1,5 @@
 import unittest
+from time import time
 
 from spike import create_app
 from spike.model import db
@@ -16,10 +17,50 @@ class FlaskrTestCase(unittest.TestCase):
         db.init_app(app)
         app.config['TESTING'] = True
         self.app = app.test_client()
+        self.wid = self.__create_whitelist()
+
+    def tearDown(self):
+        db.session.delete(NaxsiWhitelist.query.filter(NaxsiWhitelist.id == self.wid).first())
+        db.session.commit()
+
+    def __create_whitelist(self):
+        _wlist = NaxsiWhitelist(wid='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
+                               negative=False)
+        db.session.add(_wlist)
+        db.session.commit()
+        return NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first().id
 
     def test_index(self):
         rv = self.app.get('/whitelists/')
         self.assertEqual(rv.status_code, 200)
+
+    def test_plain(self):
+        _id = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first().id
+
+        rv = self.app.get('/whitelists/plain/%d' % (_id + 1))
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/whitelists/plain/%d' % _id)
+        self.assertIn('BasicRule  wl:wl:42 "mz:BODY";', str(rv.data))
+
+    def test_view(self):
+        _id = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first().id
+
+        rv = self.app.get('/whitelists/view/%d' % (_id + 1))
+        self.assertEqual(rv.status_code, 302)
+
+    def test_del(self):
+        wlist = NaxsiWhitelist(wid='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
+                               negative=False)
+        db.session.add(wlist)
+        db.session.commit()
+        _id = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first().id
+
+        rv = self.app.get('/whitelists/del/%d' % (_id + 1))
+        self.assertEqual(302, rv.status_code)
+
+        rv = self.app.get('/whitelists/del/%d' % _id, follow_redirects=True)
+        self.assertIn('Successfully deleted %d' % _id, str(rv.data))
 
     def test_new(self):
         rv = self.app.get('/whitelists/new')
@@ -41,6 +82,9 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:abcdef',
                                                     'whitelistset': 'WORDPRESS'}, follow_redirects=True)
         self.assertIn('Illegal character in the whitelist id.', str(rv.data))
+
+        db.session.delete(NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first())
+        db.session.commit()
 
     def test_generate(self):
         rv = self.app.get('/whitelists/generate')
