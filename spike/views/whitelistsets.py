@@ -49,9 +49,9 @@ def view(wid):
 
 @whitelistsets.route("/select/<string:selector>", methods=["GET"])
 def select(selector):
-    _wlset = NaxsiWhitelist.query.filter(NaxsiWhitelist.whitelistset == selector).order_by(NaxsiWhitelist.wid.desc()).all()
+    wls = NaxsiWhitelist.query.filter(NaxsiWhitelist.whitelistset == selector).order_by(NaxsiWhitelist.wid.desc()).all()
     _selection = "Search wid: %s " % selector
-    return render_template("whitelistsets/index.html", whitelistsets=_wlset, selection=_selection)
+    return render_template("whitelistsets/index.html", whitelistsets=wls, selection=_selection)
 
 
 @whitelistsets.route("/del/<int:wid>", methods=["POST"])

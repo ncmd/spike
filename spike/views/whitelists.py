@@ -6,7 +6,6 @@ import logging
 from time import time
 
 from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
-from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
 from spike.model.naxsi_whitelist import NaxsiWhitelist
@@ -55,13 +54,9 @@ def del_sid(wid):
         return redirect(url_for('whitelists.index'))
 
     db.session.delete(_wlist)
+    db.session.commit()
 
-    try:
-        db.session.commit()
-        flash("Successfully deleted %s" % wid, "success")
-    except SQLAlchemyError:
-        flash("Error while trying to update %s" % wid, "error")
-
+    flash("Successfully deleted %s" % wid, "success")
     return redirect(url_for('whitelists.index'))
 
 
@@ -138,11 +133,6 @@ def new():
         flash(",".join(wlist.warnings), 'warning')
 
     db.session.add(wlist)
-
-    try:
-        db.session.commit()
-        flash('Created!')
-    except SQLAlchemyError as e:
-        flash("Error : %s" % e, "error")
+    db.session.commit()
 
     return render_template('whitelists/index.html')

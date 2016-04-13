@@ -23,9 +23,10 @@ class FlaskrTestCase(unittest.TestCase):
         db.session.delete(NaxsiWhitelist.query.filter(NaxsiWhitelist.id == self.wid).first())
         db.session.commit()
 
-    def __create_whitelist(self):
+    @staticmethod
+    def __create_whitelist():
         _wlist = NaxsiWhitelist(wid='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
-                               negative=False)
+                                negative=False)
         db.session.add(_wlist)
         db.session.commit()
         return NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first().id
@@ -66,8 +67,8 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/whitelists/new')
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.app.post('/whitelists/new', data={'wid':'wl:42',
-                                                    'mz':'BODY', 'custom_mz_val':'',  'whitelistset': 'WORDPRESS'})
+        rv = self.app.post('/whitelists/new', data={'wid': 'wl:42',
+                                                    'mz': 'BODY', 'custom_mz_val': '', 'whitelistset': 'WORDPRESS'})
         self.assertEqual(rv.status_code, 200)
         _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first()
         self.assertEqual(_wlist.mz, 'BODY')
@@ -76,7 +77,7 @@ class FlaskrTestCase(unittest.TestCase):
 
         rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'whitelistset': 'WORDPRESS'})
         self.assertIn('Please enter a wid', str(rv.data))
-        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid':'wl:42'})
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:42'})
         self.assertIn('Please enter a whitelistset', str(rv.data))
 
         rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:abcdef',
@@ -102,11 +103,10 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertIn('string &#34;,&#34; not found.', str(rv.data))
 
-        logs = "2013/11/10 07:36:19 [error] 8278#0: *5932 NAXSI_FMT: ip=X.X.X.X&server=Y.Y.Y.Y&"\
-                "uri=/phpMyAdmin-2.8.2/scripts/setup.php&learning=0&vers=0.52&total_processed=472&total_blocked=204&"\
-                "block=0&cscore0=$UWA&score0=8&zone0=HEADERS&id0=42000227&var_name0=user-agent, client: X.X.X.X,"\
-                'server: blog.memze.ro, request: "GET /phpMyAdmin-2.8.2/scripts/setup.php HTTP/1.1", host: "X.X.X.X"'
+        logs = "2013/11/10 07:36:19 [error] 8278#0: *5932 NAXSI_FMT: ip=X.X.X.X&server=Y.Y.Y.Y&" \
+               "uri=/phpMyAdmin-2.8.2/scripts/setup.php&learning=0&vers=0.52&total_processed=472&total_blocked=204&" \
+               "block=0&cscore0=$UWA&score0=8&zone0=HEADERS&id0=42000227&var_name0=user-agent, client: X.X.X.X," \
+               'server: blog.memze.ro, request: "GET /phpMyAdmin-2.8.2/scripts/setup.php HTTP/1.1", host: "X.X.X.X"'
         rv = self.app.post('/whitelists/generate', data={'nxlogs': logs})
         self.assertEqual(rv.status_code, 200)
         self.assertIn('BasicRule wl:42000227 "mz:user-agent:HEADERS"', str(rv.data))
-

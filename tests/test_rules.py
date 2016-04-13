@@ -43,11 +43,10 @@ class FlaskrTestCase(TestsThatNeedsRules):
             'rmks': 'this is a test remark',
             'ruleset': 'WEB_APPS'
         }
-        rv = self.app.post('/rules/new', data=data, follow_redirects=True)
+        self.app.post('/rules/new', data=data, follow_redirects=True)
 
         _rule = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first()
 
-        self.assertIn(('OK: created %d ' % _rule.sid), str(rv.data))
         self.assertEqual(_rule.msg, data['msg'])
         self.assertEqual(_rule.detection, data['detection'])
         self.assertEqual(_rule.mz, data['mz'])

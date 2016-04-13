@@ -18,7 +18,7 @@ rules = Blueprint('rules', __name__)
 def index():
     _rules = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).all()
     if not _rules:
-        flash("no rules found, please create one", "success")
+        flash("No rules found, please create one", "success")
         return redirect(url_for("rules.new"))
     return render_template("rules/index.html", rules=_rules)
 
@@ -27,7 +27,7 @@ def index():
 def plain(sid):
     _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
     if not _rule:
-        flash("no rules found, please create one", "error")
+        flash("No rules found, please create one", "error")
         return redirect(url_for("rules.new"))
     return Response(_rule.fullstr(), mimetype='text/plain')
 
@@ -99,16 +99,11 @@ def new():
     elif nrule.warnings:
         for warning in nrule.warnings:
             flash(warning, category='warnings')
+
     db.session.add(nrule)
+    db.session.commit()
 
-    try:
-        db.session.commit()
-        flash("OK: created %s : %s" % (sid, request.form.get("msg", "")), "success")
-        return redirect("/rules/edit/%s" % sid)
-    except SQLAlchemyError:
-        flash("Error while trying to create %s : %s" % (sid, request.form.get("msg", "")), "error")
-
-    return render_template("rules/new.html")
+    return redirect("/rules/edit/%s" % sid)
 
 
 @rules.route("/edit/<int:sid>", methods=["GET", "POST"])
@@ -151,10 +146,8 @@ def save(sid):
         flash(",".join(nrule.warnings), 'warning')
 
     db.session.add(nrule)
-    try:
-        db.session.commit()
-    except SQLAlchemyError:
-        flash("Error while trying to update %s : %s" % (sid, nrule.error), "error")
+    db.session.commit()
+
     return redirect("/rules/edit/%s" % sid)
 
 
@@ -165,12 +158,9 @@ def del_sid(sid=''):
         return redirect(url_for("rules.index"))
 
     db.session.delete(nrule)
-    try:
-        db.session.commit()
-        flash("OK: deleted %s : %s" % (sid, nrule.msg), "success")
-    except SQLAlchemyError:
-        flash("Error while trying to update %s : %s" % (sid, nrule.msg), "error")
+    db.session.commit()
 
+    flash("Successfully deleted %s : %s" % (sid, nrule.msg), "success")
     return redirect(url_for("rules.index"))
 
 
@@ -184,11 +174,8 @@ def deact(sid):
     nrule.active = not nrule.active
 
     db.session.add(nrule)
-    try:
-        db.session.commit()
-        flash("OK: %s %sd : %s" % (fm, sid, nrule.msg), "success")
-    except SQLAlchemyError:
-        flash("Error while trying to %s %s : %s" % (fm, sid, nrule.msg), "error")
+    db.session.commit()
 
+    flash("Successfully deactivated %s %sd : %s" % (fm, sid, nrule.msg), "success")
     _rulesets = NaxsiRuleSets.query.all()
     return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)
