@@ -4,7 +4,6 @@ import string
 
 from time import time
 from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
-from sqlalchemy.exc import SQLAlchemyError
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
@@ -53,8 +52,10 @@ def search():
     filtered = ''.join(filter(whitelist.__contains__, terms))
 
     if filtered.isdigit():  # get rule by id
-        _rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == int(filtered)).all()
+        _rules = db.session.query(NaxsiRules).filter(NaxsiRules.sid == int(filtered))
     else:
+        cve = re.search('cve:\d{4}-\d{4,}', filtered, re.IGNORECASE)  # search by CVE
+
         expression = '%' + filtered + '%'
         _rules = db.session.query(NaxsiRules).filter(
             db.or_(
@@ -62,7 +63,10 @@ def search():
                 NaxsiRules.rmks.like(expression),
                 NaxsiRules.detection.like(expression)
             )
-        ).order_by(NaxsiRules.sid.desc()).all()
+        )
+        if cve:
+            _rules.filter(NaxsiRules.msg.like('%' + cve.group() + '%'))
+    _rules = _rules.order_by(NaxsiRules.sid.desc()).all()
     return render_template("rules/index.html", rules=_rules, selection="Search: %s" % filtered, lsearch=terms)
 
 

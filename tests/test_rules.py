@@ -164,6 +164,9 @@ class FlaskrTestCase(TestsThatNeedsRules):
         rv = self.app.get('/rules/search/?s=1337')  # get rule by id
         self.assertEqual(rv.status_code, 200)
 
+        rv = self.app.get('/rules/search/?s=cve:2015-1234')  # get rule by id
+        self.assertEqual(rv.status_code, 200)
+
     def test_edit_rule(self):
         non_existent_sid = NaxsiRules.query.order_by(NaxsiRules.sid.desc()).first().sid + 1
         rv = self.app.get('/rules/edit/%d' % non_existent_sid)
