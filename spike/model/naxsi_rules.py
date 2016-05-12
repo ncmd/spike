@@ -130,7 +130,9 @@ class NaxsiRules(db.Model):
         return True
 
     def __validate_msg(self, p_str, assign=False):
-        self.msg = p_str
+        if assign is True:
+            self.msg = p_str
+        return True
 
     def __validate_detection_rx(self, p_str, assign=False):
         if not p_str.islower():

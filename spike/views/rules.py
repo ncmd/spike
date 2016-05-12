@@ -89,12 +89,14 @@ def import_rules():
     if request.method == "GET":
         return render_template("rules/import.html", rulesets=_rulesets)
     success_imports = 0
+    potential_imports = 0
     upfile = request.files['file']
     ruleset = request.form.get("ruleset", "")
     flash("Importing in ruleset {0}".format(ruleset))
     if not ruleset or not upfile:
         flash("missing rule file and/or ruleset name.")
         return redirect(url_for("rules.new"))
+
     filename = secure_filename(upfile.filename)
     upfile.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
     raw = open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename), "r")
@@ -103,8 +105,12 @@ def import_rules():
         # Save ourselves some time by not trying to import comments
         if potential_rule.startswith("#"):
             continue
+        potential_imports += 1
         tmp = NaxsiRules(ruleset=ruleset)
         if tmp.parse_rule(potential_rule) is False:
+            print "Parsing failed for '{}'".format(potential_rule)
+            print "errors : {0}".format(tmp.error)
+
             continue
         else:
             db.session.add(tmp)
@@ -115,7 +121,7 @@ def import_rules():
                 #pysqlite2.dbapi2.IntegrityError
                 db.session.rollback()
                 flash("Rule #{0} has no unique ID, skip".format(tmp.sid))
-    flash("Imported {0} rules in ruleset {1}".format(success_imports, ruleset))
+    flash("Imported {0} out of {1} rules in ruleset {2}".format(success_imports, potential_imports, ruleset))
     return render_template("rules/import.html", rulesets=_rulesets)
 
 
