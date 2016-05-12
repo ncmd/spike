@@ -129,6 +129,9 @@ class NaxsiRules(db.Model):
             self.detection = p_str
         return True
 
+    def __validate_msg(self, p_str, assign=False):
+        self.msg = p_str
+
     def __validate_detection_rx(self, p_str, assign=False):
         if not p_str.islower():
             self.warnings.append("detection {} is not lower-case. naxsi is case-insensitive".format(p_str))
@@ -215,7 +218,7 @@ class NaxsiRules(db.Model):
         self.error = list()
 
         func_map = {"id:": self.__validate_id, "str:": self.__validate_detection_str,
-                    "rx:": self.__validate_detection_rx, "msg:": lambda p_str, assign=False: True,
+                    "rx:": self.__validate_detection_rx, "msg:": self.__validate_msg,
                     "mz:": self.__validate_matchzone, "negative": lambda p_str, assign=False: p_str == 'checked',
                     "s:": self.__validate_score}
 
