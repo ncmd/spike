@@ -36,6 +36,8 @@ def view(rid):
     return render_template("rulesets/view.html", r=ruleset, rout=__get_rules_for_ruleset(ruleset))
 
 
+        
+
 @rulesets.route("/new", methods=["POST"])
 def new():  # TODO filter parameter
     rname = request.form["rname"].strip().upper()

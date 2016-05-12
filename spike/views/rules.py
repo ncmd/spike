@@ -1,14 +1,22 @@
 import logging
 import re
 import string
+import os
+
 
 from time import time
-from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
+from flask import Blueprint, render_template, request, redirect, flash, Response, url_for, current_app
+#from sqlalchemy.exc import IntegrityError
+from pysqlite2.dbapi2 import IntegrityError
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_rulesets import NaxsiRuleSets
 from spike.model import naxsi_mz, naxsi_score
+
+
+
+from werkzeug import secure_filename
 
 rules = Blueprint('rules', __name__)
 
@@ -68,6 +76,47 @@ def search():
             _rules.filter(NaxsiRules.msg.like('%' + cve.group() + '%'))
     _rules = _rules.order_by(NaxsiRules.sid.desc()).all()
     return render_template("rules/index.html", rules=_rules, selection="Search: %s" % filtered, lsearch=terms)
+
+
+@rules.route("/import", methods=["POST", "GET"])
+def import_rules():
+    """
+    Import rules to an existing ruleset from a file.
+    :return:
+    """
+    _rulesets = NaxsiRuleSets.query.all()
+
+    if request.method == "GET":
+        return render_template("rules/import.html", rulesets=_rulesets)
+    success_imports = 0
+    upfile = request.files['file']
+    ruleset = request.form.get("ruleset", "")
+    flash("Importing in ruleset {0}".format(ruleset))
+    if not ruleset or not upfile:
+        flash("missing rule file and/or ruleset name.")
+        return redirect(url_for("rules.new"))
+    filename = secure_filename(upfile.filename)
+    upfile.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+    raw = open(os.path.join(current_app.config['UPLOAD_FOLDER'], filename), "r")
+    for potential_rule in raw.readlines():
+        potential_rule = potential_rule.strip()
+        # Save ourselves some time by not trying to import comments
+        if potential_rule.startswith("#"):
+            continue
+        tmp = NaxsiRules(ruleset=ruleset)
+        if tmp.parse_rule(potential_rule) is False:
+            continue
+        else:
+            db.session.add(tmp)
+            try:
+                db.session.commit()
+                success_imports += 1
+            except:
+                #pysqlite2.dbapi2.IntegrityError
+                db.session.rollback()
+                flash("Rule #{0} has no unique ID, skip".format(tmp.sid))
+    flash("Imported {0} rules in ruleset {1}".format(success_imports, ruleset))
+    return render_template("rules/import.html", rulesets=_rulesets)
 
 
 @rules.route("/new", methods=["GET", "POST"])
