@@ -109,4 +109,4 @@ class FlaskrTestCase(unittest.TestCase):
                'server: blog.memze.ro, request: "GET /phpMyAdmin-2.8.2/scripts/setup.php HTTP/1.1", host: "X.X.X.X"'
         rv = self.app.post('/whitelists/generate', data={'nxlogs': logs})
         self.assertEqual(rv.status_code, 200)
-        self.assertIn('BasicRule wl:42000227 "mz:user-agent:HEADERS"', str(rv.data))
+        self.assertIn('BasicRule wl:42000227 "mz:$HEADERS_VAR:user-agent";', str(rv.data))
