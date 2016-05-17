@@ -106,7 +106,7 @@ def import_rules():
         if potential_rule.startswith("#"):
             continue
         potential_imports += 1
-        tmp = NaxsiRules(ruleset=ruleset)
+        tmp = NaxsiRules(ruleset=ruleset, active=1)
         if tmp.parse_rule(potential_rule) is False:
             print "Parsing failed for '{}'".format(potential_rule)
             print "errors : {0}".format(tmp.error)
