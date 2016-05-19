@@ -5,6 +5,8 @@ except ImportError:  # python3
 
 from flask import Blueprint, render_template, request, redirect, flash, url_for
 
+from nxapi import nxlog
+
 from spike.model.naxsi_rules import NaxsiRules
 from spike.model.naxsi_whitelist import NaxsiWhitelist
 
@@ -91,50 +93,13 @@ def explain_whitelist():
 
 @sandbox.route('/explain_nxlog/', methods=["POST"])
 def explain_nxlog():
-    nxlog = request.form.get("nxlog", '')
-    if not nxlog:
+    _nxlog = request.form.get("nxlog", '')
+    if not _nxlog:
         return redirect(url_for("sandbox.index"))
 
-    start = nxlog.find("ip=")
-    if start < 0:
-        flash('{} is an invalid extlog, string "ip=" not found.'.format(nxlog))
+    errors, nxdic = nxlog.parse_nxlog(_nxlog)
+    if errors:
+        flash(''.join(errors))
         return redirect(url_for("sandbox.index"))
 
-    end = nxlog.find(", ")
-    if end < 0:
-        flash('{} is an invalid extlog, string "," not found.'.format(nxlog))
-        return redirect(url_for("sandbox.index"))
-
-    # Flatten the dict, since parse_qs is a bit annoying
-    nxdic = parse_qs(nxlog[start:end])
-    for key, value in nxdic.items():
-        nxdic[key] = value[0]
-
-    explain = "Peer <strong>{}</strong> performed a request to <strong>{}</strong> on URI <strong>{}</strong> ".format(
-        nxdic['ip'], nxdic['server'], nxdic['uri'])
-
-    scores = list()
-    cpt = 0
-    while "cscore{}".format(cpt) in nxdic:
-        cscore = "cscore{}".format(cpt)
-        score = "score{}".format(cpt)
-        scores.append("that reached a <strong>{}</strong> score of <strong>{}</strong> ".format(
-            nxdic[cscore], nxdic[score]))
-        cpt += 1
-    explain += ' and '.join(scores)
-
-    cpt = 0
-    named = list()
-    while "id{}".format(cpt) in nxdic:
-        _id = "id{}".format(cpt)
-        _var_name = "var_name{}".format(cpt)
-        _zone = "zone{}".format(cpt)
-        if "var_name{}".format(cpt) in nxdic:
-            named.append("id <strong>{}</strong> in var named <strong>{}</strong> of zone <strong>{}</strong>".format(
-                nxdic[_id], nxdic[_var_name], nxdic[_zone]))
-        else:
-            named.append("id <strong>{}</strong> in zone <strong>{}</strong>".format(nxdic[_id], nxdic[_zone]))
-        cpt += 1
-    explain += ' and '.join(named)
-
-    return render_template("misc/sandbox.html", nxlog_explaination=explain, nxlog=nxlog)
+    return render_template("misc/sandbox.html", nxlog_explaination=nxlog.explain_nxlog(nxdic), nxlog=_nxlog)

@@ -119,6 +119,7 @@ def test(sid):
         return redirect(url_for("rules.index"))
     return render_template("rules/test.html", rule=_rule, rtext=_rule)
 
+
 @rules.route("/edit/<int:sid>", methods=["GET", "POST"])
 def edit(sid):
     rinfo = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
