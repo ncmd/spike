@@ -27,6 +27,7 @@
                     <a href="{{ url_for('rules.plain', sid=rule.sid ) }}" class="btn btn-default" title="Plain Rule">Plain</a>
                     <a href="{{ url_for('rules.del_sid', sid=rule.sid) }}" class="btn btn-danger" title="View Rule">Delete</a>
                 </div>
+                <b>{{ rule.ruleset }}</b>
             </div>
         </div>
     {% endfor %}

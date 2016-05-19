@@ -4,6 +4,7 @@ import string
 
 from time import time
 from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
+from sqlalchemy.exc import IntegrityError
 
 from spike.model import db
 from spike.model.naxsi_rules import NaxsiRules
@@ -191,3 +192,43 @@ def deact(sid):
     flash("Successfully deactivated %s %sd : %s" % (fm, sid, nrule.msg), "success")
     _rulesets = NaxsiRuleSets.query.all()
     return render_template("rules/edit.html", mz=naxsi_mz, rulesets=_rulesets, score=naxsi_score, rules_info=nrule)
+
+
+@rules.route("/import", methods=["POST", "GET"])
+def import_rules():
+    if request.method == "GET":
+        return render_template("rules/import.html", rulesets=NaxsiRuleSets.query.all())
+
+    ruleset = request.form.get("ruleset", "")
+    upfile = request.files.get('file', '')
+
+    if not ruleset or not upfile:
+        flash("Missing rule file and/or ruleset name.", 'error')
+        return redirect(url_for("rules.new"))
+
+    raw = upfile.stream.getvalue()
+
+    success_imports = 0
+    potential_imports = 0
+    for potential_rule in raw.split('\n'):
+        potential_rule = potential_rule.strip()
+        if not potential_rule or potential_rule.startswith("#"):  # Save ourselves some time by not trying to import comments
+            continue
+        potential_imports += 1
+        _rule = NaxsiRules(ruleset=ruleset, active=1)
+        errors, warnings, rule = _rule.parse_rule(potential_rule)
+
+        if errors:
+            flash("Fail to parse %s: %s" % (potential_rule, ', '.join(errors)), 'error')
+            continue
+        else:
+            db.session.add(rule)
+            try:
+                db.session.commit()
+                success_imports += 1
+            except IntegrityError:
+                db.session.rollback()
+                flash("Rule %s has not an unique ID" % rule['sid'])
+    flash("Imported %d rules out of %d lines in ruleset %s" % (success_imports, potential_imports, ruleset))
+
+    return render_template("rules/import.html", rulesets=NaxsiRuleSets.query.all())
