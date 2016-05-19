@@ -18,6 +18,7 @@ def index():
 
 @sandbox.route("/explain_rule/", methods=["GET", "POST"])
 def explain_rule():
+    errors = warnings = list()
     rule_get = request.args.get('rule', '')
     rule_post = request.form.get("rule", '')
     if rule_get.isdigit():  # explain a rule by id
@@ -33,7 +34,15 @@ def explain_rule():
         return redirect(url_for("sandbox.index"))
     else:
         _rule = NaxsiRules()
-        _rule.parse_rule(rule_post)
+        errors, warnings, rdict = _rule.parse_rule(rule_post)
+        _rule = NaxsiRules()
+        _rule.from_dict(rdict)
+        _rule.errors = errors
+        _rule.warnings = warnings
+
+        if _rule.errors:
+            flash('You rule is wrong', 'error')
+            return render_template("misc/sandbox.html")
 
     if 'visualise_rule' in request.form:
         if _rule.detection.startswith('rx:'):
@@ -41,11 +50,11 @@ def explain_rule():
         else:
             flash('The rule is not a regexp, so you can not visualize it.', category='error')
 
-    if hasattr(_rule, 'error'):
-        for error in _rule.error:
+    if errors:
+        for error in errors:
             flash(error, category='error')
-    if hasattr(_rule, 'warning'):
-        for warnings in _rule.warnings:
+    if warnings:
+        for warnings in warnings:
             flash(warnings, category='warning')
 
     return render_template("misc/sandbox.html", rule_explaination=_rule.explain(), rule=_rule)

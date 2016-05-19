@@ -22,6 +22,7 @@
                 <div class="btn-toolbar" role="toolbar">
                     <a href="{{ url_for('rules.edit', sid=rule.sid) }}" class="btn btn-info" title="Edit Rule">Edit</a>
                     <a href="{{ url_for('rules.view', sid=rule.sid) }}" class="btn btn-default" title="View Rule">View</a>
+                    <a href="{{ url_for('rules.test', sid=rule.sid) }}" class="btn btn-default" title="Test Rule">Test</a>
                     <a href="{{ url_for('sandbox.explain_rule', rule=rule.sid) }}" class="btn btn-default" title="View Rule">Explain</a>
                     <a href="{{ url_for('rules.plain', sid=rule.sid ) }}" class="btn btn-default" title="Plain Rule">Plain</a>
                     <a href="{{ url_for('rules.del_sid', sid=rule.sid) }}" class="btn btn-danger" title="View Rule">Delete</a>

@@ -94,14 +94,14 @@ def new():
                        request.form.get("ruleset", ""), request.form.get("rmks", ""), "1",
                        request.form.get("negative", "") == 'checked', int(time()))
 
-    nrule.validate()
+    errors, warnings = nrule.validate()
 
-    if nrule.error:
-        for error in nrule.error:
+    if errors:
+        for error in errors:
             flash(error, category='error')
         return redirect(url_for("rules.new"))
-    elif nrule.warnings:
-        for warning in nrule.warnings:
+    elif warnings:
+        for warning in warnings:
             flash(warning, category='warnings')
 
     db.session.add(nrule)
@@ -109,6 +109,14 @@ def new():
 
     return redirect("/rules/edit/%s" % sid)
 
+
+@rules.route("/test/<int:sid>", methods=["GET", "POST"])
+def test(sid):
+    _rule = NaxsiRules.query.filter(NaxsiRules.sid == sid).first()
+    if _rule is None:
+        flash("no rules found, please create one", "error")
+        return redirect(url_for("rules.index"))
+    return render_template("rules/test.html", rule=_rule, rtext=_rule)
 
 @rules.route("/edit/<int:sid>", methods=["GET", "POST"])
 def edit(sid):
@@ -141,13 +149,13 @@ def save(sid):
     nrule.active = request.form.get("active", "")
     nrule.negative = request.form.get("negative", "") == 'checked'
     nrule.timestamp = int(time())
-    nrule.validate()
+    errors, warnings = nrule.validate()
 
-    if nrule.error:
-        flash(",".join(nrule.error), 'error')
+    if errors:
+        flash(",".join(errors), 'error')
         return redirect("/rules/edit/%s" % sid)
-    elif nrule.warnings:
-        flash(",".join(nrule.warnings), 'warning')
+    elif warnings:
+        flash(",".join(warnings), 'warning')
 
     db.session.add(nrule)
     db.session.commit()
