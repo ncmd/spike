@@ -17,7 +17,7 @@ whitelists = Blueprint('whitelists', __name__)
 
 @whitelists.route("/")
 def index():
-    _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.wid.desc()).all()
+    _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.wl.desc()).all()
     if not _wlist:
         flash("No whitelist found, please create one", "success")
         return redirect(url_for('whitelists.new'))
@@ -111,26 +111,26 @@ def new():
     logging.debug('Posted new request: %s', request.form)
 
     mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
-    wid = request.form.get('wid', '')
+    wid = request.form.get('wl', '')
     whitelistset = request.form.get("whitelistset", '')
 
     if not wid:
-        flash('Please enter a wid', category='error')
+        flash('Please enter a wl', category='error')
         return render_template('whitelists/new.html')
     elif not whitelistset:
         flash('Please enter a whitelistset', category='error')
         return render_template('whitelists/new.html')
 
-    wlist = NaxsiWhitelist(wid=wid, timestamp=int(time()),
+    wlist = NaxsiWhitelist(wl=wid, timestamp=int(time()),
                            whitelistset=whitelistset, mz=mz, active=1,
                            negative=request.form.get("negative", "") == 'checked')
-    wlist.validate()
+    errors, warnings = wlist.validate()
 
-    if wlist.error:
-        flash(",".join(wlist.error), 'error')
+    if errors:
+        flash(",".join(errors), 'error')
         return redirect(url_for('whitelists.new'))
-    elif wlist.warnings:
-        flash(",".join(wlist.warnings), 'warning')
+    elif warnings:
+        flash(",".join(warnings), 'warning')
 
     db.session.add(wlist)
     db.session.commit()

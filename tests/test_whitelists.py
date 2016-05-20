@@ -25,7 +25,7 @@ class FlaskrTestCase(unittest.TestCase):
 
     @staticmethod
     def __create_whitelist():
-        _wlist = NaxsiWhitelist(wid='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
+        _wlist = NaxsiWhitelist(wl='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
                                 negative=False)
         db.session.add(_wlist)
         db.session.commit()
@@ -51,7 +51,7 @@ class FlaskrTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 302)
 
     def test_del(self):
-        wlist = NaxsiWhitelist(wid='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
+        wlist = NaxsiWhitelist(wl='wl:42', timestamp=int(time()), whitelistset='WORDPRESS', mz='BODY', active=1,
                                negative=False)
         db.session.add(wlist)
         db.session.commit()
@@ -67,22 +67,22 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.get('/whitelists/new')
         self.assertEqual(rv.status_code, 200)
 
-        rv = self.app.post('/whitelists/new', data={'wid': 'wl:42',
+        rv = self.app.post('/whitelists/new', data={'wl': '42',
                                                     'mz': 'BODY', 'custom_mz_val': '', 'whitelistset': 'WORDPRESS'})
         self.assertEqual(rv.status_code, 200)
         _wlist = NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first()
         self.assertEqual(_wlist.mz, 'BODY')
         self.assertEqual(_wlist.negative, 0)
-        self.assertEqual(_wlist.wid, 'wl:42')
+        self.assertEqual(_wlist.wl, '42')
 
         rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'whitelistset': 'WORDPRESS'})
-        self.assertIn('Please enter a wid', str(rv.data))
-        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:42'})
+        self.assertIn('Please enter a wl', str(rv.data))
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wl': '42'})
         self.assertIn('Please enter a whitelistset', str(rv.data))
 
-        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wid': 'wl:abcdef',
+        rv = self.app.post('/whitelists/new', data={'mz': 'BODY', 'custom_mz_val': '', 'wl': 'abcdef',
                                                     'whitelistset': 'WORDPRESS'}, follow_redirects=True)
-        self.assertIn('Illegal character in the whitelist id.', str(rv.data))
+        self.assertIn('Illegal character in the wl.', str(rv.data))
 
         db.session.delete(NaxsiWhitelist.query.order_by(NaxsiWhitelist.id.desc()).first())
         db.session.commit()

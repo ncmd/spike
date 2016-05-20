@@ -67,8 +67,8 @@ def explain_whitelist():
     whitelist_get = request.args.get('whitelist', '')
     whitelist_post = request.form.get('whitelist', '')
     if whitelist_get.isdigit():  # explain a whitelist by id
-        _wlist = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == whitelist_get).first()
-        if _wlist is None:
+        _wl = NaxsiWhitelist.query.filter(NaxsiWhitelist.id == whitelist_get).first()
+        if _wl is None:
             flash('Not rule with id %s' % whitelist_get)
             return redirect(url_for("sandbox.index"))
     elif whitelist_get is not '':
@@ -78,17 +78,21 @@ def explain_whitelist():
         flash('Please provide a whitelist')
         return redirect(url_for("sandbox.index"))
     else:
-        _wlist = NaxsiWhitelist()
-        _wlist.parse(whitelist_post)
+        _wl = NaxsiWhitelist()
+        errors, warnings, rdict = _wl.parse(whitelist_post)
+        _wl = NaxsiWhitelist()
+        _wl.from_dict(rdict)
+        _wl.errors = errors
+        _wl.warnings = warnings
 
-    if hasattr(_wlist, 'error'):
-        for error in _wlist.error:
+    if _wl.errors:
+        for error in _wl.errors:
             flash(error, category='error')
-    if hasattr(_wlist, 'warning'):
-        for warnings in _wlist.warnings:
+    if _wl.warnings:
+        for warnings in _wl.warnings:
             flash(warnings, category='warning')
 
-    return render_template("misc/sandbox.html", whitelist_explaination=_wlist.explain(), whitelist=_wlist)
+    return render_template("misc/sandbox.html", whitelist_explaination=_wl.explain(), whitelist=_wl)
 
 
 @sandbox.route('/explain_nxlog/', methods=["POST"])
