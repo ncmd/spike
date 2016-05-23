@@ -88,6 +88,7 @@ def explain_whitelist():
     if _wl.errors:
         for error in _wl.errors:
             flash(error, category='error')
+            return render_template("misc/sandbox.html", whitelist=_wl)
     if _wl.warnings:
         for warnings in _wl.warnings:
             flash(warnings, category='warning')
