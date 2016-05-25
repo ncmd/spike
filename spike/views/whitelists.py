@@ -110,7 +110,7 @@ def new():
 
     logging.debug('Posted new request: %s', request.form)
 
-    mz = "|".join(filter(len, request.form.getlist("mz") + request.form.getlist("custom_mz_val")))
+    mz = request.form.getlist("mz") + request.form.getlist("custom_mz_val")
     wid = request.form.get('wl', '')
     whitelistset = request.form.get("whitelistset", '')
 
@@ -132,6 +132,7 @@ def new():
     elif warnings:
         flash(",".join(warnings), 'warning')
 
+    wlist.mz = '|'.join(wlist.mz)
     db.session.add(wlist)
     db.session.commit()
 

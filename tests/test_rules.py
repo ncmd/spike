@@ -181,12 +181,11 @@ class FlaskrTestCase(TestsThatNeedsRules):
                          ['Cookie in $HEADERS_VAR:Cookie is not lowercase. naxsi is case-insensitive',
                           'rule IDs below 10k are reserved (1000)'])
 
-        errors, warnings, ret = rule_parser.parse_rule('BasicRule "rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$" '
+        errors, warnings, ret = rule_parser.parse_rule('BasicRule "rx:^ratata$" "mz:$URL:/foobar" '
                                     'id:4200001 "s:$SQL:8";')
-        self.assertIn('$BODY_VAR_X', str(errors))
         self.assertIn('$URL', str(errors))
-        self.assertIn("You can't mix static $* with regex $*_X", str(errors))
-        self.assertIn("parsing of element 'mz:$URL:/foobar|$BODY_VAR_X:^tutu$' failed.", str(errors))
+        self.assertIn("The rule/whitelist doesn\'t target any zone.", str(errors))
+        self.assertIn("Parsing of element \'mz:$URL:/foobar\' failed.", str(errors))
 
         errors, warnings, ret = rule_parser.parse_rule('"rx:^ratata$" "mz:$URL:/foobar|$BODY_VAR_X:^tutu$"'
                                     'id:4200001 "s:$SQL:8";')
@@ -202,9 +201,9 @@ class FlaskrTestCase(TestsThatNeedsRules):
 
         errors, warnings, ret = rule_parser.parse_rule('MainRule "rx:select"'
                                     '"msg:sql keywords" "mz:BODY" "s:$SQL:4" "id:non_numeric";')
-        self.assertEqual(['id:non_numeric is not numeric', "parsing of element 'id:non_numeric' failed."],
+        self.assertEqual(['id:non_numeric is not numeric', "Parsing of element 'id:non_numeric' failed."],
                          errors)
 
         errors, warnings, ret = rule_parser.parse_rule('MainRule "rx:select" "mz:wrong" "msg:sql keywords" "s:$SQL:4" "id:10000";')
         self.assertIn("'wrong' is not a known sub-part of mz : ", str(errors))
-        self.assertIn("parsing of element 'mz:wrong' failed.", str(errors))
+        self.assertIn("Parsing of element 'mz:wrong' failed.", str(errors))

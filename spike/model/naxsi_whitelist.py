@@ -33,8 +33,6 @@ class NaxsiWhitelist(db.Model):
 
     def from_dict(self, d):
         for key, value in d.items():
-            if key == 'mz' and isinstance(value, list):
-                value = '|'.join(value)
             setattr(self, key, value)
         return self
 
