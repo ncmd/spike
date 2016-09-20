@@ -55,6 +55,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('sandbox.index') }}">Sandbox</a></li>
                         <li><a href="{{ url_for('default.download') }}">Download database</a></li>
+                        <li><a href="{{ url_for('configeditor.index') }}">Config Editor</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="https://github.com/nbs-system/naxsi/wiki/rulessyntax" target="_blank">Writing naxsi rules</a></li>
                         <li role="separator" class="divider"></li>
@@ -79,7 +80,7 @@
 
 
 {% block content %}
-    <div class="main-content">
+    <div class="container">
         <div class="row"><br><br><br></div>  <!-- This is ugly as fuck, fix it with css and love -->
 
         <div class="row">
