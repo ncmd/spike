@@ -1,0 +1,89 @@
+{% extends "misc/application.html" %}
+{% block title %}SPIKE! - WAF Rules Builder{% endblock %}
+
+{% block main %}
+
+    <h2>ConfigViewer  ( {{ fqdn }} )</h2>
+    <hr>
+
+    {% for location in locations %}
+    <h5><b>Location '{{ location.name }}'</b><br></h5>
+	<div class="row">
+    	<div class="form form-inline">
+		<td colspan="4">
+	  	<!-- status display for : naxsi status -->
+	  	naxsi status
+	  	{% if location.naxsi == "on" %}
+	  	<span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>
+	  	{% set status_on = 'active' %}
+	  	{% set status_off = '' %}
+	  	{% else %}
+	  	<span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
+	 	{% set status_on = '' %}
+		{% set status_off = 'active' %}
+	  	{% endif %}
+		</td>
+		<td colspan="4">
+	  	<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-success {{status_on}}">
+			  <input type="radio" name="options" id="option_on" autocomplete="off">Enable
+	    </label>
+	    <label class="btn btn-danger {{status_off}}">
+	      <input type="radio" name="options" id="option_off" autocomplete="off">Disable
+	    </label>
+	  </div>
+	</td>
+	<tr>
+	  <td colspan="4">
+	    <div class="form form-inline">
+	      <!-- status display for : naxsi learning -->
+	      naxsi learning
+	      {% if location.naxsi_learning == "on" %}
+	      <span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>	
+	      {% set status_on = 'active' %}
+	      {% set status_off = '' %}
+	      {% else %}
+	      <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
+	      {% set status_on = '' %}
+	      {% set status_off = 'active' %}
+	      {% endif %}
+	  </td>
+	  <td colspan="4">
+	    <div class="btn-group" data-toggle="buttons">
+	      <label class="btn btn-success {{status_on}}">
+		<input type="radio" name="options" id="option_on" autocomplete="off">Enable
+	      </label>
+	      <label class="btn btn-danger {{status_off}}">
+		<input type="radio" name="options" id="option_off" autocomplete="off">Disable
+	      </label>
+	    </div>
+          </div>
+</td>
+<tr>
+
+          <div class="form form-inline">
+	    <!-- status display for : auth -->
+	    location's authentication 
+	    {% if location.auth == "on" %}
+	    <span class="glyphicon glyphicon-lock" style="color:green" aria-hidden="true"></span>	
+	    {% set status_on = 'active' %}
+	    {% set status_off = '' %}
+	    {% else %}
+	    <span class="glyphicon glyphicon-lock" style="color:red" aria-hidden="true"></span>
+	    {% set status_on = '' %}
+	    {% set status_off = 'active' %}
+	    {% endif %}
+	    <div class="btn-group" data-toggle="buttons">
+	      <label class="btn btn-success {{status_on}}">
+		<input type="radio" name="options" id="option_on" autocomplete="off">Enable
+	      </label>
+	      <label class="btn btn-danger {{status_off}}">
+		<input type="radio" name="options" id="option_off" autocomplete="off">Disable
+	      </label>
+	    </div>
+          </div>
+	</div>
+	{% endfor %}
+
+{% endblock main %}
+

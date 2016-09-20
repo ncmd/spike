@@ -1,0 +1,62 @@
+{% extends "misc/application.html" %}
+{% block title %}SPIKE! - WAF Rules Builder{% endblock %}
+
+{% block main %}
+
+
+<h2>Global ConfigViewer View</h2>
+
+
+<!-- only display "load" block if present -->
+{% if nginx_dir != "" %}
+<div class="row">
+    <div class="col-md-9">
+        Load configuration from {{nginx_dir}}
+    </div>
+    <div class="col-md-3">
+        <a class="glyphicon glyphicon-refresh" style="color:green" aria-hidden="true" href="/configeditor/force-load"></a>
+    </div>
+</div>
+{% endif %}
+
+
+
+{% for group_name, group in all.items() %}
+
+<div class="row">
+    <h3> group : {{ group_name }} </h3>
+</div>
+
+
+{% for dict in group %}
+
+{% for fqdn, fqdn_dict in dict.items() %}
+
+<div class="row">
+    <div class="col-md-6">
+        {%if dict[fqdn]["summary"]["ssl"] == "on" %}<a href="/configeditor/{{fqdn}}/on"><b>[SSL]{{fqdn}}</b></a>
+        {%else%}
+        <a href="/configeditor/{{fqdn}}/off"><b>{{fqdn}}</b></a>
+        {%endif%}
+    </div>
+    <div class="col-md-6">
+        ({% for alt_fqdn in fqdn_dict.alt_fqdn %}{{alt_fqdn}} {% endfor %})
+    </div>
+</div>
+
+{% for loc_name,loc_dict in fqdn_dict["locations"].items() %}
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-10">{{ loc_name }}</div>
+</div>
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}
+
+
+{% endblock main %}
+

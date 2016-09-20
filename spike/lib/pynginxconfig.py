@@ -1,0 +1,427 @@
+'''
+======================================================================================================
+Copyright (c) 2013, Makarov Yurii 
+
+               All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+======================================================================================================
+'''
+
+import random
+import logging
+
+
+class NginxConfig:
+    def __init__(self, offset_char=' '):
+        self.i = 0 #char iterator for parsing
+        self.length = 0
+        self.config = ''
+        self.data = []
+        self.off_char = offset_char
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __setitem__(self, index, value):
+        self.data[index] = value
+
+    def __delitem__(self, index):
+        del self.data[index]
+
+    def __call__(self):
+        return self.gen_config()
+
+    def get_value(self, data):
+        if isinstance(data, tuple):
+            return data[1]
+        elif isinstance(data, dict):
+            return data['value']
+        else:
+            return data
+
+    def get_name(self, data):
+        if isinstance(data, tuple):
+            return data[0]
+        elif isinstance(data, dict):
+            return data['name']
+        else:
+            return data
+
+    def set(self, item_arr, value=None, param=None, name=None):
+        if isinstance(item_arr, str):
+            elem = item_arr
+            parent = self.data
+        elif isinstance(item_arr, list) and len(item_arr) == 1:
+            elem = item_arr[0]
+            parent = self.data
+        else:
+            elem = item_arr.pop()
+            parent = self.get_value(self.get(item_arr))
+
+        if parent is None:
+            raise KeyError('No such block.')
+
+        if isinstance(elem, str): # and isinstance(value, str):
+            #modifying text parameter
+            for i, param in enumerate(parent):
+                if isinstance(param, tuple):
+                    if param[0] == elem:
+                        if value is not None and name is not None:
+                            parent[i] = (name, value)
+                            return
+                        elif value is not None:
+                            parent[i] = (param[0], value)
+                            return
+                        elif name is not None:
+                            parent[i] = (name, param[1])
+                            return
+                        raise TypeError('Not expected value type')
+
+        elif isinstance(elem, tuple):
+            #modifying block
+            if len(elem) == 1:
+                elem = (elem[0], '')
+            for i, block in enumerate(parent):
+#                print "tuple+?? - set:check:"+str(param)
+                if isinstance(block, dict):
+                    if elem == (block['name'], block['param']):
+                        if value is not None and isinstance(value, list):
+                            parent[i]['value'] = value
+                            return
+                        if param is not None and isinstance(param, str):
+                            parent[i]['param'] = param
+                            return
+                        if name is not None and isinstance(name, str):
+                            parent[i]['name'] = name
+                            return
+                        raise TypeError('Not expected value type')
+        raise KeyError('No such parameter.')
+
+    def get(self, item_arr, data=[]):
+        if data == []:
+            data = self.data
+        if type(item_arr) in [str, tuple]:
+            item = item_arr
+        elif isinstance(item_arr, list):
+            if len(item_arr) == 1:
+                item = item_arr[0]
+            else:
+                element = item_arr.pop(0)
+                if isinstance(element, tuple):#cannot be a string
+                    if len(element) == 1:
+                        element = (element[0], '')
+                    for i, data_elem in enumerate(data):
+                        if isinstance(data_elem, dict):
+                            if (data_elem['name'], data_elem['param']) == element:
+                                return self.get(item_arr, self.get_value(data[i]))
+
+        if not 'item' in locals():
+            raise KeyError('Error while getting parameter.')
+        if isinstance(item, str):
+            for i, elem in enumerate(data):
+                if isinstance(elem, tuple):
+                    if elem[0] == item:
+                        return data[i]
+        elif isinstance(item, tuple):
+            if len(item) == 1:
+                item = (item[0], '')
+            for i, elem in enumerate(data):
+                if isinstance(elem, dict):
+                    if (elem['name'], elem['param']) == item:
+                        return data[i]
+        return None
+    
+
+    def append(self, item, root=[], position=None):
+        if root == []:
+            root = self.data
+        elif root is None:
+            raise AttributeError('Root element is None')
+        if position:
+            root.insert(position, item)
+        else:
+            root.append(item)
+
+    def remove(self, item_arr, data=[]):
+        if data == []:
+            data = self.data
+        if type(item_arr) in [str, tuple]:
+            item = item_arr
+        elif isinstance(item_arr, list):
+            if len(item_arr) == 1:
+                item = item_arr[0]
+            else:
+                elem = item_arr.pop(0)
+                if type(elem) in [tuple,str]:
+                    self.remove(item_arr, self.get_value(self.get(elem, data)))
+                    return
+
+        if isinstance(item, str):
+            for i,elem in enumerate(data):
+                if isinstance(elem, tuple):
+                    if elem[0] == item:
+                        del data[i]
+                        return
+        elif isinstance(item, tuple):
+            if len(item) == 1:
+                item = (item[0], '')
+            for i,elem in enumerate(data):
+                if isinstance(elem, dict):
+                    if (elem['name'], elem['param']) == item:
+                        del data[i]
+                        return
+        else:
+            raise AttributeError("Unknown item type '%s' in item_arr" % item.__class__.__name__)
+        raise KeyError('Unable to remove')
+
+    def load(self, config, follow_includes = True, fake_root=''):
+        self.config = config
+        self.length = len(config) - 1
+        self.i = 0
+        self.data = self.parse_block()
+        if follow_includes:
+            self.data = self.post_parse(self.data, fake_root)
+
+    def loadf(self, filename, follow_includes = True, fake_root=''):
+        #print "load : {0} ({1} ?)".format(filename, fake_root)
+        f = None
+        try:
+            try:
+                f = open(filename, 'r')
+            except:
+                print "DIDN'T OPEN {0}".format(filename)
+                return
+            conf = f.read()
+            self.load(conf, follow_includes, fake_root)
+        finally:
+            if f:
+                f.close()
+            else:
+                print "ERR: CANNOT OPEN {0}".format(filename)
+
+    def savef(self, filename):
+        try:
+            f = open(filename, 'w')
+            self.off_char = ' '
+            conf = self.gen_block(self.data, 0, do_write=True)
+            f.write(conf)
+        finally:
+            f.close()
+
+    def parse_block(self):
+        data = []
+        param_name = None
+        param_value = None
+        buf = ''
+        while self.i < self.length:
+            if self.config[self.i] == '\n': #multiline value
+                if buf and param_name:
+                    if param_value is None:
+                        param_value = []
+                    param_value.append(buf.strip())
+                    buf = ''
+            # space / tabulation
+            elif self.config[self.i] == ' ' or self.config[self.i] == '\t':
+                if not param_name and len(buf.strip()) > 0:
+                    param_name = buf.strip()
+                    buf = ''
+                else:
+                    buf += self.config[self.i]
+            # end of line
+            elif self.config[self.i] == ';':
+                if isinstance(param_value, list):
+                    param_value.append(buf.strip())
+                else:
+                    param_value = buf.strip()
+                # If it's single keyword (ie. 'internal'), set it as param_name
+                if param_name is None:
+                    data.append((param_value, ''))
+                else:
+                    data.append((param_name, param_value))
+                param_name = None
+                param_value = None
+                buf = ''
+            # new block
+            elif self.config[self.i] == '{':
+                self.i += 1
+                block = self.parse_block()
+                data.append({'name':param_name, 'param':buf.strip(), 'value':block})
+                param_name = None
+                param_value = None
+                buf = ''
+            # end of block
+            elif self.config[self.i] == '}':
+                self.i += 1
+                return data
+            # comments
+            elif self.config[self.i] == '#':
+                x = self.i
+                while self.i < self.length and self.config[self.i] != '\n':
+                    self.i += 1
+                data.append((self.config[x:self.i], ''))
+            # double-quoted string
+            elif self.config[self.i] == '"': #fast forward to end of quoted string.
+                buf += self.config[self.i]
+                self.i += 1
+                while self.i < self.length and self.config[self.i] != '"':
+                    buf += self.config[self.i]
+                    if self.config[self.i] == '\\':
+                        self.i += 1
+                    self.i += 1
+                buf += self.config[self.i]
+            # simple-quoted string
+            elif self.config[self.i] == "'": #fast forward to end of quoted string.
+                buf += self.config[self.i]
+                self.i += 1
+                while self.i < self.length and self.config[self.i] != "'":
+                    buf += self.config[self.i]
+                    if self.config[self.i] == '\\':
+                        self.i += 1
+                    self.i += 1
+                buf += self.config[self.i]
+            else:
+                buf += self.config[self.i]
+            self.i += 1
+        return data
+    def gen_block(self, blocks, offset, do_write=False):
+        subrez = '' # ready to return string
+        block_name = None
+        block_param = ''
+        for i, block in enumerate(blocks):
+            if isinstance(block, tuple):
+                if isinstance(block[1], str):
+                    subrez += self.off_char * offset + '%s %s;\n' % (block[0], block[1])
+                else: #multiline
+                    subrez += self.off_char * offset + '%s %s;\n' % (block[0], 
+                        self.gen_block(block[1], offset + len(block[0]) + 1, do_write))
+
+            elif isinstance(block, dict):
+                if block['name'] == "include":
+                    subrez += self.off_char * offset + '%s %s;\n' % (block['name'], block['param'])
+                    include = self.gen_block(block['value'], 0, do_write)
+                    if do_write is True:
+                        print "[!] Attempt write to : "+block['param']
+                        try:
+                            fd = open(include+".1", 'w')
+                            fd.write(include)
+                            fd.close()
+                        except:
+                            print "Unable to write to included file ["+block['param']+".1]"
+                        print "[*] Success"
+                    else:
+                        print "[!] No write to :"+block['param']+", content :"
+                        print include
+                        print "--------"
+                    continue
+                block_value = self.gen_block(block['value'], offset + 4, do_write)
+                if block['param']:
+                    param = block['param'] + ' '
+                else:
+                    param = ''
+                if subrez != '':
+                    subrez += '\n'
+                subrez += '%(offset)s%(name)s %(param)s{\n%(data)s%(offset)s}\n' % {
+                    'offset':self.off_char * offset, 'name':block['name'], 'data':block_value,
+                    'param':param}
+
+            elif isinstance(block, str): #multiline params
+                if i == 0:
+                    subrez += '%s\n' % block
+                else:
+                    subrez += '%s%s\n' % (self.off_char * offset, block)
+
+        if block_name:
+            return '%(offset)s%(name)s %(param)s{\n%(data)s%(offset)s}\n' % {
+                'offset':self.off_char * offset, 'name':block_name, 'data':subrez,
+                'param':block_param}
+        else:
+            return subrez
+
+    def gen_config(self, offset_char=' '):
+        self.off_char = offset_char
+        return self.gen_block(self.data, 0)
+    
+    #####################################
+    ##### SPECIFIC CODE STARTS HERE #####
+    #####################################
+
+    def append_block_to_block(self, item_arr, data):
+        block = self.get(item_arr)
+        self.append(data, block['value'])
+
+    # Resolve includes
+    def post_parse(self, blocks, fake_root):
+        '''called by .load() to resolve includes'''
+        sub = NginxConfig()
+        for i, block in enumerate(blocks):
+            # Dict is for blocks
+            if isinstance(block, dict):
+                self.post_parse(block["value"], fake_root)
+            # Parse only tuple with two elements, as it is for includes
+            if isinstance(block, tuple) and len(block) == 2:
+                if block[0] == "include":
+                    # I think this will change in final integration [TBD]
+                    if block[1].find("*") != -1:
+                        print "[!] Wildcard include, DO NOT PARSE ("+block[1]+")"
+                    else:
+                        #print "[*] Parse include ("+fake_root + '/' + block[1]+")"
+                        sub.loadf(fake_root + '/' + block[1], fake_root=fake_root)
+                        blocks[i] = {'name' : 'include', 'param' : block[1], 'value' : sub.data}
+                        #blocks[i] = sub.data
+        return blocks
+
+    # Exctract values
+    def extract_values(self, key, blocks = None):
+        '''called to exctract all values for a given key'''
+        if None == blocks:
+            blocks = self.data
+        ret = []
+        for i, block in enumerate(blocks):
+            # Dict is for blocks
+            if isinstance(block, dict):
+                ret.extend(self.extract_values(key, block['value']))
+                continue
+            # Parse only tuple with two elements, as it is for includes
+            if isinstance(block, tuple):
+                if key == block[0]:
+                    val = block[1:]
+                    if 1 == len(val):
+                        val = val[0]
+                    ret.append(val)
+        return ret
+        
+    # To be called AFTER template has been loaded, fed from site.get reply            
+    def subparse(self, blocks, callback, path=[], extra=[]):
+        for i, block in enumerate(blocks):
+            if isinstance(block, dict):
+                if block['name'] == "server":
+                    path.append('server:'+block['param'])
+                    self.subparse(block['value'], callback, path, extra)
+                    path.pop()
+                    continue
+                if block['name'] == "location":
+                    path.append('location:'+block['param'])
+                    self.subparse(block['value'], callback, path, extra)
+                    path.pop()
+                    continue
+                if block['name'] == 'include':
+                    #don't append to path
+                    self.subparse(block['value'], callback, path, extra)
+                    continue
+            if isinstance(block, tuple):
+                callback(path, block, extra)
