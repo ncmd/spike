@@ -12,46 +12,32 @@ from spike.lib.pynaxsiconfig import NginxNaxsiConfig
 configeditor = Blueprint('configeditor', __name__)
 
 
-def load_fqdn_from_file(rfqdn, ssl="on"):
-    cfg_dump = current_app.config["NGINX_CFG_DUMP"]
-    x = open(cfg_dump, 'r')
-    js = json.loads(x.read())
-    for group in js.keys():
-        for dict in js[group]:
-            if rfqdn in dict.keys() and dict[rfqdn]["summary"]["ssl"] == ssl:
-                return dict[rfqdn]
-    return {}
 
-def load_location_from_fqdn(location, fqdn_data):
-    if fqdn_data is None:
-        return None
-    for t in fqdn_data["locations"].keys():
-        if t == location:
-            return fqdn_data["locations"][location]
-    return None
+#todo : fix the fact that main_file points to the previous one rather than the current one ^^
+
 
 
 def apply_change(old_rx, newline, filename, append=None):
     print "apply change : replace {0} by {1} in {2} (or append {3})".format(old_rx, newline, filename, append)
     if filename is None:
-        newtext = "#No config file to edit"
+        newtext = "#No config file to edit<br>\n"
         return newtext
     fd = open(filename, "r")
-    newtext = "#Suggested diff for : {0}\n".format(filename)
+    newtext = "#Suggested diff for : {0}<br>\n<br>".format(filename)
     edited_lines = 0
     if not fd:
         return -1
     for line in fd:
         if old_rx is not None and re.match(old_rx, line):
             print "found/replace line {0}".format(line)
-            newtext += "#" + line
-            newtext += newline + "\n"
+            newtext += "#" + line + "<br>\n"
+            newtext += newline + "<br>\n"
             edited_lines += 1
         else:
-            newtext += line
+            newtext += line + "<br>\n"
     fd.close()
     if append is not None:
-        newtext += "\n#automatically append\n{0}\n".format(append)
+        newtext += "\n#automatically append<br>\n{0}<br>\n".format(append)
     return newtext
 
 
@@ -59,12 +45,14 @@ def apply_change(old_rx, newline, filename, append=None):
 def write():
     fqdn = request.form["fqdn"]
     loc_name = request.form["location"]
+    ssl = request.form["ssl"]
+    nx = NginxNaxsiConfig()
+    append = ""
 
-    location = load_location_from_fqdn(loc_name, load_fqdn_from_file(fqdn))
+    location = nx.load_location_from_fqdn(loc_name, nx.load_fqdn_from_file(fqdn, ssl))
     if location is None:
         flash("Unable to load fqdn/location.")
         return "bad fqdn."
-
     txt = ""
     # check if checkrules changed
     for key in request.form.keys():
@@ -106,11 +94,15 @@ def write():
             elif val == "off":
                 find_rx = r"^\s*LearningMode\s*;.*$"
                 newline = ""
-                append = None
-            txt = apply_change(find_rx, newline, location["summary"].get("naxsi_path"), append=append)
+                append = ""
+            txt = apply_change(find_rx, newline, location["summary"].get("naxsi_learning_path"), append=append)
         elif key not in ["location", "fqdn"]:
             flash("unexpected data : {0} - {1}".format(key, val))
+    if append is not "":
+        txt += "#Append this line :<br>\n{0}<br>\n".format(append)
     if txt is not "":
+        #location
+        txt = "#Included from {0}<br>\n".format(location["summary"]["main_file"]) + txt
         return txt
     return "ok."
 
@@ -124,17 +116,16 @@ def force_load():
     return redirect("/configeditor")
     pass
 
-@configeditor.route("/", methods=["GET"])
-@configeditor.route("/<fqdn>", methods=["GET"])
 @configeditor.route("/<fqdn>/<ssl>", methods=["GET"])
+@configeditor.route("/<fqdn>", methods=["GET"])
+@configeditor.route("/", methods=["GET"])
 def index(fqdn=None, ssl="on"):
     cfg = NginxNaxsiConfig()
-
     if fqdn is None:
         all = cfg.load_current_config()
         return render_template("configeditor/fqdn-list.html", all=all, nginx_dir=current_app.config["NGINX_CFG_DIR"])
 
-    datas = load_fqdn_from_file(fqdn, ssl)
-    pprint.pprint(datas)
+    nx = NginxNaxsiConfig()
+    datas = nx.load_fqdn_from_file(fqdn, ssl)
     return render_template("configeditor/index.html", fqdn=fqdn,
                            data=datas)

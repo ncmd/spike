@@ -5,25 +5,21 @@ import re
 import sys
 import json
 from flask import current_app, flash
-
-
-
-# Exemple usage
-#x = NginxNaxsiConfig(current_app.config["NGINX_CFG_DIR"], "/home/bui/nbs-git/hosting-proxies/cerberhost_prod/",
-#                     current_app.config["NGINX_CFG_DUMP"])
-#x.process_arbo()
+import copy
 
 
 
 class NginxNaxsiConfig:
     #naxsi keywords
+    template_summary = {"naxsi": "off", "naxsi_learning": "off", "auth": "off", "ssl": "off"}
     nk_enabled = ['SecRulesEnabled']
     nk_learning = ['LearningMode']
     nk_denied = ['DeniedUrl']
     nk_checkrule = ['CheckRule']
     nk_basic = ['BasicRule']
     nk_main = ['MainRule']
-    NAXSI_KEYWORDS = nk_basic+nk_learning+nk_denied+nk_checkrule+nk_basic+nk_main
+    NAXSI_KEYWORDS = nk_enabled+nk_learning+nk_denied+nk_checkrule+nk_basic+nk_main
+
     def __init__(self, nginx_dir=None, fake_root=None, outfile=None):
         """
         Dummy init, does nothing but store path to nginx config (from .conf)
@@ -57,18 +53,45 @@ class NginxNaxsiConfig:
         self.current_group = ""
         self.ssl_enabled = False
 
+
+
     def load_current_config(self):
         """
         Loads current config from json file
         :return dict:
         """
-        cfg_dump = self.outfile
         try:
-            x = open(cfg_dump, 'r')
+            x = open(self.outfile, 'r')
         except:
+            print "Unable to load cfg ..."
             return {}
-        all = json.loads(x.read())
-        return all
+        jsdata = json.loads(x.read())
+        return jsdata
+
+    def load_fqdn_from_file(self, rfqdn, ssl="on"):
+        x = self.load_current_config()
+        for group in x.keys():
+            for dict in x[group]:
+                if rfqdn in dict.keys() and dict[rfqdn]["summary"]["ssl"] == ssl:
+                    print "full fqdn dump------------"
+                    pprint.pprint(dict[rfqdn])
+                    print "/-------------------------"
+                    return dict[rfqdn]
+        return {}
+
+    def load_location_from_fqdn(self, location, fqdn_data):
+        if fqdn_data is None or fqdn_data is {}:
+            flash("empty fqdn data")
+            return None
+        for t in fqdn_data["locations"].keys():
+            if t == location:
+                print "full location dump-------------"
+                pprint.pprint(fqdn_data["locations"][location])
+                return fqdn_data["locations"][location]
+        return None
+
+
+
 
     def new_server_name(self):
         """
@@ -77,7 +100,7 @@ class NginxNaxsiConfig:
         :return: None
         """
         # init a new server block
-        self.current_server_config[self.current_fqdn] = {"alt_fqdn": [], "locations": {}, "summary": {"auth": "off", "ssl": "off"}}
+        self.current_server_config[self.current_fqdn] = {"alt_fqdn": [], "locations": {}, "summary": copy.copy(self.template_summary)}
         self.current_location = None
         # ssl can be specified after or before server_name
         if self.ssl_enabled is True:
@@ -90,13 +113,13 @@ class NginxNaxsiConfig:
         :arg: None
         :return: None
         """
+        tpl_location = {"alt_fqdn": [], "locations": {}, "summary": copy.copy(self.template_summary)}
         if self.current_fqdn is None:
             print "fqdn was none"
             self.current_fqdn = "_"
-            self.current_server_config[self.current_fqdn] = {"alt_fqdn": [], "locations": {}, "summary": {"auth": "off", "ssl" : "off"}}
-        self.current_server_config[self.current_fqdn]["locations"][self.current_location] = {"summary": {"naxsi": "off",
-                                                                              "naxsi_learning": "off",
-                                                                              "auth": "off"}, "checkrules": []}
+            self.current_server_config[self.current_fqdn] = tpl_location
+        self.current_server_config[self.current_fqdn]["locations"][self.current_location] = {"summary": copy.copy(self.template_summary), "checkrules": []}
+        self.current_server_config[self.current_fqdn]["locations"][self.current_location]["summary"]["main_file"] = self.current_file
 
     def parse_checkrule(self, block):
         """
@@ -139,20 +162,22 @@ class NginxNaxsiConfig:
         return fqdn, alt_fqdn
 
     def process_block(self, block, fname=None):
+        ofname=None
         if fname is not None:
-            self.current_file = self.fake_root + fname
-        #print "[FQDN:{0}|LOCATION:{1}|FILE:{2}] type :{3}".format(self.current_fqdn, self.current_location, self.current_file, type(block))
-        #pprint.pprint(block)
+            self.current_file = self.fake_root+ fname
         if type(block) == dict:
             if block["name"] == "include":
+                ofname = copy.copy(self.current_file)
                 self.process_block(block["value"], block["param"])
+                self.current_file = ofname
             elif block["name"] == "location":
+                print "## Seeing location {0} while in {1}".format(block["param"],
+                                                                self.current_file)
                 self.current_location = block["param"]
                 self.new_location()
                 self.process_block(block["value"])
             elif block["name"] == "server":
                 if self.current_server_config != {}:
-                    #pprint.pprint(block)
                     print "[x] appending {0} to group {1}".format(self.current_fqdn, self.current_group)
                     self.parsed_results[self.current_group].append(self.current_server_config)
                 #try to guess a group name /sites-available/ /sites-enabled/
@@ -169,13 +194,13 @@ class NginxNaxsiConfig:
                 self.process_block(block["value"])
         elif type(block) == tuple:
             if block[0] in self.NAXSI_KEYWORDS:
-                if block[0] in ['SecRulesEnabled']:
+                if block[0] in self.nk_enabled:
                     self.current_server_config[self.current_fqdn]["locations"][self.current_location]["summary"]["naxsi"] = "on"
                     self.current_server_config[self.current_fqdn]["locations"][self.current_location]["summary"]["naxsi_path"] = self.current_file
-                if block[0] in ['LearningMode']:
+                if block[0] in self.nk_learning:
                     self.current_server_config[self.current_fqdn]["locations"][self.current_location]["summary"]["naxsi_learning"] = "on"
                     self.current_server_config[self.current_fqdn]["locations"][self.current_location]["summary"]["naxsi_learning_path"] = self.current_file
-                if block[0] in ['CheckRule']:
+                if block[0] in self.nk_checkrule:
                     cr = self.parse_checkrule(block[1])
                     cr["fname"] = self.current_file
                     self.current_server_config[self.current_fqdn]["locations"][self.current_location]["checkrules"].append(cr)

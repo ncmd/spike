@@ -1,6 +1,7 @@
 import logging
 import re
 import string
+import pprint
 
 from time import time
 from flask import Blueprint, render_template, request, redirect, flash, Response, url_for
@@ -218,6 +219,7 @@ def import_rules():
         potential_imports += 1
         _rule = NaxsiRules(ruleset=ruleset, active=1)
         errors, warnings, rule = _rule.parse_rule(potential_rule)
+        pprint.pprint(rule)
 
         if errors:
             flash("Fail to parse %s: %s" % (potential_rule, ', '.join(errors)), 'error')

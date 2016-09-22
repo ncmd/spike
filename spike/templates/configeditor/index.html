@@ -4,7 +4,13 @@
 {% block main %}
 
 
-<h2>ConfigViewer ( {{ fqdn }} )</h2>
+<h2>( {{ fqdn }} )
+    {% if data.summary.ssl == "on" %}
+    [SSL]
+    {% else %}
+    [NO-SSL]
+    {% endif %}
+</h2>
 <hr>
 
 {% for location_name, location in data["locations"].items() %}
@@ -12,136 +18,138 @@
 {% set outer_loop = loop %}
 
 <form action="/configeditor/write/" method="POST">
+    <input type="hidden" name="ssl" value="{{data.summary.ssl}}">
     <input type="hidden" name="fqdn" value="{{fqdn}}">
     <input type="hidden" name="location" value="{{location_name}}">
 
-<h2><b>Location '{{ location_name }}'</b></h2>
-<br>
+    <h2><b>Location '{{ location_name }}'</b></h2>
+    <br>
 
-<div class="row">
-    <div class="col-md-4">
-        <!-- status display for : naxsi status -->
-        naxsi status
-    </div>
-    <div class="col-md-4">
-        {% if location.summary.naxsi == "on" %}
-        <span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>
-        {% else %}
-        <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
-        {% endif %}
-    </div>
-    <div class="col-md-2">
-        <label class="btn btn-success">
-            <!-- XXXX naxsi status : {{ location.summary.naxsi }} -->
-            <input type="radio" name="naxsi" value="on" id="option_naxsi"
-                   autocomplete="off" {{ "checked" if location.summary.naxsi == "on" }}>Enable
-        </label>
-    </div>
-    <div class="col-md-2">
-        <label class="btn btn-danger">
-            <input type="radio" name="naxsi" value="off" id="option_naxsi"
-                   autocomplete="off" {{ "checked" if location.summary.naxsi == "off" }}>Disable
-        </label>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <!-- status display for : naxsi learning -->
-        naxsi learning
-    </div>
-    <div class="col-md-4">
-        {% if location.summary.naxsi_learning == "on" %}
-        <span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>
-        {% set status_on = 'active' %}
-        {% set status_off = '' %}
-        {% else %}
-        <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
-        {% set status_on = '' %}
-        {% set status_off = 'active' %}
-        {% endif %}
-    </div>
-    <div class="col-md-2">
-        <label class="btn btn-success">
-            <input type="radio" name="learning"  value="on" id="learning"
-                   autocomplete="off" {{ "checked" if location.summary.naxsi_learning == "on" }}>Enable
-        </label>
-    </div>
-    <div class="col-md-2">
-        <label class="btn btn-danger">
-            <input type="radio" name="learning" value="off" id="learning"
-                   autocomplete="off" {{ "checked" if location.summary.naxsi_learning == "off" }}>Disable
-        </label>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <!-- status display for : auth -->
-        location's authentication
-    </div>
-    <div class="col-md-4">
-        {% if location.summary.auth == "on" %}
-        <span class="glyphicon glyphicon-lock" style="color:green" aria-hidden="true"></span>
-        {% set status_on = 'active' %}
-        {% set status_off = '' %}
-        {% else %}
-        <span class="glyphicon glyphicon-lock" style="color:red" aria-hidden="true"></span>
-        {% set status_on = '' %}
-        {% set status_off = 'active' %}
-        {% endif %}
-    </div>
-</div>
-
-
-{% if location.checkrules|length > 0 %}
-<div class="row">
-    <div class="col-md-6"><h5>CheckRules ({{ location.checkrules|length }}) </h5></div>
-    <div class="col-md-1">
-        <button type="button" class="btn" data-toggle="collapse" data-target="#naxsi-{{loop.index}}">+</button>
-    </div>
-</div>
-<div class="row">
-    <div id="naxsi-{{loop.index}}" class="collapse">
-        {% for checkrule in location.checkrules %}
-        <!-- checkrules display -->
-        <div class="row">
-            <div class="col-md-4">
-                {{ checkrule.label }}
-            </div>
-            <div class="col-md-4">
-                {{ checkrule.score }}
-            </div>
-
-
-            <div class="col-md-1"><label class="btn btn-default"><input type="radio" value="OFF"
-                                                                        name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
-                                                                        autocomplete="off" {{ "checked" if
-                checkrule.action
-                ==
-                "none" }}>OFF</label></div>
-            <div class="col-md-1"><label class="btn btn-info"><input type="radio" value="LOG"
-                                                                     name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
-                                                                     autocomplete="off" {{ "checked" if checkrule.action
-                ==
-                "LOG" }}>LOG</label></div>
-            <div class="col-md-1"><label class="btn btn-warning"><input type="radio" value="BLOCK"
-                                                                        name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
-                                                                        autocomplete="off" {{ "checked" if
-                checkrule.action
-                ==
-                "BLOCK" }}>BLOCK</label></div>
-            <div class="col-md-1"><label class="btn btn-danger"><input type="radio" value="DROP"
-                                                                       name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
-                                                                       autocomplete="off" {{ "checked" if
-                checkrule.action
-                ==
-                "DROP" }}>DROP</label></div>
+    <div class="row">
+        <div class="col-md-4">
+            <!-- status display for : naxsi status -->
+            naxsi status
         </div>
-        {% endfor %}
-        <hr>
+        <div class="col-md-4">
+            {% if location.summary.naxsi == "on" %}
+            <span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>
+            {% else %}
+            <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
+            {% endif %}
+        </div>
+        <div class="col-md-2">
+            <label class="btn btn-success">
+                <!-- XXXX naxsi status : {{ location.summary.naxsi }} -->
+                <input type="radio" name="naxsi" value="on" id="option_naxsi"
+                       autocomplete="off" {{ "checked" if location.summary.naxsi == "on" }}>Enable
+            </label>
+        </div>
+        <div class="col-md-2">
+            <label class="btn btn-danger">
+                <input type="radio" name="naxsi" value="off" id="option_naxsi"
+                       autocomplete="off" {{ "checked" if location.summary.naxsi == "off" }}>Disable
+            </label>
+        </div>
     </div>
-</div>
-{% endif %}
-<button type="submit" class="btn btn-default">Save</button>
+    <div class="row">
+        <div class="col-md-4">
+            <!-- status display for : naxsi learning -->
+            naxsi learning
+        </div>
+        <div class="col-md-4">
+            {% if location.summary.naxsi_learning == "on" %}
+            <span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span>
+            {% set status_on = 'active' %}
+            {% set status_off = '' %}
+            {% else %}
+            <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span>
+            {% set status_on = '' %}
+            {% set status_off = 'active' %}
+            {% endif %}
+        </div>
+        <div class="col-md-2">
+            <label class="btn btn-success">
+                <input type="radio" name="learning" value="on" id="learning"
+                       autocomplete="off" {{ "checked" if location.summary.naxsi_learning == "on" }}>Enable
+            </label>
+        </div>
+        <div class="col-md-2">
+            <label class="btn btn-danger">
+                <input type="radio" name="learning" value="off" id="learning"
+                       autocomplete="off" {{ "checked" if location.summary.naxsi_learning == "off" }}>Disable
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <!-- status display for : auth -->
+            location's authentication
+        </div>
+        <div class="col-md-4">
+            {% if location.summary.auth == "on" %}
+            <span class="glyphicon glyphicon-lock" style="color:green" aria-hidden="true"></span>
+            {% set status_on = 'active' %}
+            {% set status_off = '' %}
+            {% else %}
+            <span class="glyphicon glyphicon-lock" style="color:red" aria-hidden="true"></span>
+            {% set status_on = '' %}
+            {% set status_off = 'active' %}
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% if location.checkrules|length > 0 %}
+    <div class="row">
+        <div class="col-md-6"><h5>CheckRules ({{ location.checkrules|length }}) </h5></div>
+        <div class="col-md-1">
+            <button type="button" class="btn" data-toggle="collapse" data-target="#naxsi-{{loop.index}}">+</button>
+        </div>
+    </div>
+    <div class="row">
+        <div id="naxsi-{{loop.index}}" class="collapse">
+            {% for checkrule in location.checkrules %}
+            <!-- checkrules display -->
+            <div class="row">
+                <div class="col-md-4">
+                    {{ checkrule.label }}
+                </div>
+                <div class="col-md-4">
+                    {{ checkrule.score }}
+                </div>
+
+
+                <div class="col-md-1"><label class="btn btn-default"><input type="radio" value="OFF"
+                                                                            name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
+                                                                            autocomplete="off" {{ "checked" if
+                    checkrule.action
+                    ==
+                    "none" }}>OFF</label></div>
+                <div class="col-md-1"><label class="btn btn-info"><input type="radio" value="LOG"
+                                                                         name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
+                                                                         autocomplete="off" {{ "checked" if
+                    checkrule.action
+                    ==
+                    "LOG" }}>LOG</label></div>
+                <div class="col-md-1"><label class="btn btn-warning"><input type="radio" value="BLOCK"
+                                                                            name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
+                                                                            autocomplete="off" {{ "checked" if
+                    checkrule.action
+                    ==
+                    "BLOCK" }}>BLOCK</label></div>
+                <div class="col-md-1"><label class="btn btn-danger"><input type="radio" value="DROP"
+                                                                           name="checkrule_{{checkrule.label}}_{{checkrule.score}}"
+                                                                           autocomplete="off" {{ "checked" if
+                    checkrule.action
+                    ==
+                    "DROP" }}>DROP</label></div>
+            </div>
+            {% endfor %}
+            <hr>
+        </div>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-default">Save</button>
 </form>
 {% endfor %}
 
