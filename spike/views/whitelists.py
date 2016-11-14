@@ -70,7 +70,7 @@ def generate():
         flash('Please input nxlogs')
         return render_template("misc/whitelist_generator.html")
 
-    whitelist = list()
+    whitelist = set()
     for nxlog in nxlogs.split('\n'):
         if not nxlog:
             continue
@@ -94,14 +94,14 @@ def generate():
             _id = "id{}".format(cpt)
             _var_name = "var_name{}".format(cpt)
             _zone = "zone{}".format(cpt)
-            if '|NAME' in _zone:
-                whitelist.append('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_zone]))
+            if '|NAME' in nxdic[_zone]:
+                whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_zone]))
             elif "var_name{}".format(cpt) in nxdic:
-                whitelist.append('BasicRule wl:{} "mz:{}:{}"'.format(nxdic[_id], "$"+nxdic[_zone]+"_VAR", nxdic[_var_name]))
+                whitelist.add('BasicRule wl:{} "mz:{}:{}"'.format(nxdic[_id], "$"+nxdic[_zone]+"_VAR", nxdic[_var_name]))
             else:
-                whitelist.append('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_var_name]))
+                whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_var_name]))
             cpt += 1
-    return render_template("misc/whitelist_generator.html", whitelist='\n'.join(whitelist) + ';', nxlogs=nxlogs)
+    return render_template("misc/whitelist_generator.html", whitelist='<br>'.join(whitelist) + ';', nxlogs=nxlogs)
 
 
 @whitelists.route('/new', methods=["GET", "POST"])
