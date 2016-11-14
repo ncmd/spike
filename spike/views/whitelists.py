@@ -72,6 +72,7 @@ def generate():
 
     whitelist = set()
     for nxlog in nxlogs.split('\n'):
+        nxlog = nxlog.strip()
         if not nxlog:
             continue
         start = nxlog.find("ip=")
@@ -99,7 +100,7 @@ def generate():
             elif "var_name{}".format(cpt) in nxdic:
                 whitelist.add('BasicRule wl:{} "mz:{}:{}"'.format(nxdic[_id], "$"+nxdic[_zone]+"_VAR", nxdic[_var_name]))
             else:
-                whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_var_name]))
+                whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_zone]))
             cpt += 1
     return render_template("misc/whitelist_generator.html", whitelist='<br>'.join(whitelist) + ';', nxlogs=nxlogs)
 
