@@ -95,8 +95,11 @@ def generate():
             _id = "id{}".format(cpt)
             _var_name = "var_name{}".format(cpt)
             _zone = "zone{}".format(cpt)
-            if '|NAME' in nxdic[_zone]:
-                whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_zone]))
+            if nxdic[_zone].endswith('|NAME'):
+                if "var_name{}".format(cpt) in nxdic:
+                    whitelist.add('BasicRule wl:{} "mz:${}_VAR:{}|NAME"'.format(nxdic[_id], nxdic[_zone][:4], nxdic[_var_name]))
+                else:
+                    whitelist.add('BasicRule wl:{} "mz:{}"'.format(nxdic[_id], nxdic[_zone]))
             elif "var_name{}".format(cpt) in nxdic:
                 whitelist.add('BasicRule wl:{} "mz:{}:{}"'.format(nxdic[_id], "$"+nxdic[_zone]+"_VAR", nxdic[_var_name]))
             else:
