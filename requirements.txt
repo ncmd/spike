@@ -3,5 +3,5 @@ markdown
 flask
 flask-bootstrap
 flask-sqlalchemy
--e git+http://github.com/nbs-system/nxapi/#egg=nxapi
+-e git+http://github.com/nbs-system/nxapi-ng/#egg=nxapi
 
