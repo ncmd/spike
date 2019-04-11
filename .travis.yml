@@ -4,17 +4,8 @@ cache: pip
 
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.5-dev"
-  - "nightly"
+  - "3.7"
 
 script:
   - pip install -r requirements.txt
-  - pip install coveralls nose2 nose2-cov
   - python ./spike-server.py init
-  - coverage run --source=spike -m nose2.__main__ -v
-
-after_success:
-  - coveralls

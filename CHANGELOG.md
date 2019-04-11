@@ -1,5 +1,13 @@
 # Spike - ChangeLog
 
+## 0.5.2 - 2019-04-11
+- exposed flask service to run on 0.0.0.0 to be dockerized
+
+## 0.5.1 - 2019-04-10
+- fixed import errors with flask.ext.alchemy & flask.ext.bootstrap
+- added missing package python-dateutil to requirements.txt
+
+
 ## 0.5 - TBA
 - boostrap and jquery update
 - removal of backup/import/export features

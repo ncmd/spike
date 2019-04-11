@@ -25,7 +25,7 @@ def run(debug=False):
     try:
         host = app.config["APP_HOST"]
     except KeyError:
-        host = '127.0.0.1'
+        host = '0.0.0.0'
 
     try:
         port = int(app.config["APP_PORT"])

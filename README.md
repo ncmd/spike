@@ -1,10 +1,5 @@
 # Spike! - Naxsi Rules Builder
-
-[![Code Health](https://landscape.io/github/nbs-system/spike/master/landscape.svg?style=flat)](https://landscape.io/github/nbs-system/spike/master)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/f16a87616f3c4e14ac914fea520298e7)](https://www.codacy.com/app/julien-voisin/spike)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nbs-system/spike/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nbs-system/spike/?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/nbs-system/spike/badge.svg?branch=master)](https://coveralls.io/github/nbs-system/spike?branch=master)
-[![Build Status](https://travis-ci.org/nbs-system/spike.svg?branch=master)](https://travis-ci.org/nbs-system/spike)
+[![Build Status](https://travis-ci.org/ncmd/spike.svg?branch=master)](https://travis-ci.org/ncmd/spike)
 
 Spike is a simple web application to manage [naxsi]( https://github.com/nbs-system/naxsi ) rules.
 Rules are stored in a [sqlite]( https://www.sqlite.org/ ) database, and can be added,
@@ -29,7 +24,6 @@ You can take a look [here]( http://spike.nginx-goodies.com/rules/ ) for a  live 
 > lead into damaged or deleted rules 
 >
 > Really
-
 
 # Spike Installation and Setup
 
@@ -73,9 +67,9 @@ Check the config.cfg file:
 - **APP_PORT**: the port the spike-server listens on (defaults to 5555)
 - **APP_HOST**: the ip to bind to (defaults to 127.0.0.1)
 - **RULESET_HEADER**: the header that get written to each ruleset.rules; you might use some placeholders:
-    - **RULESET_DESC**: value from DESC
-    - **RULESET_FILE**: ruleset_filename
-    - **RULESET_DATE**: export-date
+- **RULESET_DESC**: value from DESC
+- **RULESET_FILE**: ruleset_filename
+- **RULESET_DATE**: export-date
 
 
 ### Putting Spike behind Nginx
@@ -84,7 +78,7 @@ Check the config.cfg file:
     server {
         server_tokens off;
         listen 443 ssl;
-        server_name spike.nginx-goodies.com  ;
+        server_name spike.securethebox.us  ;
         
         proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header    X-Real-IP         $remote_addr;
@@ -94,7 +88,7 @@ Check the config.cfg file:
         access_log  /var/log/nginx/spike.access.log; 
         error_log  /var/log/nginx/error.log;
         
-        root /var//www/spike;
+        root /var/www/spike;
         
         location  /static {
             autoindex off;
