@@ -5,6 +5,4 @@ spike/rules.db*
 *.log
 *.pid
 *.out
-
-
-
+venv/*
