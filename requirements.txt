@@ -3,5 +3,6 @@ markdown
 flask
 flask-bootstrap
 flask-sqlalchemy
+python-dateutil
 -e git+http://github.com/nbs-system/nxapi-ng/#egg=nxapi
 

@@ -52,10 +52,18 @@ You can also install the following optional dependencies:
 ### Setup
 
 ```bash
-git clone https://github.com/nbs-system/spike
+git clone https://github.com/ncmd/spike
+pip install virtualenv
+cd spike
+virtualenv venv
+source venv/bin/activate
 pip install -r requirements.txt
 python ./spike-server.py init
 python ./spike-server.py run
+
+Visit http://127.0.0.1:5555
+To exit virtual environment:
+deactivate
 ```
 
 ### Configuration

@@ -3,7 +3,7 @@ import os
 import logging
 
 from flask import Flask
-from flask.ext.bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap
 
 from spike.views import default, rules, rulesets, sandbox, whitelists, whitelistsets
 from spike.model import db
